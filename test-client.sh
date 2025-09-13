@@ -1,1 +1,1 @@
-curl -X POST --data-binary @156817671_UserManual_0c696b41-4e62-4e21-a7ee-23a8b1a14aa4.pdf -o curl.txt 0.0.0.0:8080
+curl -X POST --data-binary @test-input.pdf -o curl.txt 0.0.0.0:8080
