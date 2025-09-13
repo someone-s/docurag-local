@@ -1,5 +1,5 @@
 services:
-  document-to-text:
-    build: ./document-to-text
+  extract:
+    build: ./extract
     ports:
       - 8080:8080
