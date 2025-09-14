@@ -23,6 +23,29 @@ services:
       POSTGRES_DB: store_db
     volumes: # Volumne for data return after restart
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  manage:
+    build: ./manage
+    container_name: mange
+    environment:
+      VECTOR_DIM: 1024
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: store_db
+      POSTGRES_SERVICEORIP: store
+      POSTGRES_PORT: 5432
+    depends_on:
+      store:
+        condition: service_healthy
+        restart: true
+    ports:
+      - 8085:8085
 
 volumes:
   postgres_data:
