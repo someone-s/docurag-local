@@ -59,5 +59,5 @@ class FetchRequestItem(BaseModel):
 @app.post('/fetch')
 def fetch(item: FetchRequestItem):
     embedding = np.array(item.embed)
-    result = conn.execute('SELECT content FROM chunks ORDER BY embedding <-> %s LIMIT 5', (embedding,)).fetchall()
-    return [row[0] for row in result]
+    result = conn.execute('SELECT id, content FROM chunks ORDER BY embedding <-> %s LIMIT 5', (embedding,)).fetchall()
+    return [{'id': row[0], 'text': row[1]} for row in result]

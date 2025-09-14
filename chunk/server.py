@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import FastAPI
 
 import os
@@ -21,11 +22,14 @@ chunker = semchunk.chunkerify(tokenizer, max_size - 50)
 
 
 class ChunkRequestItem(BaseModel):
-    name: str = Field(description="String name of the document/group associated with the text")
-    text: str = Field(description="String text to chunk")
+    name: Annotated[str | None, Field(description="Optional string name of the document/group associated with the text")] = None
+    text: Annotated[str, Field(description="String text to chunk")]
 
 @app.post("/")
 async def chunk(item: ChunkRequestItem):
 
     chunks:list[str] = chunker(item.text, overlap=0.5)
-    return list(map(lambda text: 'part of ' + item.name + ': ' + text, chunks))
+    if item.name == None:
+        return chunks
+    else:
+        return list(map(lambda text: 'part of ' + item.name + ': ' + text, chunks))
