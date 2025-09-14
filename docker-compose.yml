@@ -9,8 +9,25 @@ services:
   chunk:
     build: ./chunk
     container_name: chunk
+    environment:
+      MODEL: mixedbread-ai/mxbai-embed-large-v1
+      MAX_SIZE: 512
+      PAD_LEFT: false
+      # MODEL: Qwen/Qwen3-Embedding-0.6B
+      # MAX_SIZE: 8192
+      # PAD_LEFT: true
     ports:
       - 8090:8090
+      
+  embed:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.8
+    container_name: embed
+    volumes: # Volumne for data return after restart
+      - embed_data:/data
+    ports:
+      - 8095:80
+    command: "--model-id mixedbread-ai/mxbai-embed-large-v1"
+    # command: "--model-id Qwen/Qwen3-Embedding-0.6B"
 
   store:
     image: pgvector/pgvector:pg17  # Prebuilt Postgres image with pgvector
@@ -49,3 +66,4 @@ services:
 
 volumes:
   postgres_data:
+  embed_data:
