@@ -1,25 +1,34 @@
-import json
 from typing import Annotated
 from fastapi import FastAPI, File, HTTPException, UploadFile
 
-from fastapi.responses import PlainTextResponse
 import requests
-
 import math
+import os
+
+extract_serviceorip = os.environ['EXTRACT_SERVICEORIP']
+extract_port = os.environ['EXTRACT_PORT']
+chunk_serviceorip = os.environ['CHUNK_SERVICEORIP']
+chunk_port = os.environ['CHUNK_PORT']
+embed_serviceorip = os.environ['EMBED_SERVICEORIP']
+embed_port = os.environ['EMBED_PORT']
+manage_serviceorip = os.environ['MANAGE_SERVICEORIP']
+manage_port = os.environ['MANAGE_PORT']
 
 app = FastAPI()
 batch_size = 32
 
 @app.post('/upload')
-async def upload(file: Annotated[UploadFile, File(description="A PDF to convert to text")]):
+async def upload(\
+    document_name: Annotated[str, File(description="Document name to associate with file")],\
+    file: Annotated[UploadFile, File(description="A PDF to convert to text")]):
     
-    extract_req = requests.post('http://0.0.0.0:8080/', files=dict(file=await file.read()))
+    extract_req = requests.post(f'http://{extract_serviceorip}:{extract_port}/', files=dict(file=await file.read()))
     if extract_req.status_code != 200:
         raise HTTPException(status_code=extract_req.status_code, detail=extract_req.reason)
     
     plain = extract_req.text
 
-    chunk_req = requests.post('http://0.0.0.0:8090/', json={'name': "Zanussi", 'text': plain})
+    chunk_req = requests.post(f'http://{chunk_serviceorip}:{chunk_port}/', json={'name': document_name, 'text': plain})
     if chunk_req.status_code != 200:
         raise HTTPException(status_code=chunk_req.status_code, detail=chunk_req.reason)
     
@@ -34,7 +43,7 @@ async def upload(file: Annotated[UploadFile, File(description="A PDF to convert 
             ]
 
         embed_input = { 'inputs': actual_text }
-        embed_req = requests.post('http://0.0.0.0:8095/embed', json=embed_input)
+        embed_req = requests.post(f'http://{embed_serviceorip}:{embed_port}/embed', json=embed_input)
         if embed_req.status_code != 200:
             raise HTTPException(status_code=embed_req.status_code, detail=embed_req.reason)
         embed_output = embed_req.json() # array of embed vectors (which are each array numbers)
@@ -48,9 +57,6 @@ async def upload(file: Annotated[UploadFile, File(description="A PDF to convert 
                 'chunk_content': actual_text[i],
                 'embed': embed_output[i]
             }
-            manage_req = requests.post('http://0.0.0.0:8085/add', json=manage_input)
+            manage_req = requests.post(f'http://{manage_serviceorip}:{manage_port}/add', json=manage_input)
             if manage_req.status_code != 200:
                 raise HTTPException(status_code=manage_req.status_code, detail=manage_req.reason)
-
-    return "1"
-
