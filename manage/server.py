@@ -25,6 +25,8 @@ while conn == None:
 
 conn.execute('CREATE EXTENSION IF NOT EXISTS vector')
 register_vector(conn)
+
+
 conn.execute(f'CREATE TABLE IF NOT EXISTS chunks (id bigserial PRIMARY KEY, content text, embedding vector({vector_dimension}))')
 
 app = FastAPI()
@@ -38,7 +40,7 @@ def wipe():
 
 class AddRequestItem(BaseModel):
     chunk_content: str = Field(description="String representing the chunk text")
-    embed: list[int] = Field(description="Array of int representing the embed vector")
+    embed: list[float] = Field(description="Array of int representing the embed vector")
 
 @app.post('/add')
 def add(item: AddRequestItem):
@@ -46,7 +48,7 @@ def add(item: AddRequestItem):
     conn.execute('INSERT INTO chunks (content, embedding) VALUES (%s, %s)', (item.chunk_content, embedding,))
 
 class FetchRequestItem(BaseModel):
-    embed: list[int] = Field(description="Array of int representing the embed vector")
+    embed: list[float] = Field(description="Array of int representing the embed vector")
 
 @app.post('/fetch')
 def fetch(item: FetchRequestItem):
