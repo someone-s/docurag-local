@@ -6,9 +6,13 @@ from transformers import AutoTokenizer, PreTrainedTokenizer
 
 app = FastAPI()
 
-tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen3-Embedding-0.6B', padding_side='left')
-# QWEN3 max size is 8192 but we'll not use the whole so that we can prepend file name
-chunker = semchunk.chunkerify(tokenizer, 4096)
+# MXBAI max size is 512 but we'll not use the whole so that we can prepend file name
+tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained('mixedbread-ai/mxbai-embed-large-v1')
+chunker = semchunk.chunkerify(tokenizer, 512 - 50)
+
+# # QWEN3 max size is 8192 but we'll not use the whole so that we can prepend file name
+# tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen3-Embedding-0.6B', padding_side='left')
+# chunker = semchunk.chunkerify(tokenizer, 8192 - 50)
 
 @app.post("/")
 async def chunk(\
