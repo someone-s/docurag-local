@@ -1,9 +1,16 @@
 services:
+
   extract:
     build: ./extract
     container_name: extract
     ports:
       - 8080:8080
+
+  chunk:
+    build: ./chunk
+    container_name: chunk
+    ports:
+      - 8090:8090
 
   store:
     image: pgvector/pgvector:pg17  # Prebuilt Postgres image with pgvector
