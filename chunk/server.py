@@ -1,8 +1,8 @@
-from typing import Annotated
-from fastapi import FastAPI, File
+from fastapi import FastAPI
 
 import os
 
+from pydantic import BaseModel, Field
 import semchunk
 from transformers import AutoTokenizer, PreTrainedTokenizer
 
@@ -19,10 +19,13 @@ else:
 
 chunker = semchunk.chunkerify(tokenizer, max_size - 50)
 
-@app.post("/")
-async def chunk(\
-    name: Annotated[str, File(description="String name of the document/group associated with the text")], \
-    text: Annotated[str, File(description="String text to chunk")]):
 
-    chunks:list[str] = chunker(text, overlap=0.5)
-    return list(map(lambda text: 'part of ' + name + ': ' + text, chunks))
+class ChunkRequestItem(BaseModel):
+    name: str = Field(description="String name of the document/group associated with the text")
+    text: str = Field(description="String text to chunk")
+
+@app.post("/")
+async def chunk(item: ChunkRequestItem):
+
+    chunks:list[str] = chunker(item.text, overlap=0.5)
+    return list(map(lambda text: 'part of ' + item.name + ': ' + text, chunks))
