@@ -9,6 +9,6 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY server.py ./
 
-EXPOSE 8090
+EXPOSE 8080
 
-CMD [ "fastapi", "run", "./server.py", "--port", "8090" ]
+CMD [ "fastapi", "run", "./server.py", "--port", "8080" ]

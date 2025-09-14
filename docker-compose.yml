@@ -17,7 +17,7 @@ services:
       # MAX_SIZE: 8192
       # PAD_LEFT: true
     ports:
-      - 8090:8090
+      - 8090:8080
       
   embed:
     image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.8
@@ -62,7 +62,7 @@ services:
         condition: service_healthy
         restart: true
     ports:
-      - 8085:8085
+      - 8085:8080
 
 volumes:
   postgres_data:
