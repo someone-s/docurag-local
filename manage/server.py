@@ -10,8 +10,15 @@ import numpy as np
 from pgvector.psycopg import register_vector
 import psycopg
 
+
 vector_dimension = int(os.environ['VECTOR_DIM'])
-db_resource = f'postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@{os.environ['POSTGRES_SERVICEORIP']}:{os.environ['POSTGRES_PORT']}/{os.environ['POSTGRES_DB']}'
+postgres_user = os.environ['POSTGRES_USER']
+postgres_password = os.environ['POSTGRES_PASSWORD']
+postgres_serviceorip = os.environ['POSTGRES_SERVICEORIP']
+postgres_port = os.environ['POSTGRES_PORT']
+postgres_db = os.environ['POSTGRES_DB']
+
+db_resource = f'postgresql://{postgres_user}:{postgres_password}@{postgres_serviceorip}:{postgres_port}/{postgres_db}'
 print(db_resource)
 
 conn = None
