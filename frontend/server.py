@@ -61,7 +61,7 @@ async def upload(\
 
 
 class QueryRequestItem(BaseModel):
-    text: str = Field(description="String representing the chunk text")
+    text: Annotated[str, Field(description="String representing the chunk text")]
 
 @app.post('/query')
 async def query(item: QueryRequestItem):

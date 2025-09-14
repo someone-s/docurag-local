@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
@@ -45,8 +46,8 @@ def wipe():
 
 
 class AddRequestItem(BaseModel):
-    chunk_content: str = Field(description="String representing the chunk text")
-    embed: list[float] = Field(description="Array of int representing the embed vector")
+    chunk_content: Annotated[str, Field(description="String representing the chunk text")]
+    embed: Annotated[list[float], Field(description="Array of int representing the embed vector")]
 
 @app.post('/add')
 def add(item: AddRequestItem):
@@ -54,7 +55,7 @@ def add(item: AddRequestItem):
     conn.execute('INSERT INTO chunks (content, embedding) VALUES (%s, %s)', (item.chunk_content, embedding,))
 
 class FetchRequestItem(BaseModel):
-    embed: list[float] = Field(description="Array of int representing the embed vector")
+    embed: Annotated[list[float], Field(description="Array of int representing the embed vector")]
 
 @app.post('/fetch')
 def fetch(item: FetchRequestItem):
