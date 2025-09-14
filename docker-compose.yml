@@ -1,5 +1,21 @@
 services:
   extract:
     build: ./extract
+    container_name: extract
     ports:
       - 8080:8080
+
+  store:
+    image: pgvector/pgvector:pg17  # Prebuilt Postgres image with pgvector
+    container_name: store
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: store_db
+    volumes: # Volumne for data return after restart
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

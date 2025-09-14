@@ -11,4 +11,4 @@ COPY server.py ./
 
 EXPOSE 8080
 
-CMD [ "python", "./server.py", "0.0.0.0", "8080" ]
+CMD [ "fastapi", "run", "./server.py", "--port", "8080" ]

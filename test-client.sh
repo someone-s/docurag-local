@@ -1,1 +1,1 @@
-curl -X POST --data-binary @test-input.pdf -o curl.txt 0.0.0.0:8080
+curl -L -F "file=@test-input.pdf" -o curl.txt 0.0.0.0:8080
