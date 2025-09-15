@@ -83,7 +83,9 @@ async def query(websocket: WebSocket):
     await websocket.send_json({'type': 'log', 'message': "Received messsage"})
     await asyncio.sleep(0.0001)
 
-    chunk_req = requests.post(f'http://{chunk_serviceorip}:{chunk_port}/', json={'text': item['text']})
+    query_text = item['text']
+
+    chunk_req = requests.post(f'http://{chunk_serviceorip}:{chunk_port}/', json={'text': query_text})
     if chunk_req.status_code != 200:
         raise HTTPException(status_code=chunk_req.status_code, detail=chunk_req.reason)
     await websocket.send_json({'type': 'log', 'message': "Chunk complete"})
@@ -121,22 +123,6 @@ async def query(websocket: WebSocket):
             
             for manage_item in maange_output:
                 relevant_text[manage_item['id']] = manage_item['text']
-    
-    # generate_input = { 
-    #     'inputs':\
-    #         "You are a repair chatbot, you are presented with a Question and a few Facts that are relevant to the Question, answer the Question based on the Facts provided\n\n" +\
-    #         f"Question: {actual_text}\n\n" +\
-            
-    # } 
-    # await websocket.send_json({'type': 'log', 'message': "Sending Message", 'item': generate_input})
-    # await asyncio.sleep(0.0001)
-    # generate_res = requests.post(f'http://{generate_serviceorip}:{generate_port}/generate_stream', json=generate_input, stream=True)
-    # if generate_res.status_code != 200:
-    #     raise HTTPException(status_code=generate_res.status_code, detail=generate_res.reason)
-    # generate_client = sseclient.SSEClient(generate_res)
-    # for event in generate_client.events():
-    #     #await websocket.send_json(json.loads(event.data))
-    #     await asyncio.sleep(0.0001)
 
     stream = await client.responses.create(
         model="gpt-5-nano",
@@ -155,7 +141,7 @@ async def query(websocket: WebSocket):
             "content": [
                 {
                 "type": "input_text",
-                "text": f"I need you the chatbot to answer my question: {actual_text}, with the facts I'm listing below:\n{"\n\n".join([ f"Begin Fact {i}:\n{text}\nEnd Fact {i}" for i, text in enumerate(relevant_text.values())])}"
+                "text": f"I need you the chatbot to answer my question: {query_text}, with the facts I'm listing below:\n{"\n\n".join([ f"Begin Fact {i}:\n{text}\nEnd Fact {i}" for i, text in enumerate(relevant_text.values())])}"
                 }
             ]
             },
@@ -184,16 +170,3 @@ async def query(websocket: WebSocket):
             await asyncio.sleep(0.0001)
 
     await websocket.send_json({'type': 'log', 'message': "Done"})
-
-
-# generate_input = { 
-#     'inputs': 'what is chatgpt'
-# } 
-# generate_res = requests.post(f'http://0.0.0.0:8083/generate_stream', json=generate_input, stream=True)
-# if generate_res.status_code != 200:
-#     raise HTTPException(status_code=generate_res.status_code, detail=generate_res.reason)
-# generate_client = sseclient.SSEClient(generate_res)
-
-# for event in generate_client.events():
-#     print(json.loads(event.data))
-
