@@ -16,7 +16,7 @@ manage_serviceorip = os.environ['MANAGE_SERVICEORIP']
 manage_port = os.environ['MANAGE_PORT']
 
 app = FastAPI()
-batch_size = 32
+batch_size = os.environ['EMBED_BATCH_SIZE']
 
 @app.post('/upload')
 async def upload(\
