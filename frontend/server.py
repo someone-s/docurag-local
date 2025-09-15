@@ -2,14 +2,12 @@ import asyncio
 from typing import Annotated
 from fastapi import FastAPI, File, HTTPException, UploadFile, WebSocket
 
-import json
-import sseclient
 from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
-from pydantic import BaseModel, Field
 import requests
-import math
 import os
+
+from database import retreive_from_database, store_to_database
 
 extract_serviceorip = os.environ['EXTRACT_SERVICEORIP']
 extract_port = os.environ['EXTRACT_PORT']
@@ -41,39 +39,7 @@ async def upload(\
     
     plain = extract_req.text
 
-    chunk_req = requests.post(f'http://{chunk_serviceorip}:{chunk_port}/', json={'name': document_name, 'text': plain})
-    if chunk_req.status_code != 200:
-        raise HTTPException(status_code=chunk_req.status_code, detail=chunk_req.reason)
-    
-    chunks_array = chunk_req.json()
-    batch_count = math.ceil(len(chunks_array) / batch_size)
-
-    for batch in range(batch_count):
-
-        actual_text = chunks_array[
-                batch*batch_size:
-                (batch+1)*batch_size
-            ]
-
-        embed_input = { 'inputs': actual_text }
-        embed_req = requests.post(f'http://{embed_serviceorip}:{embed_port}/embed', json=embed_input)
-        if embed_req.status_code != 200:
-            raise HTTPException(status_code=embed_req.status_code, detail=embed_req.reason)
-        embed_output = embed_req.json() # array of embed vectors (which are each array numbers)
-
-        for i in range(len(embed_output)):
-
-            manage_input = {
-                'chunk_content': actual_text[i],
-                'embed': embed_output[i]
-            }
-            manage_req = requests.post(f'http://{manage_serviceorip}:{manage_port}/add', json=manage_input)
-            if manage_req.status_code != 200:
-                raise HTTPException(status_code=manage_req.status_code, detail=manage_req.reason)
-
-
-class QueryRequestItem(BaseModel):
-    text: Annotated[str, Field(description="String representing the chunk text")]
+    store_to_database(document_name, plain)
 
 @app.websocket('/query')
 async def query(websocket: WebSocket):
@@ -85,44 +51,7 @@ async def query(websocket: WebSocket):
 
     query_text = item['text']
 
-    chunk_req = requests.post(f'http://{chunk_serviceorip}:{chunk_port}/', json={'text': query_text})
-    if chunk_req.status_code != 200:
-        raise HTTPException(status_code=chunk_req.status_code, detail=chunk_req.reason)
-    await websocket.send_json({'type': 'log', 'message': "Chunk complete"})
-    await asyncio.sleep(0.0001)
-    
-    chunks_array = chunk_req.json()
-    batch_count = math.ceil(len(chunks_array) / batch_size)
-
-    relevant_text = {}
-
-    for batch in range(batch_count):
-
-        actual_text = chunks_array[
-                batch*batch_size:
-                (batch+1)*batch_size
-            ]
-
-        embed_input = { 'inputs': actual_text }
-        embed_req = requests.post(f'http://{embed_serviceorip}:{embed_port}/embed', json=embed_input)
-        if embed_req.status_code != 200:
-            raise HTTPException(status_code=embed_req.status_code, detail=embed_req.reason)
-        embed_output = embed_req.json() # array of embed vectors (which are each array numbers)
-        await websocket.send_json({'type': 'log', 'message': "One embed batch complete"})
-        await asyncio.sleep(0.0001)
-
-        for i in range(len(embed_output)):
-
-            manage_input = { 'embed': embed_output[i] }
-            manage_req = requests.post(f'http://{manage_serviceorip}:{manage_port}/fetch', json=manage_input)
-            if manage_req.status_code != 200:
-                raise HTTPException(status_code=manage_req.status_code, detail=manage_req.reason)
-            maange_output = manage_req.json()
-            await websocket.send_json({'type': 'log', 'message': "One embed fetch complete"})
-            await asyncio.sleep(0.0001)
-            
-            for manage_item in maange_output:
-                relevant_text[manage_item['id']] = manage_item['text']
+    relevant_text = await retreive_from_database(query_text)
 
     stream = await client.responses.create(
         model="gpt-5-nano",
