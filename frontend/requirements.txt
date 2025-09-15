@@ -1,4 +1,8 @@
+distro==1.9.0
+jiter==0.11.0
+openai==1.107.2
 requests==2.25.1
+sseclient-py==1.8.0
 MarkupSafe==3.0.2
 annotated-types==0.7.0
 anyio==4.10.0

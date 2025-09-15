@@ -60,23 +60,6 @@ services:
         restart: true
     ports:
       - 8085:8080
-    
-  generate:  # internal port is 80
-    image: ghcr.io/huggingface/text-generation-inference:3.3.4
-    container_name: generate
-    volumes: # Volumne for data return after restart
-      - generate_data:/data
-    shm_size: 64g
-    command: "--model-id Qwen/Qwen3-0.6B" # gemma3 need forced dtype to float16 or will cause cuda crash
-    deploy: 
-      resources: 
-        reservations: 
-          devices: 
-          - driver: nvidia 
-            count: all 
-            capabilities: [gpu]
-    ports:
-      - 8083:80
   
   frontend:  # internal port is 8080
     build: ./frontend
@@ -90,7 +73,11 @@ services:
       EMBED_PORT: 80
       MANAGE_SERVICEORIP: mange
       MANAGE_PORT: 8080
+      GENERATE_SERVICEORIP: generate
+      GENERATE_PORT: 80
       EMBED_BATCH_SIZE: 32
+    env_file:
+      - path: keys.env
     ports:
       - 8081:8080
 
