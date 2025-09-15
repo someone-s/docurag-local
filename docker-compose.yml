@@ -20,7 +20,7 @@ services:
     #   - 8090:8080
       
   embed:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.8
+    image: ghcr.io/huggingface/text-embeddings-inference:turing-1.8
     container_name: embed
     volumes: # Volumne for data return after restart
       - embed_data:/data
@@ -28,6 +28,13 @@ services:
     #   - 8095:80
     command: "--model-id mixedbread-ai/mxbai-embed-large-v1"
     # command: "--model-id Qwen/Qwen3-Embedding-0.6B"
+    deploy: 
+      resources: 
+        reservations: 
+          devices: 
+          - driver: nvidia 
+            count: all 
+            capabilities: [gpu]
 
   store:
     image: pgvector/pgvector:pg17  # Prebuilt Postgres image with pgvector
