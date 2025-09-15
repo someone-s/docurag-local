@@ -1,33 +1,23 @@
 services:
 
-  extract:
+  extract: # internal port is 8080
     build: ./extract
     container_name: extract
-    # ports:
-    #   - 8080:8080
 
-  chunk:
+  chunk:  # internal port is 8080
     build: ./chunk
     container_name: chunk
     environment:
-      # MODEL: mixedbread-ai/mxbai-embed-large-v1
-      # MAX_SIZE: 512
-      # PAD_LEFT: false
-      MODEL: Qwen/Qwen3-Embedding-0.6B
-      MAX_SIZE: 8192
-      PAD_LEFT: true
-    # ports:
-    #   - 8090:8080
+      MODEL: mixedbread-ai/mxbai-embed-large-v1 # or Qwen/Qwen3-Embedding-0.6B
+      MAX_SIZE: 512 # for Qwen3 this is 8192
+      PAD_LEFT: false # for Qwen3 this is true
       
-  embed:
+  embed:  # internal port is 80
     image: ghcr.io/huggingface/text-embeddings-inference:turing-1.8
     container_name: embed
     volumes: # Volumne for data return after restart
       - embed_data:/data
-    # ports:
-    #   - 8095:80
-    # command: "--model-id mixedbread-ai/mxbai-embed-large-v1"
-    command: "--model-id Qwen/Qwen3-Embedding-0.6B  --max-client-batch-size 32"
+    command: "--model-id mixedbread-ai/mxbai-embed-large-v1" # change model i.e. "--model-id Qwen/Qwen3-Embedding-0.6B"
     deploy: 
       resources: 
         reservations: 
@@ -36,7 +26,7 @@ services:
             count: all 
             capabilities: [gpu]
 
-  store:
+  store:  # internal port is 5432
     image: pgvector/pgvector:pg17  # Prebuilt Postgres image with pgvector
     container_name: store
     ports:
@@ -54,7 +44,7 @@ services:
       start_period: 30s
       timeout: 10s
 
-  manage:
+  manage:   # internal port is 8080
     build: ./manage
     container_name: mange
     environment:
@@ -70,8 +60,25 @@ services:
         restart: true
     ports:
       - 8085:8080
+    
+  generate:  # internal port is 80
+    image: ghcr.io/huggingface/text-generation-inference:3.3.4
+    container_name: generate
+    volumes: # Volumne for data return after restart
+      - generate_data:/data
+    shm_size: 64g
+    command: "--model-id Qwen/Qwen3-0.6B" # gemma3 need forced dtype to float16 or will cause cuda crash
+    deploy: 
+      resources: 
+        reservations: 
+          devices: 
+          - driver: nvidia 
+            count: all 
+            capabilities: [gpu]
+    ports:
+      - 8083:80
   
-  frontend:
+  frontend:  # internal port is 8080
     build: ./frontend
     container_name: frontend
     environment:
@@ -90,3 +97,4 @@ services:
 volumes:
   postgres_data:
   embed_data:
+  generate_data:
