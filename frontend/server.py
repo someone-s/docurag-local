@@ -11,14 +11,6 @@ from database import retreive_from_database, store_to_database
 
 extract_serviceorip = os.environ['EXTRACT_SERVICEORIP']
 extract_port = os.environ['EXTRACT_PORT']
-chunk_serviceorip = os.environ['CHUNK_SERVICEORIP']
-chunk_port = os.environ['CHUNK_PORT']
-embed_serviceorip = os.environ['EMBED_SERVICEORIP']
-embed_port = os.environ['EMBED_PORT']
-manage_serviceorip = os.environ['MANAGE_SERVICEORIP']
-manage_port = os.environ['MANAGE_PORT']
-generate_serviceorip = os.environ['GENERATE_SERVICEORIP']
-generate_port = os.environ['GENERATE_PORT']
 
 client = AsyncOpenAI(
     # This is the default and can be omitted
@@ -26,7 +18,6 @@ client = AsyncOpenAI(
 )
 
 app = FastAPI()
-batch_size = int(os.environ['EMBED_BATCH_SIZE'])
 
 @app.post('/upload')
 async def upload(\
