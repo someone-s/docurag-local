@@ -5,7 +5,9 @@ from fastapi import FastAPI, File, HTTPException, Response, UploadFile, WebSocke
 from openai import AsyncOpenAI
 import os
 
-from frontend_database import DocumentRequest, wipe_database, fetch_document_from_database
+from pydantic import BaseModel, Field
+
+from frontend_database import wipe_database, fetch_document_from_database, delete_document_and_embed_from_database
 
 from frontend_upload import extract_information, store_information
 from frontend_query import receive_parameters, retrive_relevant, generate_inference
@@ -20,8 +22,6 @@ app = FastAPI()
 @app.post('/wipe')
 def wipe():
     wipe_database()
-
-    file: Annotated[UploadFile, File(description="A PDF to convert to text")]
 
 @app.websocket('/upload')
 async def upload(websocket: WebSocket):
@@ -90,14 +90,19 @@ async def query(websocket: WebSocket):
 
 
 @app.get(
-    '/document/{document_id}', 
+    '/document/fetch/{document_id}', 
     responses ={ 200: { "content": {'application/pdf': {}} } }, 
     response_class=Response
 )
-def document(document_id: int):
-    response = fetch_document_from_database(DocumentRequest(
-        document_id=document_id
-    ))
-    if response == None:
+def get_document(document_id: int):
+    binary_response = fetch_document_from_database(document_id)
+    if binary_response == None:
         raise HTTPException(status_code=404, detail="document not found")
-    return Response(content=response.data, media_type='application/pdf')
+    return Response(content=binary_response, media_type='application/pdf')
+
+class DeleteRequest(BaseModel):
+    document_id: Annotated[int, Field("int id of the document to delete")]
+
+@app.post('/document/delete')
+def delete_document(request: DeleteRequest):
+    delete_document_and_embed_from_database(request.document_id)

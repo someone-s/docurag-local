@@ -31,30 +31,31 @@ async def retrive_relevant(
     query_chunks = get_chunk(query_text)
     query_embeds = get_embed(query_chunks)
     for query_embed in query_embeds:
-        response = fetch_embed_from_database(FetchEmbedRequest(
+        responses = fetch_embed_from_database(FetchEmbedRequest(
             query_embed=query_embed,
             machine_make=machine_make,
             machine_name=machine_name,
             machine_category=machine_category,
             machine_model=machine_model
         ))
-        if response == None:
-            continue
-        machine = response.machine
-        document = response.document
-        section = response.section
+        
+        for response in responses:
+            machine = response.machine
+            document = response.document
+            section = response.section
 
-        relevant_texts.append(RelevantText(
-            document_id=document.id,
-            machine_make=machine.make,
-            machine_name=machine.name,
-            machine_category=machine.category,
-            machine_model=machine.model,
-            document_category=document.category,
-            section_text=section.text,
-            section_start=section.start,
-            section_end=section.end
-        ))
+            relevant_texts.append(RelevantText(
+                document_id=document.id,
+                machine_make=machine.make,
+                machine_name=machine.name,
+                machine_category=machine.category,
+                machine_model=machine.model,
+                document_category=document.category,
+                section_text=section.text,
+                section_start=section.start,
+                section_end=section.end
+            ))
+            
     return relevant_texts
 
 async def receive_parameters(fetch_input_hook: Callable[[], Awaitable[str]]) -> tuple[str|None, str|None, str|None, str|None, str]:

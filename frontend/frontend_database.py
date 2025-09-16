@@ -64,6 +64,7 @@ def wipe_database():
     delete_database()
     create_if_not_exist_database()
 
+
 class Machine(BaseModel):
     make: Annotated[str, Field(description="String common name of machine")]
     name: Annotated[str, Field(description="String manufacturer of machine")]
@@ -163,7 +164,7 @@ class FetchEmbedResponse(BaseModel):
     document: Annotated[FetchEmbedDocument, Field(description="Document of the retrieved section")]
     section: Annotated[FetchEmbedSection, Field(description="The section in the document")]
 
-def fetch_embed_from_database(request: FetchEmbedRequest) -> FetchEmbedResponse|None:
+def fetch_embed_from_database(request: FetchEmbedRequest) -> list[FetchEmbedResponse]:
     create_if_not_exist_database()
 
     filters = []
@@ -180,7 +181,7 @@ def fetch_embed_from_database(request: FetchEmbedRequest) -> FetchEmbedResponse|
     if len(filters) > 0: 
         filter_query = f'WHERE {' AND '.join(filters)}'
 
-    embed_result = conn.execute((
+    embed_results = conn.execute((
         f'SELECT '
             f'machine_make,' #0
             f'machine_name,' #1
@@ -195,60 +196,69 @@ def fetch_embed_from_database(request: FetchEmbedRequest) -> FetchEmbedResponse|
         f'{filter_query} '
         f'ORDER BY segment_embed <-> '
         '%s '
-        f'LIMIT 1'
-    ), (np.array(request.query_embed),)).fetchone()
+        f'LIMIT 3'
+    ), (np.array(request.query_embed),)).fetchall()
+
+    responses: list[FetchEmbedResponse] = []
+
+    for embed_result in embed_results:
+
+        document_result = conn.execute((
+            f'SELECT '
+                f'document_id,' #0
+                f'document_category ' #1
+            f'FROM documents '
+            f'WHERE document_id = {embed_result[4]} '
+            f'LIMIT 1'
+        )).fetchone()
+
+        responses.append(FetchEmbedResponse(
+            machine=Machine(
+                make=embed_result[0],
+                name=embed_result[1],
+                category=embed_result[2],
+                model=embed_result[3]
+            ),
+            document=FetchEmbedDocument(
+                id=document_result[0],
+                category=document_result[1],
+            ),
+            section=FetchEmbedSection(
+                name=embed_result[5],
+                text=embed_result[6],
+                start=embed_result[7],
+                end=embed_result[8]
+            )
+        ))
     
-    if embed_result == None:
-        return None
+    return responses
 
-    document_result = conn.execute((
-        f'SELECT '
-            f'document_id,' #0
-            f'document_category ' #1
-        f'FROM documents '
-        f'WHERE document_id = {embed_result[4]} '
-        f'LIMIT 1'
-    )).fetchone()
 
-    return FetchEmbedResponse(
-        machine=Machine(
-            make=embed_result[0],
-            name=embed_result[1],
-            category=embed_result[2],
-            model=embed_result[3]
-        ),
-        document=FetchEmbedDocument(
-            id=document_result[0],
-            category=document_result[1],
-        ),
-        section=FetchEmbedSection(
-            name=embed_result[5],
-            text=embed_result[6],
-            start=embed_result[7],
-            end=embed_result[8]
-        )
-    )
-
-class DocumentRequest(BaseModel):
-    document_id: Annotated[int, Field(description="Int id of document in database")]
-    
-class DocumentResponse(BaseModel):
-    data: Annotated[bytes, Field(description="Bytes of the source pdf")]
-
-def fetch_document_from_database(request: DocumentRequest) -> DocumentResponse|None:
+def fetch_document_from_database(document_id: int) -> bytes|None:
     create_if_not_exist_database()
 
     document_result = conn.execute((
         f'SELECT '
             f'document_data ' #0
         f'FROM documents '
-        f'WHERE document_id = {request.document_id} '
+        f'WHERE document_id = {document_id} '
         f'LIMIT 1'
     )).fetchone()
     
     if document_result == None:
         return None
     
-    return DocumentResponse(
-        data=document_result[0]
-    )
+    return document_result[0]
+
+def delete_document_and_embed_from_database(document_id: int):
+    create_if_not_exist_database()
+
+    conn.execute((
+        f'DELETE FROM chunks '
+        f'WHERE document_reference = {document_id}'
+    ))
+
+    conn.execute((
+        f'DELETE FROM documents '
+        f'WHERE document_id = {document_id}'
+    ))
