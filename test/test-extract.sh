@@ -1,1 +1,0 @@
-curl -L -F "file=@test-input.pdf" -o curl.txt 0.0.0.0:8080

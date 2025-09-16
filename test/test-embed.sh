@@ -1,1 +1,0 @@
-curl 0.0.0.0:8095/embed -X POST -d '{"inputs":["What is Deep Learning?"]}' -H 'Content-Type: application/json' -o export.json

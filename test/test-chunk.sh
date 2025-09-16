@@ -1,1 +1,0 @@
-curl -L -F "name=Zanussi" -F "text=$(cat curl.txt)" -o chunk.json 0.0.0.0:8090
