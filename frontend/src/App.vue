@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
 import Layout from './components/Layout.vue';
-import Button from './components/ui/button/Button.vue';
 </script>
 
 <template>
-   <Layout class="w-screen min-h-screen">
-
-   </Layout>
+   <Layout class="w-screen min-h-screen"></Layout>
 </template>
 
 <style scoped>

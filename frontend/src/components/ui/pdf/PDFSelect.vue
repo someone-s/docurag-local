@@ -11,20 +11,41 @@ import {
 } from '@/components/ui/select'
 import type { AcceptableValue } from 'reka-ui';
 import type { PDFDocument } from './PDFDocument';
+import { useLoaderCapability, type LoaderCapability } from '@embedpdf/plugin-loader/vue';
+
+const { provides: loaderProvides } = useLoaderCapability();
+
+
+
+async function onchange(loaderProvides: LoaderCapability, id: number) {
+
+  const document = props.documents.find(document => document.id == id);
+  if (document == null) return;
+
+  await loaderProvides.loadDocument({
+    type: 'buffer',
+    pdfFile: { 
+      id: crypto.randomUUID(), 
+      name: document.name,
+      content: document.file 
+    },
+    // Can specify password in optional open options
+  });
+
+  props.reload()
+
+}
 
 const props = defineProps<{
   documents: PDFDocument[]
+  reload: () => void
 }>();
-
-const emit = defineEmits<{
-  (e: 'change', id: number): void
-}>()
 </script>
  
 <template>
   <div class="absolute isolate left-0 right-0 top-3 flex  justify-center">
 
-    <Select v-on:update:model-value="(id: AcceptableValue) => emit('change', id as number)">
+    <Select v-on:update:model-value="(id: AcceptableValue) => { if (loaderProvides != null) onchange(loaderProvides, id as number) }">
       <SelectTrigger  class="w-80 bg-background">
         <SelectValue placeholder="Choose Document" />
       </SelectTrigger>

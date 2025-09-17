@@ -2,7 +2,6 @@
 import { usePdfiumEngine } from '@embedpdf/engines/vue';
 import { EmbedPDF } from '@embedpdf/core/vue';
 import { createPluginRegistration } from '@embedpdf/core';
-import type { PdfFile } from '@embedpdf/models';
  
 // Import the essential plugins and their components
 import { ViewportPluginPackage, Viewport } from '@embedpdf/plugin-viewport/vue';
@@ -15,6 +14,9 @@ import { ZoomMode, ZoomPluginPackage } from '@embedpdf/plugin-zoom/vue';
 import PDFControl from './PDFControl.vue';
 import PDFSelect from './PDFSelect.vue';
 import type { PDFDocument } from './PDFDocument';
+import { ref } from 'vue';
+
+const componentKey = ref(0);
  
 // 1. Initialize the engine with the Vue composable
 const { engine, isLoading } = usePdfiumEngine();
@@ -31,18 +33,10 @@ const plugins = [
   }),
 ];
 
+
 const props = defineProps<{
   documents: PDFDocument[]
 }>();
-
-function onchange(id: number) {
-
-  let document = props.documents.find(document => document.id == id)
-  if (document == null) return
-
-  let pdfFile: PdfFile = { id: `${id}`, content: document.file }
-  engine.value?.openDocumentBuffer(pdfFile) // Can specify password in optional open options
-}
 </script>
  
 <template>
@@ -52,7 +46,7 @@ function onchange(id: number) {
     </div>
     
     <EmbedPDF v-else :engine="engine" :plugins="plugins">
-      <Viewport class="viewport-class no-scrollbar bg-background">
+      <Viewport class="viewport-class no-scrollbar bg-background" :key="componentKey">
         <Scroller>
           <template #default="{ page }">
             <div
@@ -66,7 +60,7 @@ function onchange(id: number) {
           </template>
         </Scroller>
       </Viewport>
-      <PDFSelect :documents="props.documents" v-on:change="onchange"></PDFSelect>
+      <PDFSelect :documents="props.documents" :reload="() => componentKey++"></PDFSelect>
       <PDFControl></PDFControl>
     </EmbedPDF>
   </div>
