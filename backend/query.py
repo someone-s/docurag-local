@@ -5,9 +5,9 @@ from openai.types.responses import ResponseTextDeltaEvent, ResponseTextDoneEvent
 
 from pydantic import BaseModel
 
-from frontend_embed import get_embed
-from frontend_chunk import get_chunk
-from frontend_database import fetch_embed_from_database, FetchEmbedRequest
+from embed import get_embed
+from chunk import get_chunk
+from database import fetch_embed_from_database, FetchEmbedRequest
 
 class RelevantText(BaseModel):
     document_id: int

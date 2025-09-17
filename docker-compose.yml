@@ -41,8 +41,8 @@ services:
       timeout: 10s
   
   frontend:  # internal port is 8080
-    build: ./frontend
-    container_name: frontend
+    build: ./backend
+    container_name: backend
     environment:
       CHUNK_SERVICEORIP: chunk
       CHUNK_PORT: 8080

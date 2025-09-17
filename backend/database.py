@@ -237,12 +237,14 @@ def fetch_embed_from_database(request: FetchEmbedRequest) -> list[FetchEmbedResp
 def list_document_from_database(start_id: int = 0, limit: int|None = None) -> list[int]:
     create_if_not_exist_database()
 
+    limiter = f'LIMIT {limit}' if limit != None else '' 
+
     document_results = conn.execute((
         f'SELECT '
             f'document_id ' #0
         f'FROM documents '
         f'WHERE document_id >= {start_id} '
-        f'LIMIT {limit}' if limit != None else '' 
+        f'{limiter}'
     )).fetchall()
 
     return [document_result[0] for document_result in document_results] # list of document ids

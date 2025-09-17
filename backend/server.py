@@ -7,10 +7,9 @@ import os
 
 from pydantic import BaseModel, Field
 
-from frontend_database import wipe_database, fetch_document_from_database, delete_document_and_embed_from_database, list_document_from_database, count_document_from_database
-
-from frontend_upload import extract_information, store_information
-from frontend_query import receive_parameters, retrive_relevant, generate_inference
+from database import wipe_database, fetch_document_from_database, delete_document_and_embed_from_database, list_document_from_database, count_document_from_database
+from upload import extract_information, store_information
+from query import receive_parameters, retrive_relevant, generate_inference
 
 client = AsyncOpenAI(
     # This is the default and can be omitted

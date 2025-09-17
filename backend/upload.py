@@ -5,9 +5,9 @@ from openai import AsyncOpenAI
 from openai.types.responses import ResponseInProgressEvent, ResponseTextDeltaEvent, ResponseTextDoneEvent
 import base64
 
-from frontend_embed import get_embed
-from frontend_chunk import get_chunk
-from frontend_database import add_document_with_embed_to_database, AddDocument, AddSection, AddSegment, Machine
+from embed import get_embed
+from chunk import get_chunk
+from database import add_document_with_embed_to_database, AddDocument, AddSection, AddSegment, Machine
 
 def get_schema(
         known_make: list[str], 

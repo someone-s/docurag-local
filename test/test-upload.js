@@ -1,9 +1,9 @@
 import { openAsBlob } from 'node:fs';
 
 (async () => {
-    const blob = await openAsBlob('test-input-2.pdf');
+    const blob = await openAsBlob('test-input-3.pdf');
 
-    const socket = new WebSocket('ws://0.0.0.0:8081/upload');
+    const socket = new WebSocket('ws://0.0.0.0:8081/document/upload');
     socket.addEventListener('open', () => {
         socket.send(blob);
     });
@@ -16,5 +16,4 @@ import { openAsBlob } from 'node:fs';
             console.log('Received data was:', event.data);
         }
     });
-    socket.addEventListener()
 })();
