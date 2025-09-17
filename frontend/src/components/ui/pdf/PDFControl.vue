@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ChevronLeftIcon, ChevronRightIcon, ZoomInIcon, ZoomOutIcon } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
-import { useZoom, ZoomMode } from '@embedpdf/plugin-zoom/vue';
+import { useZoom } from '@embedpdf/plugin-zoom/vue';
 import { useScroll } from "@embedpdf/plugin-scroll/vue";
  
 // The composable provides reactive state and methods
