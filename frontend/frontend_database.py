@@ -234,6 +234,32 @@ def fetch_embed_from_database(request: FetchEmbedRequest) -> list[FetchEmbedResp
     return responses
 
 
+def list_document_from_database(start_id: int = 0, limit: int|None = None) -> list[int]:
+    create_if_not_exist_database()
+
+    document_results = conn.execute((
+        f'SELECT '
+            f'document_id ' #0
+        f'FROM documents '
+        f'WHERE document_id >= {start_id} '
+        f'LIMIT {limit}' if limit != None else '' 
+    )).fetchall()
+
+    return [document_result[0] for document_result in document_results] # list of document ids
+
+
+def count_document_from_database() -> int:
+    create_if_not_exist_database()
+
+    document_result = conn.execute((
+        f'SELECT '
+            f'COUNT(*) ' #0
+        f'FROM documents'
+    )).fetchone()
+
+    return document_result[0]
+
+
 def fetch_document_from_database(document_id: int) -> bytes|None:
     create_if_not_exist_database()
 
@@ -249,6 +275,7 @@ def fetch_document_from_database(document_id: int) -> bytes|None:
         return None
     
     return document_result[0]
+
 
 def delete_document_and_embed_from_database(document_id: int):
     create_if_not_exist_database()

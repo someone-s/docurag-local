@@ -1,13 +1,13 @@
 import asyncio
 from typing import Annotated
-from fastapi import FastAPI, File, HTTPException, Response, UploadFile, WebSocket
+from fastapi import FastAPI, HTTPException, Response, WebSocket
 
 from openai import AsyncOpenAI
 import os
 
 from pydantic import BaseModel, Field
 
-from frontend_database import wipe_database, fetch_document_from_database, delete_document_and_embed_from_database
+from frontend_database import wipe_database, fetch_document_from_database, delete_document_and_embed_from_database, list_document_from_database, count_document_from_database
 
 from frontend_upload import extract_information, store_information
 from frontend_query import receive_parameters, retrive_relevant, generate_inference
@@ -23,7 +23,7 @@ app = FastAPI()
 def wipe():
     wipe_database()
 
-@app.websocket('/upload')
+@app.websocket('/document/upload')
 async def upload(websocket: WebSocket):
 
     await websocket.accept()
@@ -33,8 +33,12 @@ async def upload(websocket: WebSocket):
     async def on_progress():
         await websocket.send_json({'type': 'log', 'message': 'extraction in-progress'})
         await asyncio.sleep(0.0001)
+
+    async def on_delta(_: str):
+        await websocket.send_json({'type': 'log', 'message': 'extraction in-progress'})
+        await asyncio.sleep(0.0001)
     
-    extract_data = await extract_information(client, file_binary, on_progress)
+    extract_data = await extract_information(client, file_binary, on_progress, on_delta)
     if extract_data == None:
         await websocket.send_json({'type': 'error', 'message': 'extraction failed'})
         await websocket.close()
@@ -99,6 +103,16 @@ def get_document(document_id: int):
     if binary_response == None:
         raise HTTPException(status_code=404, detail="document not found")
     return Response(content=binary_response, media_type='application/pdf')
+
+@app.get('/document/list')
+def get_document_subset(start_id: int = 0, limit: int|None = None):
+    return { 'ids': list_document_from_database(start_id, limit) }
+
+
+@app.get('/document/count')
+def get_document_subset():
+    return { 'count': count_document_from_database() }
+
 
 class DeleteRequest(BaseModel):
     document_id: Annotated[int, Field("int id of the document to delete")]
