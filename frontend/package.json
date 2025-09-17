@@ -12,6 +12,7 @@
     "@embedpdf/core": "^1.1.1",
     "@embedpdf/engines": "^1.1.1",
     "@embedpdf/plugin-loader": "^1.1.1",
+    "@embedpdf/plugin-pan": "^1.1.1",
     "@embedpdf/plugin-render": "^1.1.1",
     "@embedpdf/plugin-scroll": "^1.1.1",
     "@embedpdf/plugin-viewport": "^1.1.1",
