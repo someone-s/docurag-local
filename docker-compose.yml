@@ -55,6 +55,7 @@ services:
       POSTGRES_DB: store_db
       POSTGRES_SERVICEORIP: store
       POSTGRES_PORT: 5432
+      FRONTEND_ORIGIN: http://localhost:5173
     env_file:
       - path: keys.env
     ports:

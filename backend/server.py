@@ -1,6 +1,7 @@
 import asyncio
 from typing import Annotated
 from fastapi import FastAPI, File, HTTPException, Response, UploadFile, WebSocket, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
 
 from openai import AsyncOpenAI
 import os
@@ -29,6 +30,18 @@ client = AsyncOpenAI(
 )
 
 app = FastAPI()
+
+origins = [
+    os.environ['FRONTEND_ORIGIN'],
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 lock = Lock()
 in_progress_upload: dict[UUID, str] = {}
