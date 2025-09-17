@@ -115,8 +115,7 @@ def get_schema(
 async def extract_information(
         client: AsyncOpenAI,
         file_binary: bytes,
-        on_progress: Callable[[], Awaitable[None]],
-        on_delta: Callable[[str], Awaitable[None]]) -> dict|None:
+        on_progress: Callable[[], Awaitable[None]]) -> dict|None:
     extract_input = base64.b64encode(file_binary).decode('ascii')
 
     known_make = [
@@ -191,10 +190,6 @@ async def extract_information(
     async for event in stream:
         if isinstance(event, ResponseInProgressEvent):
             await on_progress()
-
-        if isinstance(event, ResponseTextDeltaEvent):
-            delta_event: ResponseTextDeltaEvent = event
-            await on_delta(delta_event.delta)
             
         if isinstance(event, ResponseTextDoneEvent):
             done_event: ResponseTextDoneEvent = event

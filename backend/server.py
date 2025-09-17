@@ -1,6 +1,6 @@
 import asyncio
 from typing import Annotated
-from fastapi import FastAPI, HTTPException, Response, WebSocket
+from fastapi import FastAPI, File, HTTPException, Response, UploadFile, WebSocket, BackgroundTasks
 
 from openai import AsyncOpenAI
 import os
@@ -11,6 +11,18 @@ from database import wipe_database, fetch_document_from_database, delete_documen
 from upload import extract_information, store_information
 from query import receive_parameters, retrive_relevant, generate_inference
 
+from uuid import uuid4, UUID
+from threading import Lock
+
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
 client = AsyncOpenAI(
     # This is the default and can be omitted
     api_key=os.environ.get("OPENAI_API_KEY"),
@@ -18,39 +30,51 @@ client = AsyncOpenAI(
 
 app = FastAPI()
 
+lock = Lock()
+in_progress_upload: dict[UUID, str] = {}
+def add_in_progress(file_name: str) -> UUID:
+    new_id = uuid4()
+    lock.acquire()
+    in_progress_upload[new_id] = file_name
+    lock.release()
+    return new_id
+def remove_in_progress(id: UUID):
+    lock.acquire()
+    in_progress_upload.pop(id, 'not found')
+    lock.release()
+
 @app.post('/wipe')
 def wipe():
     wipe_database()
 
-@app.websocket('/document/upload')
-async def upload(websocket: WebSocket):
+@app.post('/document/upload')
+async def upload(file: Annotated[UploadFile, File(description="A PDF to convert to text")], background_task: BackgroundTasks):
+    
+    
+    file_binary = await file.read()
+    
+    logger.info('upload file read complete')
 
-    await websocket.accept()
+    upload_id = add_in_progress(file.filename if file.filename != None else "Document")
+    background_task.add_task(upload_continuation, upload_id, file_binary)
 
-    file_binary = await websocket.receive_bytes()
+async def upload_continuation(upload_id: UUID, file_binary: bytes):
 
     async def on_progress():
-        await websocket.send_json({'type': 'log', 'message': 'extraction in-progress'})
-        await asyncio.sleep(0.0001)
-
-    async def on_delta(_: str):
-        await websocket.send_json({'type': 'log', 'message': 'extraction in-progress'})
-        await asyncio.sleep(0.0001)
+        logger.info('upload extraction in-progress')
     
-    extract_data = await extract_information(client, file_binary, on_progress, on_delta)
+    extract_data = await extract_information(client, file_binary, on_progress)
     if extract_data == None:
-        await websocket.send_json({'type': 'error', 'message': 'extraction failed'})
-        await websocket.close()
+        logger.warning('upload extraction failed nothing commited')
         return
     
-    await websocket.send_json({'type': 'log', 'message': 'extraction complete'})
-    await asyncio.sleep(0.0001)
+    logger.info('upload extraction complete')
 
     store_information(file_binary, extract_data)
 
-    await websocket.send_json({'type': 'log', 'message': 'store complete'})
-    await websocket.close()
-
+    logger.info('upload store complete')
+    
+    remove_in_progress(upload_id)
 
 
 @app.websocket('/query')
