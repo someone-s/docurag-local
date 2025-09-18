@@ -12,7 +12,7 @@ import {
 import PDFViewer from '@/components/pdf/PDFViewer.vue';
 import type { PDFDocument } from '@/components/pdf/PDFDocument';
 import axios from 'axios';
-import Navigate from './navigate/Navigate.vue';
+import Navigate from './side/Navigate.vue';
 
 let documents: PDFDocument[] = [];
 
