@@ -4,8 +4,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import PDFViewer from '@/components/ui/pdf/PDFViewer.vue';
-import type { PDFDocument } from '@/components/ui/pdf/PDFDocument';
+import PDFViewer from '@/components/pdf/PDFViewer.vue';
+import type { PDFDocument } from '@/components/pdf/PDFDocument';
 import axios from 'axios';
 
 let documents: PDFDocument[] = [];
