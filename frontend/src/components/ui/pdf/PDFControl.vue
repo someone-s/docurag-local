@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ChevronLeftIcon, ChevronRightIcon, ZoomInIcon, ZoomOutIcon } from "lucide-vue-next";
+import { ChevronLeftIcon, ChevronRightIcon, ZoomInIcon, ZoomOutIcon, FullscreenIcon } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
-import { useZoom } from '@embedpdf/plugin-zoom/vue';
+import { useZoom, ZoomMode } from '@embedpdf/plugin-zoom/vue';
 import { useScroll } from "@embedpdf/plugin-scroll/vue";
  
 // The composable provides reactive state and methods
@@ -36,6 +36,9 @@ const { provides: scrollProvides, state: scrollState } = useScroll();
         <ZoomOutIcon class="w-4 h-4"/>
       </Button>
     </div>
+    <Button variant="outline" size="icon" @click="zoomProvides.requestZoom(ZoomMode.FitPage)">
+      <FullscreenIcon class="w-4 h-4" />
+    </Button>
     
   </div>
 </template>
