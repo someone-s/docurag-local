@@ -1,7 +1,7 @@
 from typing import Any, Awaitable, Callable
 
 from openai import AsyncOpenAI
-from openai.types.responses import ResponseTextDeltaEvent, ResponseTextDoneEvent, ResponseInputParam, ResponseCreatedEvent, ResponseOutputMessage, ResponseReasoningItem 
+from openai.types.responses import ResponseTextDeltaEvent, ResponseTextDoneEvent, ResponseInputParam, ResponseCreatedEvent, ResponseOutputMessage, ResponseReasoningItem, ResponseOutputItemDoneEvent, ResponseFunctionToolCall
 
 from pydantic import BaseModel
 
@@ -31,49 +31,11 @@ class ConverseState(BaseModel):
     machine_state: MachineState = MachineState()
     relevant_texts: list[RelevantText] = []
 
-async def retrive_relevant(
-        converse_state: ConverseState
-) -> list[RelevantText]:
-    if converse_state.query_text == None:
-        raise Exception("Query text should not be None")
-
-    relevant_texts: list[RelevantText] = []
-    query_chunks = get_chunk(converse_state.query_text)
-    query_embeds = get_embed(query_chunks)
-    for query_embed in query_embeds:
-        responses = database_document_query(FetchEmbedRequest(
-            query_embed=query_embed,
-            machine_make=converse_state.machine_state.make,
-            machine_name=converse_state.machine_state.name,
-            machine_category=converse_state.machine_state.category,
-            machine_model=converse_state.machine_state.model
-        ))
-        
-        for response in responses:
-            machine = response.machine
-            document = response.document
-            section = response.section
-
-            relevant_texts.append(RelevantText(
-                document_id=document.id,
-                machine_make=machine.make,
-                machine_name=machine.name,
-                machine_category=machine.category,
-                machine_model=machine.model,
-                document_category=document.category,
-                section_text=section.text,
-                section_start=section.start,
-                section_end=section.end
-            ))
-            
-    return relevant_texts
-
 async def converse(
         client: AsyncOpenAI,
         fetch_input_hook: Callable[[], Awaitable[dict[str, str]]],
         send_output_hook: Callable[[Any], Awaitable[None]]
 ):
-
     
     conversation_log = create_conversation_log()
 
@@ -107,13 +69,7 @@ async def converse(
         append_conversation_fact(conversation_log, retrieved_relevant_texts)
         append_conversation_query(conversation_log, converse_state.query_text)
 
-        async def on_delta(delta: str):
-            await send_output_hook({'type': 'generate', 'delta': delta})
-
-        async def on_complete(text: str):
-                await send_output_hook({'type': 'complete', 'text': text})
-
-        await generate_inference(client, conversation_log, on_delta=on_delta, on_complete=on_complete)
+        await generate_inference(client, conversation_log, send_output_hook)
 
     await send_output_hook({'type': 'log', 'message': "stream ended"})
 
@@ -169,6 +125,43 @@ async def receive_input(
             case _:
                 raise Exception('unkown item type')
 
+async def retrive_relevant(
+        converse_state: ConverseState
+) -> list[RelevantText]:
+    if converse_state.query_text == None:
+        raise Exception("Query text should not be None")
+
+    relevant_texts: list[RelevantText] = []
+    query_chunks = get_chunk(converse_state.query_text)
+    query_embeds = get_embed(query_chunks)
+    for query_embed in query_embeds:
+        responses = database_document_query(FetchEmbedRequest(
+            query_embed=query_embed,
+            machine_make=converse_state.machine_state.make,
+            machine_name=converse_state.machine_state.name,
+            machine_category=converse_state.machine_state.category,
+            machine_model=converse_state.machine_state.model
+        ))
+        
+        for response in responses:
+            machine = response.machine
+            document = response.document
+            section = response.section
+
+            relevant_texts.append(RelevantText(
+                document_id=document.id,
+                machine_make=machine.make,
+                machine_name=machine.name,
+                machine_category=machine.category,
+                machine_model=machine.model,
+                document_category=document.category,
+                section_text=section.text,
+                section_start=section.start,
+                section_end=section.end
+            ))
+            
+    return relevant_texts
+
 
 def create_conversation_log() -> ResponseInputParam:
 
@@ -178,7 +171,7 @@ def create_conversation_log() -> ResponseInputParam:
         "content": [
             {
                 "type": "input_text",
-                "text": "Answer the given Question using only provided Facts."
+                "text": f"Answer the given Question using only provided Facts."
             }
         ]
     })
@@ -191,12 +184,16 @@ def append_conversation_fact(
 ):
     
     fact_texts = [(
-        f'Treat this as a fact:\n'
-        f'Source Document Id: {relevant_text.document_id}\n'
-        f'Source Document Type: {relevant_text.document_category}\n'
-        f'Source Document Pages: From page {relevant_text.section_start} to page {relevant_text.section_end}\n'
-        f'Relevant machine: {relevant_text.machine_name} made by {relevant_text.machine_make} with model {relevant_text.machine_model}\n'
-        f'Excerpt: {relevant_text.section_text}\n'
+        f'Provided is an excerpt from a {relevant_text.document_category} '
+        f'for {relevant_text.machine_name} made by {relevant_text.machine_make} (model serial: {relevant_text.machine_model}).\n'
+        f'\n'
+        f'Use the following fields for to reference this excerpt in tool calling.'
+        f'documentId: {relevant_text.document_id}\n'
+        f'startPage: {relevant_text.section_start}\n'
+        f'endPage: {relevant_text.section_end}\n'
+        f'\n'
+        f'Excerpt below:\n'
+        f'{relevant_text.section_text}\n'
     ) for relevant_text in relevant_texts]
 
     for fact_text in fact_texts:
@@ -224,25 +221,72 @@ def append_conversation_query(
         ]
     })
 
+
+
+response_schema: dict[str,object] = {
+    "type": "object",
+    "properties": {
+        "segments": {
+            "type": "array",
+            "description": "A list of segments forming a cohesive response",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "A sentence or sentences in the response, referencing a fact"
+                    },
+                    "documentId": {
+                        "type": "integer",
+                        "description": "The documentId of the fact that this segment refers to"
+                    },
+                    "startPage": {
+                        "type": "integer",
+                        "description": "The startPage of the fact this segment refers to"
+                    },
+                    "endPage": {
+                        "type": "integer",
+                        "description": "The endPage of the fact this segment refers to"
+                    }
+                },
+                "required": [
+                    "text",
+                    "documentId",
+                    "startPage",
+                    "endPage"
+                ],
+                "additionalProperties": False
+            }
+        }
+    },
+    "required": [
+        "segments"
+    ],
+    "additionalProperties": False
+}
+
 async def generate_inference(
         client: AsyncOpenAI, 
         conversation_log: ResponseInputParam,
-        on_delta: Callable[[str], Awaitable[None]], 
-        on_complete: Callable[[str], Awaitable[None]]):
+        send_output_hook: Callable[[Any], Awaitable[None]]
+):
+
 
     stream = await client.responses.create(
         model="gpt-5-nano",
         input=conversation_log,
         text={
-                "format": {
-                "type": "text"
+            "format": {
+                "type": "json_schema",
+                "name": "render_output",
+                "strict": True,
+                "schema": response_schema
             },
             "verbosity": "medium"
         },
         reasoning={
             "effort": "medium"
         },
-        tools=[],
         store=True,
         include=['reasoning.encrypted_content',],
         stream=True
@@ -250,11 +294,11 @@ async def generate_inference(
     async for event in stream:
         if isinstance(event, ResponseTextDeltaEvent):
             delta_event: ResponseTextDeltaEvent = event
-            await on_delta(delta_event.delta)
+            await send_output_hook({'type': 'generate', 'delta': delta_event.delta})
             
         if isinstance(event, ResponseTextDoneEvent):
             done_event: ResponseTextDoneEvent = event
-            await on_complete(done_event.text)
+            await send_output_hook({'type': 'complete', 'text': done_event.text})
 
         if isinstance(event, ResponseCreatedEvent):
             created_event: ResponseCreatedEvent = event
