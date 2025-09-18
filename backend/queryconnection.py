@@ -7,56 +7,7 @@ from pydantic import BaseModel
 
 from embedconnection import get_embed
 from chunkconnection import get_chunk
-from databaseconnection import database_document_fetch, FetchEmbedRequest
-
-class RelevantText(BaseModel):
-    document_id: int
-    machine_make: str
-    machine_name: str
-    machine_category: str
-    machine_model: str
-    document_category: str
-    section_text: str
-    section_start: int
-    section_end: int
-
-async def retrive_relevant(
-        machine_make: str|None, 
-        machine_name: str|None, 
-        machine_category: str|None, 
-        machine_model: str|None, 
-        query_text: str,
-        ) -> list[RelevantText]:
-    relevant_texts: list[RelevantText] = []
-    query_chunks = get_chunk(query_text)
-    query_embeds = get_embed(query_chunks)
-    for query_embed in query_embeds:
-        responses = database_document_fetch(FetchEmbedRequest(
-            query_embed=query_embed,
-            machine_make=machine_make,
-            machine_name=machine_name,
-            machine_category=machine_category,
-            machine_model=machine_model
-        ))
-        
-        for response in responses:
-            machine = response.machine
-            document = response.document
-            section = response.section
-
-            relevant_texts.append(RelevantText(
-                document_id=document.id,
-                machine_make=machine.make,
-                machine_name=machine.name,
-                machine_category=machine.category,
-                machine_model=machine.model,
-                document_category=document.category,
-                section_text=section.text,
-                section_start=section.start,
-                section_end=section.end
-            ))
-            
-    return relevant_texts
+from databaseconnection import FetchEmbedRequest, database_document_query
 
 async def receive_parameters(fetch_input_hook: Callable[[], Awaitable[dict[str, str]]]) -> tuple[str|None, str|None, str|None, str|None, str]:
     machine_make:str|None = None
@@ -94,6 +45,55 @@ async def receive_parameters(fetch_input_hook: Callable[[], Awaitable[dict[str, 
             case _:
                 raise Exception('unkown item type')
     return machine_make,machine_name,machine_category,machine_model,query_text
+
+class RelevantText(BaseModel):
+    document_id: int
+    machine_make: str
+    machine_name: str
+    machine_category: str
+    machine_model: str
+    document_category: str
+    section_text: str
+    section_start: int
+    section_end: int
+
+async def retrive_relevant(
+        machine_make: str|None, 
+        machine_name: str|None, 
+        machine_category: str|None, 
+        machine_model: str|None, 
+        query_text: str,
+        ) -> list[RelevantText]:
+    relevant_texts: list[RelevantText] = []
+    query_chunks = get_chunk(query_text)
+    query_embeds = get_embed(query_chunks)
+    for query_embed in query_embeds:
+        responses = database_document_query(FetchEmbedRequest(
+            query_embed=query_embed,
+            machine_make=machine_make,
+            machine_name=machine_name,
+            machine_category=machine_category,
+            machine_model=machine_model
+        ))
+        
+        for response in responses:
+            machine = response.machine
+            document = response.document
+            section = response.section
+
+            relevant_texts.append(RelevantText(
+                document_id=document.id,
+                machine_make=machine.make,
+                machine_name=machine.name,
+                machine_category=machine.category,
+                machine_model=machine.model,
+                document_category=document.category,
+                section_text=section.text,
+                section_start=section.start,
+                section_end=section.end
+            ))
+            
+    return relevant_texts
 
 async def generate_inference(
         client: AsyncOpenAI, 

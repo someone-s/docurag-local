@@ -358,10 +358,10 @@ class FetchEmbedResponse(BaseModel):
     document: Annotated[FetchEmbedDocument, Field(description="Document of the retrieved section")]
     section: Annotated[FetchEmbedSection, Field(description="The section in the document")]
 
-def database_document_fetch(request: FetchEmbedRequest) -> list[FetchEmbedResponse]:
+def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedResponse]:
     database_create_if_not_exist()
 
-    filters = []
+    filters: list[str] = []
     if request.machine_make != None:
         filters.append(f'machine_make LIKE \'{request.machine_make}\'')
     if request.machine_name != None:
@@ -373,31 +373,42 @@ def database_document_fetch(request: FetchEmbedRequest) -> list[FetchEmbedRespon
 
     filter_query: str = ''
     if len(filters) > 0: 
-        filter_query = f'WHERE {' AND '.join(filters)}'
+        filter_query = f'WHERE {" AND ".join(filters)}'
     
-    machine_results = conn.execute((
-        f'SELECT '
-            f'machine_id '
-        f'FROM machines '
-        f'{filter_query}'
-    )).fetchall()
-
-
     embed_results = conn.execute((
         f'SELECT '
-            f'machine_make,' #0
-            f'machine_name,' #1
-            f'machine_category,' #2
-            f'machine_model,' #3
-            f'document_reference,' #4
-            f'section_name,' #5
-            f'section_text,' #6
-            f'section_start,' #7
-            f'section_end ' #8
-        f'FROM chunks '
-        f'{filter_query} '
-        f'ORDER BY segment_embed <-> '
-        '%s '
+            f'seld.machine_make,' #0
+            f'seld.machine_name,' #1
+            f'seld.machine_category,' #2
+            f'seld.machine_model,' #3
+            f'seld.document_id,' #4
+            f'c.section_name,' #5
+            f'c.section_text,' #6
+            f'c.section_start,' #7
+            f'c.section_end ' #8
+        f'FROM chunks c '
+        f'INNER JOIN ('
+            f'SELECT '
+                f'selm.machine_make,'
+                f'selm.machine_name,'
+                f'selm.machine_category,'
+                f'selm.machine_model,'
+                f'd.document_id '
+            f'FROM documents d '
+            f'INNER JOIN ('
+                f'SELECT '
+                    f'machine_id,'
+                    f'machine_make,'
+                    f'machine_name,'
+                    f'machine_category,'
+                    f'machine_model '
+                f'FROM machines '
+                f'{filter_query}'
+            f') selm '
+            f'ON selm.machine_id = d.machine_reference'
+        f') seld '
+        f'ON seld.document_id = c.document_reference '
+        f'ORDER BY segment_embed <-> ''%s '
         f'LIMIT 3'
     ), (np.array(request.query_embed),)).fetchall()
 
