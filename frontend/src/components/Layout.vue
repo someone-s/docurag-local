@@ -4,13 +4,19 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
+import {
+  SidebarProvider,
+  SidebarTrigger
+} from "@/components/ui/sidebar"
+
 import PDFViewer from '@/components/pdf/PDFViewer.vue';
 import type { PDFDocument } from '@/components/pdf/PDFDocument';
 import axios from 'axios';
+import Navigate from './navigate/Navigate.vue';
 
 let documents: PDFDocument[] = [];
 
-(async () => {
+async function fetchAllDocuments(outDocuments: PDFDocument[]) {
   const listResponse = await axios.get('http://0.0.0.0:8081/document/list');
 
   const ids = listResponse.data.ids as number[];
@@ -23,23 +29,32 @@ let documents: PDFDocument[] = [];
           'Accept': 'application/pdf'
         }
       });
-    documents.push({
+    outDocuments.push({
       name: `document-${id}.pdf`,
       id: id,
       file: listResponse.data
     });
   }
-})()
-
+};
+fetchAllDocuments(documents);
 </script>
 
 <template>
-  <ResizablePanelGroup direction="horizontal">
-    <ResizablePanel class="h-screen">
-    </ResizablePanel>
-    <ResizableHandle with-handle />
-    <ResizablePanel class="">
-      <PDFViewer class="h-full" :documents="documents" />
-    </ResizablePanel>
-  </ResizablePanelGroup>
+  <SidebarProvider class="w-screen">
+    <Navigate />
+    <main class="w-screen">
+      <SidebarTrigger class="absolute"/>
+      <slot>
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel class="h-screen">
+          </ResizablePanel>
+          <ResizableHandle with-handle />
+          <ResizablePanel class="">
+            <PDFViewer class="h-full" :documents="documents" />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </slot>
+    </main>
+  </SidebarProvider>
+
 </template>
