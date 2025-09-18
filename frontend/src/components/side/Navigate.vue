@@ -12,12 +12,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { Home, Inbox, Settings, PaperclipIcon } from "lucide-vue-next"
-import { useColorMode } from '@vueuse/core'
 import ThemeControl from "./ThemeControl.vue"
-
-
-// Pass { disableTransition: false } to enable transitions
-const mode = useColorMode({ disableTransition: false })
 
 const workspaceItems = [
   {
