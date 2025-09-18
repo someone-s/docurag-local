@@ -2,18 +2,18 @@ import json
 from typing import Awaitable, Callable
 
 from openai import AsyncOpenAI
-from openai.types.responses import ResponseInProgressEvent, ResponseTextDeltaEvent, ResponseTextDoneEvent
+from openai.types.responses import ResponseInProgressEvent, ResponseTextDoneEvent, ResponseInputParam
 import base64
 
-from embed import get_embed
-from chunk import get_chunk
-from database import add_document_with_embed_to_database, AddDocument, AddSection, AddSegment, Machine
+from embedconnection import get_embed
+from chunkconnection import get_chunk
+from databaseconnection import add_document_with_embed_to_database, AddDocument, AddSection, AddSegment, Machine
 
 def get_schema(
         known_make: list[str], 
         known_machine_category: list[str], 
         known_document_category: list[str]):
-    extract_schema = {
+    extract_schema: dict[str,object] = {
         "type": "object",
         "properties": {
             "document": {
@@ -115,7 +115,7 @@ def get_schema(
 async def extract_information(
         client: AsyncOpenAI,
         file_binary: bytes,
-        on_progress: Callable[[], Awaitable[None]]) -> dict|None:
+        on_progress: Callable[[], Awaitable[None]]) -> dict[str,object]|None:
     extract_input = base64.b64encode(file_binary).decode('ascii')
 
     known_make = [
@@ -183,7 +183,6 @@ async def extract_information(
         store=True,
         include=[
             "reasoning.encrypted_content",
-            "web_search_call.action.sources"
         ],
         stream=True
     )
@@ -201,7 +200,7 @@ async def extract_information(
         return json.loads(output)
 
 
-def store_information(file_binary, extract_data):
+def store_information(file_binary: bytes, extract_data: dict[str]): # type: ignore
     document_info = extract_data['document']
     document_category = document_info['category']
 

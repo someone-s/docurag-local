@@ -8,9 +8,9 @@ import os
 
 from pydantic import BaseModel, Field
 
-from database import wipe_database, fetch_document_from_database, delete_document_and_embed_from_database, list_document_from_database, count_document_from_database
-from upload import extract_information, store_information
-from query import receive_parameters, retrive_relevant, generate_inference
+from databaseconnection import wipe_database, fetch_document_from_database, delete_document_and_embed_from_database, list_document_from_database, count_document_from_database
+from uploadconnection import extract_information, store_information
+from queryconnection import receive_parameters, retrive_relevant, generate_inference
 
 from uuid import uuid4, UUID
 from threading import Lock

@@ -11,7 +11,7 @@ batch_size = int(os.environ['EMBED_BATCH_SIZE'])
 
 def get_embed(chunks: list[str]) -> list[list[float]]:
     batch_count = math.ceil(len(chunks) / batch_size)
-    embed_outputs = []
+    embed_outputs: list[list[float]] = []
 
     for batch in range(batch_count):
         actual_text = chunks[
@@ -23,7 +23,7 @@ def get_embed(chunks: list[str]) -> list[list[float]]:
         embed_req = requests.post(f'http://{embed_serviceorip}:{embed_port}/embed', json=embed_input)
         if embed_req.status_code != 200:
             raise HTTPException(status_code=embed_req.status_code, detail=embed_req.reason)
-        embed_output = embed_req.json() # array of embed vectors (which are each array numbers)
+        embed_output: list[list[float]] = embed_req.json() # array of embed vectors (which are each array numbers)
 
         embed_outputs.extend(embed_output)
     

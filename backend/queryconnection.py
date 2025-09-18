@@ -1,13 +1,13 @@
 from typing import Awaitable, Callable
 
 from openai import AsyncOpenAI
-from openai.types.responses import ResponseTextDeltaEvent, ResponseTextDoneEvent
+from openai.types.responses import ResponseTextDeltaEvent, ResponseTextDoneEvent, ResponseInputParam
 
 from pydantic import BaseModel
 
-from embed import get_embed
-from chunk import get_chunk
-from database import fetch_embed_from_database, FetchEmbedRequest
+from embedconnection import get_embed
+from chunkconnection import get_chunk
+from databaseconnection import fetch_embed_from_database, FetchEmbedRequest
 
 class RelevantText(BaseModel):
     document_id: int
@@ -58,7 +58,7 @@ async def retrive_relevant(
             
     return relevant_texts
 
-async def receive_parameters(fetch_input_hook: Callable[[], Awaitable[str]]) -> tuple[str|None, str|None, str|None, str|None, str]:
+async def receive_parameters(fetch_input_hook: Callable[[], Awaitable[dict[str, str]]]) -> tuple[str|None, str|None, str|None, str|None, str]:
     machine_make:str|None = None
     machine_name:str|None = None
     machine_category:str|None = None
@@ -81,12 +81,18 @@ async def receive_parameters(fetch_input_hook: Callable[[], Awaitable[str]]) -> 
                         machine_category = value
                     case 'machine_model':
                         machine_model = value
+                    case _:
+                        raise Exception('unkown parameter type')
             case 'command':
                 action = item['action']
                 match action:
                     case 'begin':
                         query_text = item['query']
                         break
+                    case _:
+                        raise Exception('unkown action type')
+            case _:
+                raise Exception('unkown item type')
     return machine_make,machine_name,machine_category,machine_model,query_text
 
 async def generate_inference(
@@ -104,13 +110,13 @@ async def generate_inference(
         f'Excerpt: {relevant_text.section_text}\n'
     ) for relevant_text in relevant_texts]
 
-    input_entries: list[dict] = []
+    input_entries: ResponseInputParam = []
     input_entries.append({
         "role": "developer",
         "content": [
             {
-            "type": "input_text",
-            "text": "Answer the given Question using only provided Facts."
+                "type": "input_text",
+                "text": "Answer the given Question using only provided Facts."
             }
         ]
     })
@@ -119,8 +125,8 @@ async def generate_inference(
             "role": "developer",
             "content": [
                 {
-                "type": "input_text",
-                "text": fact_text
+                    "type": "input_text",
+                    "text": fact_text
                 }
             ]
         })
@@ -128,19 +134,18 @@ async def generate_inference(
         "role": "user",
         "content": [
             {
-            "type": "input_text",
-            "text": query_text
+                "type": "input_text",
+                "text": query_text
             }
         ]
     })
-
 
     stream = await client.responses.create(
         model="gpt-5-nano",
         input=input_entries,
         text={
-            "format": {
-            "type": "text"
+                "format": {
+                "type": "text"
             },
             "verbosity": "medium"
         },
@@ -149,10 +154,7 @@ async def generate_inference(
         },
         tools=[],
         store=True,
-        include=[
-            "reasoning.encrypted_content",
-            "web_search_call.action.sources"
-        ],
+        include=['reasoning.encrypted_content',],
         stream=True
     )
     async for event in stream:
