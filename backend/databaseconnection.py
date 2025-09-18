@@ -382,10 +382,11 @@ def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedRespon
             f'seld.machine_category,' #2
             f'seld.machine_model,' #3
             f'seld.document_id,' #4
-            f'c.section_name,' #5
-            f'c.section_text,' #6
-            f'c.section_start,' #7
-            f'c.section_end ' #8
+            f'seld.document_category,' #5
+            f'c.section_name,' #6
+            f'c.section_text,' #7
+            f'c.section_start,' #8
+            f'c.section_end ' #9
         f'FROM chunks c '
         f'INNER JOIN ('
             f'SELECT '
@@ -393,7 +394,8 @@ def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedRespon
                 f'selm.machine_name,'
                 f'selm.machine_category,'
                 f'selm.machine_model,'
-                f'd.document_id '
+                f'd.document_id,'
+                f'd.document_category '
             f'FROM documents d '
             f'INNER JOIN ('
                 f'SELECT '
@@ -416,15 +418,6 @@ def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedRespon
 
     for embed_result in embed_results:
 
-        document_result = conn.execute((
-            f'SELECT '
-                f'document_id,' #0
-                f'document_category ' #1
-            f'FROM documents '
-            f'WHERE document_id = ''%s'' '
-            f'LIMIT 1'
-        ), (embed_result[4],)).fetchone()
-
         responses.append(FetchEmbedResponse(
             machine=Machine(
                 make=embed_result[0],
@@ -433,14 +426,14 @@ def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedRespon
                 model=embed_result[3]
             ),
             document=FetchEmbedDocument(
-                id=document_result[0],
-                category=document_result[1],
+                id=embed_result[4],
+                category=embed_result[5],
             ),
             section=FetchEmbedSection(
-                name=embed_result[5],
-                text=embed_result[6],
-                start=embed_result[7],
-                end=embed_result[8]
+                name=embed_result[6],
+                text=embed_result[7],
+                start=embed_result[8],
+                end=embed_result[9]
             )
         ))
     
