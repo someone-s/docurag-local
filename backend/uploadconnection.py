@@ -2,12 +2,12 @@ import json
 from typing import Awaitable, Callable
 
 from openai import AsyncOpenAI
-from openai.types.responses import ResponseInProgressEvent, ResponseTextDoneEvent, ResponseInputParam
+from openai.types.responses import ResponseInProgressEvent, ResponseTextDoneEvent
 import base64
 
 from embedconnection import get_embed
 from chunkconnection import get_chunk
-from databaseconnection import add_document_with_embed_to_database, AddDocument, AddSection, AddSegment, Machine
+from databaseconnection import add_document_with_embed_to_database, AddDocument, AddSection, AddSegment, Machine, fetch_machine_category_from_database, fetch_machine_make_from_database
 
 def get_schema(
         known_make: list[str], 
@@ -33,27 +33,38 @@ def get_schema(
             "machine": {
                 "type": "object",
                 "properties": {
+
                     "make": {
                         "type": [
                             "string",
                             "null"
                         ],
-                        "description": "The manufacturer of the machine, if not match any provided brand names, set this field to null and set the newMake field with the new type",
+                        "description": "The manufacturer of the machine, if not match any provided brand names, set this field to null and set the newMake field with the new make",
                         "enum": known_make
                     },
                     "newMake": {
                         "type": "string",
-                        "description": "The name of a manufacturer if the document does not mostly match the provided options in the make field, leave empty otherwise"
+                        "description": "The name of a manufacturer in snake_case if the document does not mostly match the provided options in the make field, leave empty otherwise"
                     },
+
                     "name": {
                         "type": "string",
                         "description": "The common human readable name of the machine"
                     },
+
                     "category": {
-                        "type": "string",
-                        "description": "The type of machine this document is for",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The type of machine this document is for, if not match any provided category, set this field to null and set the newCategory field with the new type",
                         "enum": known_machine_category
                     },
+                    "newCategory": {
+                        "type": "string",
+                        "description": "The category of the machine in snake_case if the document does not mostly match the provided options in the category field, leave empty otherwise"
+                    },
+                    
                     "model": {
                         "type": "string",
                         "description": "The serial number of the machine referenced in the document"
@@ -64,6 +75,7 @@ def get_schema(
                     "newMake",
                     "name",
                     "category",
+                    "newCategory",
                     "model"
                 ],
                 "additionalProperties": False
@@ -118,21 +130,9 @@ async def extract_information(
         on_progress: Callable[[], Awaitable[None]]) -> dict[str,object]|None:
     extract_input = base64.b64encode(file_binary).decode('ascii')
 
-    known_make = [
-        "zanussi",
-        "bosch",
-        "siemens",
-        "whirlpool",
-        "general_electric"
-    ]
+    known_make = fetch_machine_make_from_database()
 
-    known_machine_category = [
-        "washing_machine",
-        "dish_washer",
-        "tumble_dryer",
-        "combo_washer_dryer_unit",
-        "fridge"
-    ]
+    known_machine_category = fetch_machine_category_from_database()
 
     known_document_category = [
         "user_manual",
@@ -205,11 +205,17 @@ def store_information(file_binary: bytes, extract_data: dict[str]): # type: igno
     document_category = document_info['category']
 
     machine_info = extract_data['machine']
+
     machine_make: str|None = machine_info['make']
     if machine_make == None:
         machine_make = machine_info['newMake']
+
     machine_name: str = machine_info['name']
-    machine_category: str = machine_info['category']
+
+    machine_category: str|None = machine_info['category']
+    if machine_category == None:
+        machine_category = machine_info['newCategory']
+
     machine_model: str = machine_info['model']
 
     addSections: list[AddSection] = []

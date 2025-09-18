@@ -291,3 +291,28 @@ def delete_document_and_embed_from_database(document_id: int):
         f'DELETE FROM documents '
         f'WHERE document_id = {document_id}'
     ))
+
+def fetch_machine_make_from_database() -> list[str]:
+    create_if_not_exist_database()
+
+    make_results = conn.execute((
+        f'SELECT '
+            f'machine_make ' #0
+        f'FROM chunks '
+        f'GROUP BY machine_make'
+    )).fetchall()
+
+    return [make_result[0] for make_result in make_results]
+
+
+def fetch_machine_category_from_database() -> list[str]:
+    create_if_not_exist_database()
+
+    category_results = conn.execute((
+        f'SELECT '
+            f'machine_category ' #0
+        f'FROM chunks '
+        f'GROUP BY machine_category'
+    )).fetchall()
+
+    return [category_result[0] for category_result in category_results]
