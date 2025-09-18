@@ -11,39 +11,29 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Calendar, Home, Inbox, Search, Settings, SunIcon, MoonIcon } from "lucide-vue-next"
+import { Home, Inbox, Settings, PaperclipIcon } from "lucide-vue-next"
 import { useColorMode } from '@vueuse/core'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import ThemeControl from "./ThemeControl.vue"
 
 
 // Pass { disableTransition: false } to enable transitions
 const mode = useColorMode({ disableTransition: false })
 
-const items = [
+const workspaceItems = [
   {
-    title: "Home",
+    title: "Chat",
     url: "#",
     icon: Home,
   },
   {
-    title: "Inbox",
+    title: "Manage",
     url: "#",
     icon: Inbox,
   },
+]
+const supportItems = [
   {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
+    title: "Help",
     url: "#",
     icon: Settings,
   },
@@ -52,13 +42,28 @@ const items = [
 
 <template>
   <Sidebar>
-    <SidebarHeader />
+    <SidebarHeader>
+      <SidebarMenuButton size="lg"
+        class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+        <div
+          class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+          <PaperclipIcon class="size-4" />
+        </div>
+        <div class="grid flex-1 text-left text-sm leading-tight">
+          <span class="truncate font-semibold">
+            DocuRAG
+          </span>
+          <span class="truncate text-xs">About</span>
+        </div>
+        <ChevronsUpDown class="ml-auto" />
+      </SidebarMenuButton>
+    </SidebarHeader>
     <SidebarContent>
       <SidebarGroup>
-        <SidebarGroupLabel>Application</SidebarGroupLabel>
+        <SidebarGroupLabel>Workspace</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem v-for="item in items" :key="item.title">
+            <SidebarMenuItem v-for="item in workspaceItems" :key="item.title">
               <SidebarMenuButton asChild>
                 <a :href="item.url">
                   <component :is="item.icon" />
@@ -66,14 +71,26 @@ const items = [
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
-
+          </SidebarMenu>
+        </SidebarGroupContent>
+        <SidebarGroupLabel>Support</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem v-for="item in supportItems" :key="item.title">
+              <SidebarMenuButton asChild>
+                <a :href="item.url">
+                  <component :is="item.icon" />
+                  <span>{{ item.title }}</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
     </SidebarContent>
     <SidebarFooter>
       <div class="w-full flex items-end justify-end">
-      <ThemeControl />
+        <ThemeControl />
       </div>
     </SidebarFooter>
   </Sidebar>
