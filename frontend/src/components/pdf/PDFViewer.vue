@@ -56,7 +56,7 @@ const props = defineProps<{
 
     <EmbedPDF v-else :engine="engine" :plugins="plugins">
       <GlobalPointerProvider>
-        <Viewport class="viewport-class bg-background only-vertical-scrollbar" :key="componentKey">
+        <Viewport class="viewport-class only-vertical-scrollbar bg-pdf" :key="componentKey">
           <Scroller class="scroller">
             <template #default="{ page }">
               <div :style="{
