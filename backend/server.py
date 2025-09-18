@@ -8,8 +8,8 @@ import os
 
 from pydantic import BaseModel, Field
 
-from databaseconnection import wipe_database, fetch_document_from_database, delete_document_and_embed_from_database, list_document_from_database, count_document_from_database
-from uploadconnection import extract_information, store_information
+from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_fetch, database_document_list_by_machine, database_machine_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
+from uploadconnection import extract_information, store_document
 from queryconnection import receive_parameters, retrive_relevant, generate_inference
 
 from uuid import uuid4, UUID
@@ -43,6 +43,83 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.post('/wipe')
+def wipe():
+    database_reset()
+
+
+
+
+class MachineCategoryRequest(BaseModel):
+    machine_category: Annotated[str, Field(description="String a category of machine")]
+
+@app.post('/machine/category/add')
+def machine_category_add(request: MachineCategoryRequest):
+    database_machine_category_add(request.machine_category)
+
+@app.get('/machine/category/list')
+def machine_category_list():
+    return { 'machine_categories': database_machine_category_list() }
+
+@app.post('/machine/category/delete')
+def machine_category_delete(request: MachineCategoryRequest):
+    result = database_machine_category_delete(request.machine_category)
+    if not result:
+        raise HTTPException(422, "Machine category inuse")
+
+
+
+
+@app.post('/machine/add')
+def machine_add(machine: Machine):
+    if not database_machine_category_exist(machine.category):
+        raise HTTPException(422, "machine category does not exist")
+    machine_id = database_machine_add(machine)
+    if machine_id == None:
+        raise HTTPException(500, "failed to add machine")
+    return { 'machine_id': machine_id }
+
+@app.get('/machine/list')
+def machine_list():
+    return { 'machine_ids': database_machine_list() }
+
+@app.get('/machine/fetch/{machine_id}')
+def machine_fetch(machine_id: int):
+    machine = database_machine_fetch(machine_id)
+    if machine == None:
+        raise HTTPException(422, "Machine id does not exist")
+    
+    return machine
+
+class MachineDeleteRequest(BaseModel):
+    machine_id: Annotated[int, Field(description="Int id of machine")]
+
+@app.post('/machine/delete')
+def machine_delete(request: MachineDeleteRequest):
+    database_machine_delete(request.machine_id)
+
+
+
+class DocumentCategoryRequest(BaseModel):
+    document_category: Annotated[str, Field(description="String a category of document")]
+
+@app.post('/document/category/add')
+def document_category_add(request: DocumentCategoryRequest):
+    database_document_category_add(request.document_category)
+
+@app.get('/document/category/list')
+def document_category_list():
+    return { 'document_categories': database_document_category_list() }
+
+@app.post('/document/category/delete')
+def document_category_delete(request: DocumentCategoryRequest):
+    result = database_document_category_delete(request.document_category)
+    if not result:
+        raise HTTPException(422, "Machine category inuse")
+
+
+
 lock = Lock()
 in_progress_upload: dict[UUID, str] = {}
 def add_in_progress(file_name: str) -> UUID:
@@ -56,22 +133,31 @@ def remove_in_progress(id: UUID):
     in_progress_upload.pop(id, 'not found')
     lock.release()
 
-@app.post('/wipe')
-def wipe():
-    wipe_database()
-
 @app.post('/document/upload')
-async def upload(file: Annotated[UploadFile, File(description="A PDF to convert to text")], background_task: BackgroundTasks):
+async def document_upload(
+    machine_id: int,
+    document_category: str,
+    file: Annotated[UploadFile, File(description="A PDF to convert to text")], 
+    background_task: BackgroundTasks):
+
+    if not database_machine_exist(machine_id):
+        raise HTTPException(422, "machine_id not valid")
     
-    
+    if not database_document_category_exist(document_category):
+        raise HTTPException(422, "document_category not valid")
+
     file_binary = await file.read()
     
     logger.info('upload file read complete')
 
     upload_id = add_in_progress(file.filename if file.filename != None else "Document")
-    background_task.add_task(upload_continuation, upload_id, file_binary)
+    background_task.add_task(document_upload_continuation, machine_id, document_category, upload_id, file_binary)
 
-async def upload_continuation(upload_id: UUID, file_binary: bytes):
+async def document_upload_continuation(
+        machine_id: int,
+        document_category: str,
+        upload_id: UUID, 
+        file_binary: bytes):
 
     async def on_progress():
         logger.info('upload extraction in-progress')
@@ -83,11 +169,43 @@ async def upload_continuation(upload_id: UUID, file_binary: bytes):
     
     logger.info('upload extraction complete')
 
-    store_information(file_binary, extract_data)
+    # wont work if document category deleted
+    is_success = store_document(machine_id, document_category, file_binary, extract_data)
 
     logger.info('upload store complete')
     
     remove_in_progress(upload_id)
+
+@app.get(
+    '/document/fetch/{document_id}', 
+    responses ={ 200: { "content": {'application/pdf': {}} } }, 
+    response_class=Response
+)
+def document_fetch(document_id: int):
+    binary_response = database_document_fetch(document_id)
+    if binary_response == None:
+        raise HTTPException(status_code=404, detail="document not found")
+    return Response(content=binary_response, media_type='application/pdf')
+
+@app.get('/document/list')
+def document_list(start_id: int = 0, limit: int|None = None):
+    return { 'document_ids': database_document_list(start_id, limit) }
+
+@app.get('/document/list/machine/{machine_id}')
+def document_list_machine(machine_id: int):
+    return { 'document_ids': database_document_list_by_machine(machine_id) }
+
+@app.get('/document/count')
+def document_count():
+    return { 'count': database_document_count() }
+
+class DocumentDeleteRequest(BaseModel):
+    document_id: Annotated[int, Field("int id of the document to delete")]
+
+@app.post('/document/delete')
+def document_delete(request: DocumentDeleteRequest):
+    database_document_delete(request.document_id)
+
 
 
 @app.websocket('/query')
@@ -127,32 +245,3 @@ async def query(websocket: WebSocket):
     await websocket.send_json({'type': 'log', 'message': "stream ended"})
 
     await websocket.close()
-
-
-@app.get(
-    '/document/fetch/{document_id}', 
-    responses ={ 200: { "content": {'application/pdf': {}} } }, 
-    response_class=Response
-)
-def get_document(document_id: int):
-    binary_response = fetch_document_from_database(document_id)
-    if binary_response == None:
-        raise HTTPException(status_code=404, detail="document not found")
-    return Response(content=binary_response, media_type='application/pdf')
-
-@app.get('/document/list')
-def get_document_subset(start_id: int = 0, limit: int|None = None):
-    return { 'ids': list_document_from_database(start_id, limit) }
-
-
-@app.get('/document/count')
-def get_document_subset():
-    return { 'count': count_document_from_database() }
-
-
-class DeleteRequest(BaseModel):
-    document_id: Annotated[int, Field("int id of the document to delete")]
-
-@app.post('/document/delete')
-def delete_document(request: DeleteRequest):
-    delete_document_and_embed_from_database(request.document_id)

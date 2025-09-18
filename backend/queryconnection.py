@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from embedconnection import get_embed
 from chunkconnection import get_chunk
-from databaseconnection import fetch_embed_from_database, FetchEmbedRequest
+from databaseconnection import database_document_fetch, FetchEmbedRequest
 
 class RelevantText(BaseModel):
     document_id: int
@@ -31,7 +31,7 @@ async def retrive_relevant(
     query_chunks = get_chunk(query_text)
     query_embeds = get_embed(query_chunks)
     for query_embed in query_embeds:
-        responses = fetch_embed_from_database(FetchEmbedRequest(
+        responses = database_document_fetch(FetchEmbedRequest(
             query_embed=query_embed,
             machine_make=machine_make,
             machine_name=machine_name,
