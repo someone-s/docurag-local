@@ -1,4 +1,3 @@
-import asyncio
 from typing import Annotated
 from fastapi import FastAPI, File, HTTPException, Response, UploadFile, WebSocket, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +9,7 @@ from pydantic import BaseModel, Field
 
 from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_fetch, database_document_list_by_machine, database_machine_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
 from uploadconnection import extract_information, store_document
-from queryconnection import converse, receive_input, retrive_relevant, generate_inference
+from queryconnection import converse
 
 from uuid import uuid4, UUID
 from threading import Lock
