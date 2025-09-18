@@ -16,6 +16,10 @@
       "name": "chunk",
       "path": "../chunk/"
     },
+    {
+      "name": "test",
+      "path": "../test/"
+    },
   ],
   "settings": {}
 }
