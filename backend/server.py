@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_fetch, database_document_list_by_machine, database_machine_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
 from uploadconnection import extract_information, store_document
-from queryconnection import receive_parameters, retrive_relevant, generate_inference
+from queryconnection import converse, receive_input, retrive_relevant, generate_inference
 
 from uuid import uuid4, UUID
 from threading import Lock
@@ -213,35 +213,6 @@ async def query(websocket: WebSocket):
 
     await websocket.accept()
 
-    machine_make, machine_name, machine_category, machine_model, query_text = await receive_parameters(fetch_input_hook=websocket.receive_json)
-    
-
-    relevant_texts = await retrive_relevant(machine_make, machine_name, machine_category, machine_model, query_text)
-    for relevant_text in relevant_texts:
-
-        await websocket.send_json({
-            'type': 'document',
-            'document_id': relevant_text.document_id,
-            'machine_make': relevant_text.machine_make,
-            'machine_name': relevant_text.machine_name,
-            'machine_category': relevant_text.machine_category,
-            'machine_model': relevant_text.machine_model,
-            'document_category': relevant_text.document_category,
-            'section_start': relevant_text.section_start,
-            'section_end': relevant_text.section_end
-        })
-        await asyncio.sleep(0.00001)
-
-    async def on_delta(delta: str):
-        await websocket.send_json({'type': 'generate', 'delta': delta})
-        await asyncio.sleep(0.0001)
-
-    async def on_complete(text: str):
-            await websocket.send_json({'type': 'complete', 'text': text})
-            await asyncio.sleep(0.0001)
-    
-    await generate_inference(client, query_text, relevant_texts, on_delta=on_delta, on_complete=on_complete)
-
-    await websocket.send_json({'type': 'log', 'message': "stream ended"})
+    await converse(client, websocket.receive_json, websocket.send_json)
 
     await websocket.close()
