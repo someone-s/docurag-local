@@ -36,7 +36,7 @@ const { provides: scrollProvides, state: scrollState } = useScroll();
         <ZoomOutIcon class="w-4 h-4"/>
       </Button>
     </div>
-    <Button variant="outline" size="icon" @click="zoomProvides.requestZoom(ZoomMode.FitPage)">
+    <Button variant="outline" size="icon" @click="zoomProvides.requestZoom(ZoomMode.FitPage)" class="bg-background dark:bg-background hover:bg-accent dark:hover:bg-accent">
       <FullscreenIcon class="w-4 h-4" />
     </Button>
     
