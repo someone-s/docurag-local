@@ -12,7 +12,7 @@ const { provides: scrollProvides, state: scrollState } = useScroll();
 </script>
  
 <template>
-  <div v-if="zoomProvides && scrollProvides" class="relative w-full bottom-12 flex  justify-center">
+  <div v-if="zoomProvides && scrollProvides" class="relative w-full bottom-12 flex  justify-center no-drag">
 
     <div class='inline-flex w-fit border rounded-md shadow-xs bg-background mr-2'>
       <Button variant="ghost" size="icon" @click="scrollProvides.scrollToPreviousPage()">

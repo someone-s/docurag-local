@@ -36,9 +36,10 @@ let documents: PDFDocument[] = [];
 <template>
   <ResizablePanelGroup direction="horizontal">
     <ResizablePanel class="h-screen">
-      <PDFViewer class="h-full" :documents="documents" />
     </ResizablePanel>
     <ResizableHandle with-handle />
-    <ResizablePanel>Two</ResizablePanel>
+    <ResizablePanel class="">
+      <PDFViewer class="h-full" :documents="documents" />
+    </ResizablePanel>
   </ResizablePanelGroup>
 </template>

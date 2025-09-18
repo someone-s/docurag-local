@@ -43,7 +43,7 @@ const props = defineProps<{
 </script>
  
 <template>
-  <div class="absolute isolate left-0 right-0 top-3 flex  justify-center">
+  <div class="absolute isolate left-0 right-0 top-3 flex  justify-center no-drag">
 
     <Select v-on:update:model-value="(id: AcceptableValue) => { if (loaderProvides != null) onchange(loaderProvides, id as number) }">
       <SelectTrigger  class="w-80 bg-background">

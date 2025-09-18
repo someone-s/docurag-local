@@ -47,15 +47,17 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative h-screen">
     <div v-if="isLoading || !engine" class="loading-pane">
       Loading PDF Engine...
     </div>
 
+
+
     <EmbedPDF v-else :engine="engine" :plugins="plugins">
       <GlobalPointerProvider>
-        <Viewport class="viewport-class no-scrollbar bg-background" :key="componentKey">
-          <Scroller>
+        <Viewport class="viewport-class bg-background only-vertical-scrollbar" :key="componentKey">
+          <Scroller class="scroller">
             <template #default="{ page }">
               <div :style="{
                 width: `${page.width}px`,
@@ -74,6 +76,7 @@ const props = defineProps<{
 </template>
 
 <style scoped>
+
 .loading-pane {
   display: flex;
   justify-content: center;
@@ -81,11 +84,7 @@ const props = defineProps<{
   height: 100%;
 }
 
-.no-drag {
-    -webkit-user-drag: none;
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
+.only-vertical-scrollbar {
+    overflow-x: hidden !important;
 }
 </style>
