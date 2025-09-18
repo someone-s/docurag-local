@@ -2,9 +2,11 @@
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -13,6 +15,7 @@ import { Calendar, Home, Inbox, Search, Settings, SunIcon, MoonIcon } from "luci
 import { useColorMode } from '@vueuse/core'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import ThemeControl from "./ThemeControl.vue"
 
 
 // Pass { disableTransition: false } to enable transitions
@@ -49,6 +52,7 @@ const items = [
 
 <template>
   <Sidebar>
+    <SidebarHeader />
     <SidebarContent>
       <SidebarGroup>
         <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -62,33 +66,16 @@ const items = [
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <DropdownMenu>
-              <DropdownMenuTrigger as-child>
-                <Button variant="outline">
-                  <SunIcon class="hidden dark:inline"/>
-                  <MoonIcon class="inline dark:hidden"/>
-                  <span class="sr-only">Toggle theme</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem @click="mode = 'light'">
-                  Light
-                </DropdownMenuItem>
-                <DropdownMenuItem @click="mode = 'dark'">
-                  Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem @click="mode = 'auto'">
-                  System
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            </SidebarMenuItem>
-            
+
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
     </SidebarContent>
+    <SidebarFooter>
+      <div class="w-full flex items-end justify-end">
+      <ThemeControl />
+      </div>
+    </SidebarFooter>
   </Sidebar>
 
 </template>
