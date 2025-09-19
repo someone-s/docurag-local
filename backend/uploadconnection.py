@@ -117,7 +117,7 @@ async def extract_information(
         return json.loads(output)
 
 def store_document(
-        machine_id: int,
+        machine_ids: list[int],
         document_category: str,
         file_binary: bytes, 
         extract_data: dict[str]
@@ -145,7 +145,7 @@ def store_document(
 
 
     database_document_add(
-        machine_id=machine_id,
+        machine_ids=machine_ids,
         document=Document(
             category=document_category,
             data=file_binary,

@@ -56,8 +56,7 @@ def database_create_if_not_exist():
         f'CREATE TABLE IF NOT EXISTS documents ('
             f'document_id bigserial PRIMARY KEY,'
             f'document_category text REFERENCES document_categories (document_category),'
-            f'document_data bytea,'
-            f'machine_reference bigint REFERENCES machines (machine_id)'
+            f'document_data bytea'
         f')'
     ))
     conn.execute((
@@ -71,8 +70,16 @@ def database_create_if_not_exist():
             f'segment_embed vector({vector_dimension})'
         f')'
     ))
+    conn.execute((
+        f'CREATE TABLE IF NOT EXISTS machine_documents ('
+            f'relation_id bigserial PRIMARY KEY,'
+            f'machine_reference bigint REFERENCES machines (machine_id),'
+            f'document_reference bigint REFERENCES documents (document_id)'
+        f')'
+    ))
             
 def database_delete():
+    conn.execute('DROP TABLE IF EXISTS machine_documents')
     conn.execute('DROP TABLE IF EXISTS chunks')
     conn.execute('DROP TABLE IF EXISTS documents')
     conn.execute('DROP TABLE IF EXISTS document_categories')
@@ -283,7 +290,7 @@ class Document(BaseModel):
     category: Annotated[str, Field(description="String category of document")]
     data: Annotated[bytes, Field(description="Bytes of the source pdf")]
 
-def database_document_add(machine_id: int, document: Document, sections: list[Section]) -> bool:
+def database_document_add(machine_ids: list[int], document: Document, sections: list[Section]) -> bool:
     database_create_if_not_exist()
 
     if not database_document_category_exist(document.category):
@@ -292,19 +299,30 @@ def database_document_add(machine_id: int, document: Document, sections: list[Se
     cursor = conn.execute((
         f'INSERT INTO documents ('
             f'document_category,'
-            f'document_data,'
-            f'machine_reference'
+            f'document_data'
         f') VALUES ('
-            '%s,'
             '%s,'
             '%s'
         f') RETURNING document_id'
     ), (
         document.category, 
         document.data,
-        machine_id,
     ))
     document_id = cursor.fetchone()[0]
+
+    for machine_id in machine_ids:
+        conn.execute((
+            f'INSERT INTO machine_documents ('
+                f'machine_reference,'
+                f'document_reference'
+            f') VALUES ('
+                '%s,'
+                '%s'
+            f')'
+        ), (
+            machine_id,
+            document_id
+        ))
 
     for section in sections:
         for segment in section.segments:
@@ -390,24 +408,34 @@ def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedRespon
         f'FROM chunks c '
         f'INNER JOIN ('
             f'SELECT '
-                f'selm.machine_make,'
-                f'selm.machine_name,'
-                f'selm.machine_category,'
-                f'selm.machine_model,'
+                f'selmd.machine_make,'
+                f'selmd.machine_name,'
+                f'selmd.machine_category,'
+                f'selmd.machine_model,'
                 f'd.document_id,'
                 f'd.document_category '
             f'FROM documents d '
             f'INNER JOIN ('
                 f'SELECT '
-                    f'machine_id,'
-                    f'machine_make,'
-                    f'machine_name,'
-                    f'machine_category,'
-                    f'machine_model '
-                f'FROM machines '
-                f'{filter_query}'
-            f') selm '
-            f'ON selm.machine_id = d.machine_reference'
+                    f'selm.machine_make,'
+                    f'selm.machine_name,'
+                    f'selm.machine_category,'
+                    f'selm.machine_model,'
+                    f'md.document_reference '
+                f'FROM machine_documents md '
+                f'INNER JOIN ('
+                    f'SELECT '
+                        f'machine_id,'
+                        f'machine_make,'
+                        f'machine_name,'
+                        f'machine_category,'
+                        f'machine_model '
+                    f'FROM machines '
+                    f'{filter_query}'
+                f') selm '
+                f'ON selm.machine_id = md.machine_reference'
+            f') selmd '
+            f'ON selmd.document_reference = d.document_id'
         f') seld '
         f'ON seld.document_id = c.document_reference '
         f'ORDER BY segment_embed <-> ''%s '
@@ -496,6 +524,11 @@ def database_document_fetch(document_id: int) -> bytes|None:
 
 def database_document_delete(document_id: int):
     database_create_if_not_exist()
+
+    conn.execute((
+        f'DELETE FROM machine_documents '
+        f'WHERE document_reference = ''%s'
+    ), (document_id,))
 
     conn.execute((
         f'DELETE FROM chunks '

@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import FastAPI, File, HTTPException, Response, UploadFile, WebSocket, BackgroundTasks
+from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile, WebSocket, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 
 from openai import AsyncOpenAI
@@ -134,13 +134,26 @@ def remove_in_progress(id: UUID):
 
 @app.post('/document/upload')
 async def document_upload(
-    machine_id: int,
-    document_category: str,
+    machine_ids_str: Annotated[str, Form(description="A comma separated list of int machine_ids this document is for, type is string due to framework limitation")],
+    document_category: Annotated[str, Form()],
     file: Annotated[UploadFile, File(description="A PDF to convert to text")], 
     background_task: BackgroundTasks):
 
-    if not database_machine_exist(machine_id):
-        raise HTTPException(422, "machine_id not valid")
+    machine_ids: list[int] = []
+
+    for machine_id_str in machine_ids_str.split(','):
+        machine_id: int
+        try:
+            machine_id = int(machine_id_str)
+        except:
+            raise HTTPException(422, f"machine_id {machine_id_str} is not an integer")
+        
+        if not database_machine_exist(machine_id):
+            raise HTTPException(422, f"machine_id {machine_id} not valid")
+        
+        machine_ids.append(machine_id)
+
+    logger.info(machine_ids)
     
     if not database_document_category_exist(document_category):
         raise HTTPException(422, "document_category not valid")
@@ -150,10 +163,10 @@ async def document_upload(
     logger.info('upload file read complete')
 
     upload_id = add_in_progress(file.filename if file.filename != None else "Document")
-    background_task.add_task(document_upload_continuation, machine_id, document_category, upload_id, file_binary)
+    background_task.add_task(document_upload_continuation, machine_ids, document_category, upload_id, file_binary)
 
 async def document_upload_continuation(
-        machine_id: int,
+        machine_ids: list[int],
         document_category: str,
         upload_id: UUID, 
         file_binary: bytes):
@@ -169,7 +182,7 @@ async def document_upload_continuation(
     logger.info('upload extraction complete')
 
     # wont work if document category deleted
-    is_success = store_document(machine_id, document_category, file_binary, extract_data)
+    is_success = store_document(machine_ids, document_category, file_binary, extract_data)
 
     logger.info('upload store complete')
     

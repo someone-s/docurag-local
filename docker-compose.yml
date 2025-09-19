@@ -40,7 +40,7 @@ services:
       start_period: 30s
       timeout: 10s
   
-  frontend:  # internal port is 8080
+  backend:  # internal port is 8080
     build: ./backend
     container_name: backend
     environment:
