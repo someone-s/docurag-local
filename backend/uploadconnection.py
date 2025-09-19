@@ -24,15 +24,15 @@ extract_schema: dict[str,object] = {
                 },
                 "text": {
                     "type": "string",
-                    "description": "A verbose extract of the text from the document, combined with text desciption of images in the section, reformating is allowed"
+                    "description": "A word for word extract of the text from the document, combined with text desciption of images in the section."
                 },
                 "startPage": {
                     "type": "integer",
-                    "description": "The first page where the section begins, ignoring appearance in any index page"
+                    "description": "The first page where the section begins, ignoring appearance in any index page. This is unrelated to the section number."
                 },
                 "endPage": {
                     "type": "integer",
-                    "description": "The last page where the section appears, ignoring appearance in any index page"
+                    "description": "The last page where the section appears, ignoring appearance in any index page. This is unrelated to the section number"
                 }
             },
             "required": [
