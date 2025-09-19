@@ -34,6 +34,11 @@ register_vector(conn)
 
 def database_create_if_not_exist():
     conn.execute((
+        f'CREATE TABLE IF NOT EXISTS machine_makes ('
+            f'machine_make text PRIMARY KEY'
+        f')'
+    ))
+    conn.execute((
         f'CREATE TABLE IF NOT EXISTS machine_categories ('
             f'machine_category text PRIMARY KEY'
         f')'
@@ -41,7 +46,7 @@ def database_create_if_not_exist():
     conn.execute((
         f'CREATE TABLE IF NOT EXISTS machines ('
             f'machine_id bigserial PRIMARY KEY,'
-            f'machine_make text,'
+            f'machine_make text REFERENCES machine_makes (machine_make),'
             f'machine_name text,'
             f'machine_category text REFERENCES machine_categories (machine_category),'
             f'machine_model text'
@@ -85,10 +90,63 @@ def database_delete():
     conn.execute('DROP TABLE IF EXISTS document_categories')
     conn.execute('DROP TABLE IF EXISTS machines')
     conn.execute('DROP TABLE IF EXISTS machine_categories')
+    conn.execute('DROP TABLE IF EXISTS machine_makes')
 
 def database_reset():
     database_delete()
     database_create_if_not_exist()
+
+
+
+def database_machine_make_add(machine_make: str):
+    database_create_if_not_exist()
+
+    conn.execute((
+        f'INSERT INTO machine_makes ('
+            f'machine_make'
+        f') VALUES ('
+            '%s'
+        f')'
+    ), (machine_make,))
+
+def database_machine_make_list() -> list[str]:
+    database_create_if_not_exist()
+
+    responses = conn.execute((
+        f'SELECT machine_make '
+        f'FROM machine_makes'
+    )).fetchall()
+
+    return [response[0] for response in responses]
+
+def database_machine_make_delete(machine_make: str) -> bool:
+    database_create_if_not_exist()
+
+    usage_result = conn.execute((
+        f'SELECT COUNT(*) FROM machines '
+        f'WHERE machine_make = ''%s'
+    ), (machine_make,)).fetchone()
+    if usage_result[0] > 0:
+        return False
+
+    conn.execute((
+        f'DELETE FROM machine_makes '
+        f'WHERE machine_make = ''%s'
+    ), (machine_make,))
+
+    return True
+
+def database_machine_make_exist(machine_make: str) -> bool:
+    database_create_if_not_exist()
+
+    count_result = conn.execute((
+        f'SELECT COUNT(1) FROM machine_makes '
+        f'WHERE machine_make = ''%s'
+    ), (machine_make,)).fetchone()
+
+    return True if count_result[0] == 1 else False
+
+
 
 
 def database_machine_category_add(machine_category: str):

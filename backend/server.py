@@ -7,7 +7,7 @@ import os
 
 from pydantic import BaseModel, Field
 
-from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_fetch, database_document_list_by_machine, database_machine_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
+from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_fetch, database_document_list_by_machine, database_machine_list, database_machine_make_add, database_machine_make_delete, database_machine_make_exist, database_machine_make_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
 from uploadconnection import extract_information, store_document
 from queryconnection import converse
 
@@ -49,6 +49,24 @@ def wipe():
 
 
 
+class MachineMakeRequest(BaseModel):
+    machine_make: Annotated[str, Field(description="String a make (brand) of machine")]
+
+@app.post('/machine/make/add')
+def machine_make_add(request: MachineMakeRequest):
+    database_machine_make_add(request.machine_make)
+
+@app.get('/machine/make/list')
+def machine_make_list():
+    return { 'machine_makes': database_machine_make_list() }
+
+@app.post('/machine/make/delete')
+def machine_make_delete(request: MachineMakeRequest):
+    result = database_machine_make_delete(request.machine_make)
+    if not result:
+        raise HTTPException(422, "Machine make inuse")
+
+
 
 class MachineCategoryRequest(BaseModel):
     machine_category: Annotated[str, Field(description="String a category of machine")]
@@ -72,11 +90,16 @@ def machine_category_delete(request: MachineCategoryRequest):
 
 @app.post('/machine/add')
 def machine_add(machine: Machine):
+    if not database_machine_make_exist(machine.make):
+        raise HTTPException(422, "machine make does not exist")
+    
     if not database_machine_category_exist(machine.category):
         raise HTTPException(422, "machine category does not exist")
+    
     machine_id = database_machine_add(machine)
     if machine_id == None:
         raise HTTPException(500, "failed to add machine")
+    
     return { 'machine_id': machine_id }
 
 @app.get('/machine/list')
