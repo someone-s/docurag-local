@@ -32,29 +32,7 @@ while conn == None:
 conn.execute('CREATE EXTENSION IF NOT EXISTS vector')
 register_vector(conn)
 
-def database_create_if_not_exist():
-    database_create_machine_makes()
-    database_create_machine_categories()
-    database_create_machines()
-    database_create_document_categories()
-    database_create_documents()
-    database_create_chunks()
-    database_create_machine_documents()
-            
-def database_delete():
-    database_delete_machine_documents()
-    database_delete_chunks()
-    database_delete_documents()
-    database_delete_document_categories()
-    database_delete_machines()
-    database_delete_machine_categories()
-    database_delete_machine_makes()
-
-def database_reset():
-    database_delete()
-    database_create_if_not_exist()
-
-database_create_if_not_exist()
+# DATABASE CREATE QUERIES AT THE END OF FILE
 
 
 
@@ -595,3 +573,28 @@ def database_delete_machine_documents():
     conn.execute('DROP TABLE IF EXISTS machine_documents')
 
     
+
+
+def database_create_if_not_exist():
+    database_create_machine_makes()
+    database_create_machine_categories()
+    database_create_machines()
+    database_create_document_categories()
+    database_create_documents()
+    database_create_chunks()
+    database_create_machine_documents()
+            
+def database_delete():
+    database_delete_machine_documents()
+    database_delete_chunks()
+    database_delete_documents()
+    database_delete_document_categories()
+    database_delete_machines()
+    database_delete_machine_categories()
+    database_delete_machine_makes()
+
+def database_reset():
+    database_delete()
+    database_create_if_not_exist()
+
+database_create_if_not_exist()
