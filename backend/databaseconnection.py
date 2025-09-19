@@ -33,74 +33,42 @@ conn.execute('CREATE EXTENSION IF NOT EXISTS vector')
 register_vector(conn)
 
 def database_create_if_not_exist():
-    conn.execute((
-        f'CREATE TABLE IF NOT EXISTS machine_makes ('
-            f'machine_make text PRIMARY KEY'
-        f')'
-    ))
-    conn.execute((
-        f'CREATE TABLE IF NOT EXISTS machine_categories ('
-            f'machine_category text PRIMARY KEY'
-        f')'
-    ))
-    conn.execute((
-        f'CREATE TABLE IF NOT EXISTS machines ('
-            f'machine_id bigserial PRIMARY KEY,'
-            f'machine_make text REFERENCES machine_makes (machine_make),'
-            f'machine_name text,'
-            f'machine_category text REFERENCES machine_categories (machine_category),'
-            f'machine_model text'
-        f')'
-    ))
-    conn.execute((
-        f'CREATE TABLE IF NOT EXISTS document_categories ('
-            f'document_category text PRIMARY KEY'
-        f')'
-    ))
-    conn.execute((
-        f'CREATE TABLE IF NOT EXISTS documents ('
-            f'document_id bigserial PRIMARY KEY,'
-            f'document_category text REFERENCES document_categories (document_category),'
-            f'document_data bytea'
-        f')'
-    ))
-    conn.execute((
-        f'CREATE TABLE IF NOT EXISTS chunks ('
-            f'chunks_id bigserial PRIMARY KEY,'
-            f'document_reference bigint REFERENCES documents (document_id),'
-            f'section_name text,'
-            f'section_text text,'
-            f'section_start integer,'
-            f'section_end integer,'
-            f'segment_embed vector({vector_dimension})'
-        f')'
-    ))
-    conn.execute((
-        f'CREATE TABLE IF NOT EXISTS machine_documents ('
-            f'relation_id bigserial PRIMARY KEY,'
-            f'machine_reference bigint REFERENCES machines (machine_id),'
-            f'document_reference bigint REFERENCES documents (document_id)'
-        f')'
-    ))
+    database_create_machine_makes()
+    database_create_machine_categories()
+    database_create_machines()
+    database_create_document_categories()
+    database_create_documents()
+    database_create_chunks()
+    database_create_machine_documents()
             
 def database_delete():
-    conn.execute('DROP TABLE IF EXISTS machine_documents')
-    conn.execute('DROP TABLE IF EXISTS chunks')
-    conn.execute('DROP TABLE IF EXISTS documents')
-    conn.execute('DROP TABLE IF EXISTS document_categories')
-    conn.execute('DROP TABLE IF EXISTS machines')
-    conn.execute('DROP TABLE IF EXISTS machine_categories')
-    conn.execute('DROP TABLE IF EXISTS machine_makes')
+    database_delete_machine_documents()
+    database_delete_chunks()
+    database_delete_documents()
+    database_delete_document_categories()
+    database_delete_machines()
+    database_delete_machine_categories()
+    database_delete_machine_makes()
 
 def database_reset():
     database_delete()
     database_create_if_not_exist()
 
+database_create_if_not_exist()
 
+
+
+def database_create_machine_makes():
+    conn.execute((
+        f'CREATE TABLE IF NOT EXISTS machine_makes ('
+            f'machine_make text PRIMARY KEY'
+        f')'
+    ))
+
+def database_delete_machine_makes():
+    conn.execute('DROP TABLE IF EXISTS machine_makes')
 
 def database_machine_make_add(machine_make: str):
-    database_create_if_not_exist()
-
     conn.execute((
         f'INSERT INTO machine_makes ('
             f'machine_make'
@@ -110,8 +78,6 @@ def database_machine_make_add(machine_make: str):
     ), (machine_make,))
 
 def database_machine_make_list() -> list[str]:
-    database_create_if_not_exist()
-
     responses = conn.execute((
         f'SELECT machine_make '
         f'FROM machine_makes'
@@ -120,8 +86,6 @@ def database_machine_make_list() -> list[str]:
     return [response[0] for response in responses]
 
 def database_machine_make_delete(machine_make: str) -> bool:
-    database_create_if_not_exist()
-
     usage_result = conn.execute((
         f'SELECT COUNT(*) FROM machines '
         f'WHERE machine_make = ''%s'
@@ -137,8 +101,6 @@ def database_machine_make_delete(machine_make: str) -> bool:
     return True
 
 def database_machine_make_exist(machine_make: str) -> bool:
-    database_create_if_not_exist()
-
     count_result = conn.execute((
         f'SELECT COUNT(1) FROM machine_makes '
         f'WHERE machine_make = ''%s'
@@ -148,10 +110,17 @@ def database_machine_make_exist(machine_make: str) -> bool:
 
 
 
+def database_create_machine_categories():
+    conn.execute((
+        f'CREATE TABLE IF NOT EXISTS machine_categories ('
+            f'machine_category text PRIMARY KEY'
+        f')'
+    ))
+
+def database_delete_machine_categories():
+    conn.execute('DROP TABLE IF EXISTS machine_categories')
 
 def database_machine_category_add(machine_category: str):
-    database_create_if_not_exist()
-
     conn.execute((
         f'INSERT INTO machine_categories ('
             f'machine_category'
@@ -161,8 +130,6 @@ def database_machine_category_add(machine_category: str):
     ), (machine_category,))
 
 def database_machine_category_list() -> list[str]:
-    database_create_if_not_exist()
-
     responses = conn.execute((
         f'SELECT machine_category '
         f'FROM machine_categories'
@@ -171,8 +138,6 @@ def database_machine_category_list() -> list[str]:
     return [response[0] for response in responses]
 
 def database_machine_category_delete(machine_category: str) -> bool:
-    database_create_if_not_exist()
-
     usage_result = conn.execute((
         f'SELECT COUNT(*) FROM machines '
         f'WHERE machine_category = ''%s'
@@ -188,8 +153,6 @@ def database_machine_category_delete(machine_category: str) -> bool:
     return True
 
 def database_machine_category_exist(machine_category: str) -> bool:
-    database_create_if_not_exist()
-
     count_result = conn.execute((
         f'SELECT COUNT(1) FROM machine_categories '
         f'WHERE machine_category = ''%s'
@@ -199,6 +162,20 @@ def database_machine_category_exist(machine_category: str) -> bool:
 
 
 
+def database_create_machines():
+    conn.execute((
+        f'CREATE TABLE IF NOT EXISTS machines ('
+            f'machine_id bigserial PRIMARY KEY,'
+            f'machine_make text REFERENCES machine_makes (machine_make),'
+            f'machine_name text,'
+            f'machine_category text REFERENCES machine_categories (machine_category),'
+            f'machine_model text'
+        f')'
+    ))
+
+def database_delete_machines():
+    conn.execute('DROP TABLE IF EXISTS machines')
+
 class Machine(BaseModel):
     make: Annotated[str, Field(description="String common name of machine")]
     name: Annotated[str, Field(description="String manufacturer of machine")]
@@ -206,8 +183,6 @@ class Machine(BaseModel):
     model: Annotated[str, Field(description="String model serial of machine")]
 
 def database_machine_add(machine: Machine) -> int|None:
-    database_create_if_not_exist()
-
     if not database_machine_category_exist(machine.category):
         return None
 
@@ -233,8 +208,6 @@ def database_machine_add(machine: Machine) -> int|None:
     return machine_id
 
 def database_machine_list() -> list[int]:
-    database_create_if_not_exist()
-
     responses = conn.execute((
         f'SELECT machine_id '
         f'FROM machines'
@@ -243,8 +216,6 @@ def database_machine_list() -> list[int]:
     return [response[0] for response in responses]
 
 def database_machine_fetch(machine_id: int) -> Machine|None:
-    database_create_if_not_exist()
-
     response = conn.execute((
         f'SELECT '
             f'machine_make,' #0
@@ -266,16 +237,12 @@ def database_machine_fetch(machine_id: int) -> Machine|None:
         )
 
 def database_machine_delete(machine_id: int):
-    database_create_if_not_exist()
-
     conn.execute((
         f'DELETE FROM machines '
         f'WHERE machine_id = ''%s'
     ), (machine_id,))
 
 def database_machine_exist(machine_id: int) -> bool:
-    database_create_if_not_exist()
-
     count_result = conn.execute((
         f'SELECT COUNT(1) FROM machines '
         f'WHERE machine_id = ''%s'
@@ -284,9 +251,18 @@ def database_machine_exist(machine_id: int) -> bool:
     return True if count_result[0] == 1 else False
     
 
-def database_document_category_add(document_category: str):
-    database_create_if_not_exist()
 
+def database_create_document_categories():
+    conn.execute((
+        f'CREATE TABLE IF NOT EXISTS document_categories ('
+            f'document_category text PRIMARY KEY'
+        f')'
+    ))
+
+def database_delete_document_categories():
+    conn.execute('DROP TABLE IF EXISTS document_categories')
+
+def database_document_category_add(document_category: str):
     conn.execute((
         f'INSERT INTO document_categories ('
             f'document_category'
@@ -296,8 +272,6 @@ def database_document_category_add(document_category: str):
     ), (document_category,))
 
 def database_document_category_list() -> list[str]:
-    database_create_if_not_exist()
-
     responses = conn.execute((
         f'SELECT document_category '
         f'FROM document_categories'
@@ -306,8 +280,6 @@ def database_document_category_list() -> list[str]:
     return [response[0] for response in responses]
 
 def database_document_category_delete(document_category: str) -> bool:
-    database_create_if_not_exist()
-
     usage_result = conn.execute((
         f'SELECT COUNT(*) FROM documents '
         f'WHERE document_category = ''%s'
@@ -323,8 +295,6 @@ def database_document_category_delete(document_category: str) -> bool:
     return True
 
 def database_document_category_exist(document_category: str) -> bool:
-    database_create_if_not_exist()
-
     count_result = conn.execute((
         f'SELECT COUNT(1) FROM document_categories '
         f'WHERE document_category = ''%s'
@@ -333,6 +303,34 @@ def database_document_category_exist(document_category: str) -> bool:
     return True if count_result[0] == 1 else False
 
 
+
+def database_create_chunks():
+    conn.execute((
+        f'CREATE TABLE IF NOT EXISTS chunks ('
+            f'chunks_id bigserial PRIMARY KEY,'
+            f'document_reference bigint REFERENCES documents (document_id),'
+            f'section_name text,'
+            f'section_text text,'
+            f'section_start integer,'
+            f'section_end integer,'
+            f'segment_embed vector({vector_dimension})'
+        f')'
+    ))
+
+def database_delete_chunks():
+    conn.execute('DROP TABLE IF EXISTS chunks')
+
+def database_create_documents():
+    conn.execute((
+        f'CREATE TABLE IF NOT EXISTS documents ('
+            f'document_id bigserial PRIMARY KEY,'
+            f'document_category text REFERENCES document_categories (document_category),'
+            f'document_data bytea'
+        f')'
+    ))
+
+def database_delete_documents():
+    conn.execute('DROP TABLE IF EXISTS documents')
 
 class Segment(BaseModel):
     embed: Annotated[list[float], Field(description="Fixed length array of int representing the embed vector, length of array is set based on model")]
@@ -349,8 +347,6 @@ class Document(BaseModel):
     data: Annotated[bytes, Field(description="Bytes of the source pdf")]
 
 def database_document_add(machine_ids: list[int], document: Document, sections: list[Section]) -> bool:
-    database_create_if_not_exist()
-
     if not database_document_category_exist(document.category):
         return False
 
@@ -411,7 +407,6 @@ def database_document_add(machine_ids: list[int], document: Document, sections: 
 
     return True
 
-
 class FetchEmbedRequest(BaseModel):
     query_embed: Annotated[list[float], Field(description="Array of int representing the embed vector")]
     machine_make: Annotated[str|None, Field(description="Optional string common name of machine")]
@@ -435,8 +430,6 @@ class FetchEmbedResponse(BaseModel):
     section: Annotated[FetchEmbedSection, Field(description="The section in the document")]
 
 def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedResponse]:
-    database_create_if_not_exist()
-
     filters: list[str] = []
     if request.machine_make != None:
         filters.append(f'machine_make LIKE \'{request.machine_make}\'')
@@ -525,10 +518,7 @@ def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedRespon
     
     return responses
 
-
 def database_document_list(start_id: int = 0, limit: int|None = None) -> list[int]:
-    database_create_if_not_exist()
-
     limiter = f'LIMIT {limit}' if limit != None else '' 
 
     document_results = conn.execute((
@@ -542,8 +532,6 @@ def database_document_list(start_id: int = 0, limit: int|None = None) -> list[in
     return [document_result[0] for document_result in document_results] # list of document ids
 
 def database_document_list_by_machine(machine_id: int) -> list[int]:
-    database_create_if_not_exist()
-
     document_results = conn.execute((
         f'SELECT '
             f'document_id ' #0
@@ -554,8 +542,6 @@ def database_document_list_by_machine(machine_id: int) -> list[int]:
     return [document_result[0] for document_result in document_results] # list of document ids
 
 def database_document_count() -> int:
-    database_create_if_not_exist()
-
     document_result = conn.execute((
         f'SELECT '
             f'COUNT(*) ' #0
@@ -565,8 +551,6 @@ def database_document_count() -> int:
     return document_result[0]
 
 def database_document_fetch(document_id: int) -> bytes|None:
-    database_create_if_not_exist()
-
     document_result = conn.execute((
         f'SELECT '
             f'document_data ' #0
@@ -581,8 +565,6 @@ def database_document_fetch(document_id: int) -> bytes|None:
     return document_result[0]
 
 def database_document_delete(document_id: int):
-    database_create_if_not_exist()
-
     conn.execute((
         f'DELETE FROM machine_documents '
         f'WHERE document_reference = ''%s'
@@ -597,3 +579,19 @@ def database_document_delete(document_id: int):
         f'DELETE FROM documents '
         f'WHERE document_id = ''%s'
     ), (document_id,))
+
+
+
+def database_create_machine_documents():
+    conn.execute((
+        f'CREATE TABLE IF NOT EXISTS machine_documents ('
+            f'relation_id bigserial PRIMARY KEY,'
+            f'machine_reference bigint REFERENCES machines (machine_id),'
+            f'document_reference bigint REFERENCES documents (document_id)'
+        f')'
+    ))
+
+def database_delete_machine_documents():
+    conn.execute('DROP TABLE IF EXISTS machine_documents')
+
+    
