@@ -10,15 +10,17 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { AcceptableValue } from 'reka-ui';
-import type { PDFDocument } from './document';
+import type { PDFDocument } from './pdf-types';
 import { useLoaderCapability, type LoaderCapability } from '@embedpdf/plugin-loader/vue';
 
 const { provides: loaderProvides } = useLoaderCapability();
 
-
+let currentId: number = -1;
 
 async function onchange(loaderProvides: LoaderCapability, id: number) {
 
+  if (id == currentId) return;
+  currentId = id;
   const document = props.documents.find(document => document.id == id);
   if (document == null) return;
 
@@ -40,12 +42,21 @@ const props = defineProps<{
   documents: PDFDocument[]
   reload: () => void
 }>();
+
+async function changeDocument(id: number) {
+  if (loaderProvides.value == null) return;
+  await onchange(loaderProvides.value, id);
+}
+
+defineExpose({
+  changeDocument
+})
 </script>
  
 <template>
   <div class="absolute isolate left-0 right-0 top-3 flex  justify-center no-drag">
 
-    <Select v-on:update:model-value="(id: AcceptableValue) => { if (loaderProvides != null) onchange(loaderProvides, id as number) }">
+    <Select :model-value="documents.find(document => document.id == currentId)?.name ?? 'Choose Document'" v-on:update:model-value="(id: AcceptableValue) => { if (loaderProvides != null) onchange(loaderProvides, id as number) }">
       <SelectTrigger  class="w-80 bg-background dark:bg-background hover:bg-accent dark:hover:bg-accent">
         <SelectValue placeholder="Choose Document" />
       </SelectTrigger>

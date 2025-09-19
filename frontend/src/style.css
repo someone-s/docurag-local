@@ -156,6 +156,11 @@
     scrollbar-width: none;  /* Firefox */
 }
 
+
+.only-vertical-scrollbar {
+    overflow-x: hidden !important;
+}
+
 .no-drag {
     -webkit-user-drag: none;
 

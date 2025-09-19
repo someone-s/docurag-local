@@ -9,10 +9,21 @@ const { provides: zoomProvides, state: zoomState } = useZoom();
 
 // Provide scroll functionality
 const { provides: scrollProvides, state: scrollState } = useScroll();
+
+function goToPage(page: number) {
+  if (scrollProvides.value == null) return;
+  scrollProvides.value.scrollToPage({
+    pageNumber: page
+  })
+}
+
+defineExpose({
+  goToPage
+});
 </script>
  
 <template>
-  <div v-if="zoomProvides && scrollProvides" class="relative w-full bottom-12 flex  justify-center no-drag">
+  <div v-if="zoomProvides && scrollProvides" class="absolute w-full bottom-2 flex justify-center no-drag">
 
     <div class='inline-flex w-fit border rounded-md shadow-xs bg-background mr-2'>
       <Button variant="ghost" size="icon" @click="scrollProvides.scrollToPreviousPage()">

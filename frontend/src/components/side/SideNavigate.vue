@@ -11,8 +11,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Home, Inbox, Settings, PaperclipIcon } from "lucide-vue-next"
-import ThemeControl from "./ThemeControl.vue"
+import { Home, Inbox, Settings, PaperclipIcon, ChevronsUpDown } from "lucide-vue-next"
+import SideThemeControl from "./SideThemeControl.vue"
 
 const workspaceItems = [
   {
@@ -85,7 +85,7 @@ const supportItems = [
     </SidebarContent>
     <SidebarFooter>
       <div class="w-full flex items-end justify-end">
-        <ThemeControl />
+        <SideThemeControl />
       </div>
     </SidebarFooter>
   </Sidebar>

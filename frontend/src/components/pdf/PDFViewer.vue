@@ -11,10 +11,10 @@ import { RenderLayer, RenderPluginPackage } from '@embedpdf/plugin-render/vue';
 
 // Import zoom functionality
 import { ZoomMode, ZoomPluginPackage } from '@embedpdf/plugin-zoom/vue';
-import PDFControl from './Control.vue';
-import PDFSelect from './Select.vue';
-import type { PDFDocument } from './document';
-import { ref } from 'vue';
+import PDFControl from './PDFControl.vue';
+import PDFSelect from './PDFSelect.vue';
+import type { PDFDocument } from './pdf-types';
+import { ref, useTemplateRef } from 'vue';
 
 import { GlobalPointerProvider, InteractionManagerPluginPackage } from '@embedpdf/plugin-interaction-manager/vue'
 import { PanPluginPackage } from '@embedpdf/plugin-pan/vue';
@@ -40,10 +40,22 @@ const plugins = [
   })
 ];
 
+const select = useTemplateRef('select');
+const control = useTemplateRef('control');
+
+async function goToDocumentPage(documentId: number, page: number) {
+  await select.value?.changeDocument(documentId);
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  control.value?.goToPage(page);
+}
 
 const props = defineProps<{
   documents: PDFDocument[]
 }>();
+
+defineExpose({
+  goToDocumentPage
+})
 </script>
 
 <template>
@@ -69,8 +81,8 @@ const props = defineProps<{
           </Scroller>
         </Viewport>
       </GlobalPointerProvider>
-      <PDFSelect :documents="props.documents" :reload="() => componentKey++"></PDFSelect>
-      <PDFControl></PDFControl>
+      <PDFSelect ref="select" :documents="props.documents" :reload="() => componentKey++"></PDFSelect>
+      <PDFControl ref="control"></PDFControl>
     </EmbedPDF>
   </div>
 </template>
@@ -82,9 +94,5 @@ const props = defineProps<{
   justify-content: center;
   align-items: center;
   height: 100%;
-}
-
-.only-vertical-scrollbar {
-    overflow-x: hidden !important;
 }
 </style>
