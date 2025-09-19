@@ -9,8 +9,8 @@ import {
   SidebarTrigger
 } from "@/components/ui/sidebar"
 
-import PDFViewer from '@/components/pdf/PDFViewer.vue';
-import type { PDFDocument } from '@/components/pdf/PDFDocument';
+import Viewer from '@/components/pdf/Viewer.vue';
+import type { PDFDocument } from '@/components/pdf/document';
 import axios from 'axios';
 import Navigate from './side/Navigate.vue';
 
@@ -49,8 +49,8 @@ fetchAllDocuments(documents);
           <ResizablePanel class="h-screen">
           </ResizablePanel>
           <ResizableHandle with-handle />
-          <ResizablePanel class="">
-            <PDFViewer class="h-full" :documents="documents" />
+          <ResizablePanel>
+            <Viewer class="h-full" :documents="documents" />
           </ResizablePanel>
         </ResizablePanelGroup>
       </slot>
