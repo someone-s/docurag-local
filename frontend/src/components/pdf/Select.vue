@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { AcceptableValue } from 'reka-ui';
-import type { PDFDocument } from './PDFDocument';
+import type { PDFDocument } from './document';
 import { useLoaderCapability, type LoaderCapability } from '@embedpdf/plugin-loader/vue';
 
 const { provides: loaderProvides } = useLoaderCapability();

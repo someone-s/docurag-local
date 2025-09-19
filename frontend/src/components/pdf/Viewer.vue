@@ -11,9 +11,9 @@ import { RenderLayer, RenderPluginPackage } from '@embedpdf/plugin-render/vue';
 
 // Import zoom functionality
 import { ZoomMode, ZoomPluginPackage } from '@embedpdf/plugin-zoom/vue';
-import PDFControl from './PDFControl.vue';
-import PDFSelect from './PDFSelect.vue';
-import type { PDFDocument } from './PDFDocument';
+import PDFControl from './Control.vue';
+import PDFSelect from './Select.vue';
+import type { PDFDocument } from './document';
 import { ref } from 'vue';
 
 import { GlobalPointerProvider, InteractionManagerPluginPackage } from '@embedpdf/plugin-interaction-manager/vue'
