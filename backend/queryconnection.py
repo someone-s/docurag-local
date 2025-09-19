@@ -234,7 +234,7 @@ response_schema: dict[str,object] = {
                 "properties": {
                     "text": {
                         "type": "string",
-                        "description": "A sentence or sentences in the response, referencing a fact"
+                        "description": "A sentence part of the whole response, referencing a fact. Remember use \n to format response"
                     },
                     "documentId": {
                         "type": "integer",
