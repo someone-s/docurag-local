@@ -21,7 +21,7 @@ defineProps<{
         }" class="rounded-sm h-[1rem] p-0 cursor-pointer">
           {{ segment.reference.documentId }}:{{ segment.reference.startPage }}-{{ segment.reference.endPage }}
           <SquareArrowOutUpRightIcon class="size-[0.75rem]" stroke-width="0.15rem"></SquareArrowOutUpRightIcon>
-        </Button>
+        </Button>{{ '\n' }}
       </span>
     </p>
   </div>
