@@ -223,8 +223,11 @@ def document_delete(request: DocumentDeleteRequest):
 @app.websocket('/query')
 async def query(websocket: WebSocket):
 
-    await websocket.accept()
+    try:
+        await websocket.accept()
 
-    await converse(client, websocket.receive_json, websocket.send_json)
+        await converse(client, websocket.receive_json, websocket.send_json)
 
-    await websocket.close()
+        await websocket.close()
+    except:
+        logger.info("A websocket for query failed")
