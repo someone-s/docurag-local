@@ -5,10 +5,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 
 defineProps<{
-  options: string[]
+  current: string,
+  options: string[],
+  setCurrent: (value: string | null) => void
 }>();
 </script>
 
@@ -16,10 +19,12 @@ defineProps<{
   <BreadcrumbItem>
     <DropdownMenu>
       <DropdownMenuTrigger class="flex items-center gap-1">
-        Components
+        {{ current }}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem v-for="option in options">{{option}}</DropdownMenuItem>
+        <DropdownMenuItem @click="() => setCurrent(null)">{{ "Unset" }}</DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem v-for="option in options" @click="() => setCurrent(option)">{{ option }}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   </BreadcrumbItem>

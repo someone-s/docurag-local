@@ -9,9 +9,9 @@ import PDFViewer from '@/components/pdf/PDFViewer.vue';
 import type { PDFDocument } from '@/components/pdf/pdf-types';
 import ChatColumn from '@/components/chat/ChatColumn.vue';
 import axios from 'axios';
-import { reactive, useTemplateRef, type Reactive } from 'vue';
+import { useTemplateRef } from 'vue';
 import { QueryState } from './query-state';
-import type { ChatOptions } from '../chat/chat-types';
+import { QueryFilter } from './query-filter';
 
 const documents: PDFDocument[] = [];
 
@@ -54,11 +54,8 @@ const queryState = new QueryState(
   () => chat.value?.scrollToBottom()
 );
 
-const options: Reactive<ChatOptions> = reactive({
-  machineMake: [],
-  machineCategory: [],
-  machineModel: []
-});
+const queryFilter = new QueryFilter();
+
 </script>
 
 <template>
@@ -69,7 +66,10 @@ const options: Reactive<ChatOptions> = reactive({
         :entries="queryState.entries" 
         :send-query="query => queryState.sendQuery(query)" 
         :goToSegment="goToSegment"
-        :options="options" />
+        :options="queryFilter.options"
+        :set-make="(val) => queryFilter.setMake(val)"
+        :set-category="(val) => queryFilter.setCategory(val)"
+        :set-model="(val) => queryFilter.setModel(val)" />
     </ResizablePanel>
     <ResizableHandle with-handle />
     <ResizablePanel>

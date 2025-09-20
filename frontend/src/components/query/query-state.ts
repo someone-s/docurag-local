@@ -61,6 +61,7 @@ class QueryState {
   public onComplete() {
     this.partialResponse = "";
     this.processing.value = false;
+    console.log(this.processing.value)
 
     this.onChatComplete();
   }
@@ -76,7 +77,7 @@ class QueryState {
           this.onGenerate(data);
           break;
         case 'complete':
-          this.onChatComplete();
+          this.onComplete();
           break;
       }
     }

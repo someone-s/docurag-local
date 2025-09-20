@@ -17,9 +17,12 @@ interface ChatEntry {
 };
 
 interface ChatOptions {
-  machineMake: string[],
-  machineCategory: string[],
-  machineModel: string[]
+  makeCurrent: string|null,
+  makeOptions: string[],
+  categoryCurrent: string|null,
+  categoryOptions: string[],
+  modelCurrent: string|null,
+  modelOptions: string[]
 }
 
 export type { ChatEntry, ChatRole, ChatSegment, ChatReference, ChatOptions }
