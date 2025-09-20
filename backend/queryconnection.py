@@ -132,7 +132,7 @@ async def retrive_relevant(
         raise Exception("Query text should not be None")
 
     relevant_texts: list[RelevantText] = []
-    query_chunks = get_chunk(converse_state.query_text)
+    query_chunks = get_chunk(None, converse_state.query_text)
     query_embeds = get_embed(query_chunks)
     for query_embed in query_embeds:
         responses = database_document_query(FetchEmbedRequest(

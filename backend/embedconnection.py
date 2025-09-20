@@ -19,7 +19,11 @@ def get_embed(chunks: list[str]) -> list[list[float]]:
                 (batch+1)*batch_size
             ]
 
-        embed_input = { 'inputs': actual_text }
+        embed_input = { 
+            'inputs': actual_text, 
+            'model': "text-embeddings-inference",
+            'encoding_format': "float" 
+        }
         embed_req = requests.post(f'http://{embed_serviceorip}:{embed_port}/embed', json=embed_input)
         if embed_req.status_code != 200:
             raise HTTPException(status_code=embed_req.status_code, detail=embed_req.reason)

@@ -7,7 +7,7 @@ import base64
 
 from embedconnection import get_embed
 from chunkconnection import get_chunk
-from databaseconnection import database_document_add, Document, Section, Segment 
+from databaseconnection import database_document_add, Document, Section, Segment, database_machine_fetch_multiple 
 
 extract_schema: dict[str,object] = {
     "type": "object",
@@ -122,13 +122,16 @@ def store_document(
         file_binary: bytes, 
         extract_data: dict[str]
 ): # type: ignore
+    
+    machines = database_machine_fetch_multiple(machine_ids)
+    reference = f"{document_category} for \n" + "\n".join([f"{machine.make} {machine.name} {machine.category} {machine.model}" for machine in machines]) + "\n"
 
     sections: list[Section] = []
     for section in extract_data['sections']:
         section_text: str = section['text']
 
         addSegments: list[Segment] = []
-        chunks = get_chunk(section_text)
+        chunks = get_chunk(reference, section_text)
         embeds = get_embed(chunks)
         for embed in embeds:
             addSegments.append(Segment(

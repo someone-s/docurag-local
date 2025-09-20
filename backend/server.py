@@ -7,7 +7,7 @@ import os
 
 from pydantic import BaseModel, Field
 
-from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_fetch, database_document_list_by_machine, database_machine_list, database_machine_make_add, database_machine_make_delete, database_machine_make_exist, database_machine_make_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
+from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_exist_all, database_machine_fetch, database_document_list_by_machine, database_machine_list, database_machine_make_add, database_machine_make_delete, database_machine_make_exist, database_machine_make_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
 from uploadconnection import extract_information, store_document
 from queryconnection import converse
 
@@ -170,13 +170,12 @@ async def document_upload(
             machine_id = int(machine_id_str)
         except:
             raise HTTPException(422, f"machine_id {machine_id_str} is not an integer")
-        
-        if not database_machine_exist(machine_id):
-            raise HTTPException(422, f"machine_id {machine_id} not valid")
-        
         machine_ids.append(machine_id)
 
-    logger.info(machine_ids)
+        
+    if not database_machine_exist_all(machine_ids):
+        raise HTTPException(422, f"not all machine_ids valid")
+    
     
     if not database_document_category_exist(document_category):
         raise HTTPException(422, "document_category not valid")
