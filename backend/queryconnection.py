@@ -171,7 +171,7 @@ def create_conversation_log() -> ResponseInputParam:
         "content": [
             {
                 "type": "input_text",
-                "text": f"Answer the given Question using only provided Facts."
+                "text": f"Answer the given Question using only provided Facts. Use lists and bullet points where applicable, always newline for each bulletpoint"
             }
         ]
     })
