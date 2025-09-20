@@ -1,28 +1,26 @@
 import type { ChatEntry, ChatSegment, ChatReference } from "@/components/chat/chat-types";
 import { parse, Allow } from "partial-json";
+import { ref, type Ref } from "vue";
 
 class QueryState {
 
   activeSocket: WebSocket | null = null;
   partialResponse: string = "";
-  entries: ChatEntry[] = [];
+  entries: Ref<ChatEntry[]> = ref([]);
 
   connecting: boolean = false;
-  processing: boolean = false;
+  processing: Ref<boolean> = ref(false);
 
   queue: ((ws: WebSocket) => void)[] = [];
 
   onDocumentRequest: (documentId: number, documentCategory: string, machineMake: string, machineCategory: string, machineModel: string) => void;
-  onChatUpdate: () => void;
   onChatComplete: () => void;
 
   constructor(
     onDocumentRequest: (documentId: number, documentCategory: string, machineMake: string, machineCategory: string, machineModel: string) => void,
-    onChatUpdate: () => void,
     onChatComplete: () => void
   ) {
     this.onDocumentRequest = onDocumentRequest;
-    this.onChatUpdate = onChatUpdate;
     this.onChatComplete = onChatComplete
   }
 
@@ -36,7 +34,7 @@ class QueryState {
     if (partialObject.segments === undefined) return;
 
     const segments: any[] = partialObject.segments;
-    this.entries[this.entries.length - 1].segments = segments
+    this.entries.value[this.entries.value.length - 1].segments = segments
       .filter(inputSegment => inputSegment.text !== undefined)
       .map<ChatSegment>(inputSegment => {
 
@@ -58,12 +56,11 @@ class QueryState {
           reference: reference
         };
       });
-    this.onChatUpdate();
   }
 
   public onComplete() {
     this.partialResponse = "";
-    this.processing = false;
+    this.processing.value = false;
 
     this.onChatComplete();
   }
@@ -101,7 +98,7 @@ class QueryState {
       obj.activeSocket?.close(); // active socket may be null or not opened
       obj.activeSocket = newSocket;
       obj.partialResponse = "";
-      obj.entries = [];
+      obj.entries.value = [];
 
       obj.connecting = false;
 
@@ -159,7 +156,7 @@ class QueryState {
     this.enqueueCallback((ws) => {
       ws.send(JSON.stringify({ type: 'command', action: 'generate', query: query }));
       obj.activeSocket
-      obj.entries.push({
+      obj.entries.value.push({
         role: 'User',
         segments: [
           {
@@ -168,12 +165,11 @@ class QueryState {
           }
         ]
       });
-      obj.entries.push({
+      obj.entries.value.push({
         role: 'Assistant',
         segments: []
       });
-      obj.processing = true;
-      obj.onChatUpdate();
+      obj.processing.value = true;
     });
   }
   public sendExit() {

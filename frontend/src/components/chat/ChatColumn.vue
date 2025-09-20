@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import ChatBubble from './ChatBubble.vue';
-import type { ChatEntry } from './chat-types';
+import type { ChatEntry, ChatOptions } from './chat-types';
 import ChatFilter from './ChatFilters.vue';
 import Button from '@/components/ui/button/Button.vue';
 import { ArrowRightIcon } from 'lucide-vue-next';
-import { useTemplateRef } from 'vue';
+import { useTemplateRef, type Reactive, type Ref } from 'vue';
 
 const queryInput = useTemplateRef('query-input');
 
@@ -22,10 +22,12 @@ defineExpose({
 
 
 const props = defineProps<{
-  allowEdit: boolean,
-  entries: ChatEntry[],
+  block: Ref<boolean>,
+  entries: Ref<ChatEntry[]>,
   sendQuery: (query: string) => void,
-  goToSegment: (documentId: number, startPage: number, endPage: number) => void
+  goToSegment: (documentId: number, startPage: number, endPage: number) => void,
+
+  options: Reactive<ChatOptions>
 }>();
 
 
@@ -42,15 +44,15 @@ function onSubmit() {
 <template>
   <div class="relative h-screen">
     <div ref="chat-area" class="h-screen overflow-scroll no-scrollbar">
-      <ChatBubble v-for="entry in entries" :entry="entry" :goToSegment="goToSegment" />
+      <ChatBubble v-for="entry in entries.value" :entry="entry" :goToSegment="goToSegment" />
       <div class="h-36"></div>
     </div>
     <div class="absolute w-full bottom-2 flex justify-center no-drag">
       <div class="w-[90%] h-fit flex flex-row items-center">
         <div class="w-[calc(100%-48px)] border rounded-lg p-3 pl-5 pr-5 bg-pdf">
-          <ChatFilter class="overflow-scroll no-scrollbar"></ChatFilter>
+          <ChatFilter class="overflow-scroll no-scrollbar" :options="options"></ChatFilter>
           <div class="h-3"></div>
-          <div ref="query-input" class="query-entry h-fit max-h-[50vh] overflow-scroll no-scrollbar outline-0 text-md text-wrap break-all" :contenteditable="allowEdit" placeholder="Enter your question..." @keyup.exact.enter="onSubmit"></div>
+          <div ref="query-input" class="query-entry h-fit max-h-[50vh] overflow-scroll no-scrollbar outline-0 text-md text-wrap break-all" :contenteditable="!block.value" placeholder="Enter your question..." @keyup.exact.enter="onSubmit"></div>
         </div>
         <div class=" shrink-0 w-3"></div>
         <Button class="shrink-0 size-9 rounded-4xl cursor-pointer" @click="onSubmit">

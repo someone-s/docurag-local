@@ -16,4 +16,10 @@ interface ChatEntry {
   segments: ChatSegment[]
 };
 
-export type { ChatEntry, ChatRole, ChatSegment, ChatReference }
+interface ChatOptions {
+  machineMake: string[],
+  machineCategory: string[],
+  machineModel: string[]
+}
+
+export type { ChatEntry, ChatRole, ChatSegment, ChatReference, ChatOptions }
