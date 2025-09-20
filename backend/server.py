@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile, WebSocket, BackgroundTasks
+from fastapi import FastAPI, File, Form, HTTPException, Query, Response, UploadFile, WebSocket, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 
 from openai import AsyncOpenAI
@@ -7,7 +7,7 @@ import os
 
 from pydantic import BaseModel, Field
 
-from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_exist_all, database_machine_fetch, database_document_list_by_machine, database_machine_list, database_machine_make_add, database_machine_make_delete, database_machine_make_exist, database_machine_make_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
+from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_exist_all, database_machine_fetch, database_document_list_by_machine, database_machine_fetch_filter, database_machine_list, database_machine_make_add, database_machine_make_delete, database_machine_make_exist, database_machine_make_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
 from uploadconnection import extract_information, store_document
 from queryconnection import converse
 
@@ -113,6 +113,11 @@ def machine_fetch(machine_id: int):
         raise HTTPException(422, "Machine id does not exist")
     
     return machine
+
+@app.get('/machine/search')
+def machine_search(machine_make: Annotated[str|None, Query()] = None, machine_category: Annotated[str|None, Query()] = None):
+    machines = database_machine_fetch_filter(machine_make, machine_category)
+    return { 'machines': machines }
 
 class MachineDeleteRequest(BaseModel):
     machine_id: Annotated[int, Field(description="Int id of machine")]

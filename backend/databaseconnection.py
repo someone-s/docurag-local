@@ -232,6 +232,34 @@ def database_machine_fetch_multiple(machine_ids: list[int]) -> list[Machine]:
         model=response[3]
     ) for response in responses]
 
+def database_machine_fetch_filter(machine_make: str|None, machine_category: str|None) -> list[Machine]:
+    filters: list[str] = []
+    if machine_make != None:
+        filters.append(f'machine_make LIKE \'{machine_make}\'')
+    if machine_category != None:
+        filters.append(f'machine_category LIKE \'{machine_category}\'')
+
+    filter_query: str = ''
+    if len(filters) > 0: 
+        filter_query = f'WHERE {" AND ".join(filters)}'
+
+    responses = conn.execute((
+        f'SELECT '
+            f'machine_make,' #0
+            f'machine_name,' #1
+            f'machine_category,' #2
+            f'machine_model ' #3
+        f'FROM machines '
+        f'{filter_query}'
+    )).fetchall()
+
+    return [Machine(
+        make=response[0],
+        name=response[1],
+        category=response[2],
+        model=response[3]
+    ) for response in responses]
+
 def database_machine_delete(machine_id: int):
     conn.execute((
         f'DELETE FROM machines '
