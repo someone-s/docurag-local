@@ -66,7 +66,6 @@ class QueryState {
   }
 
   public onMessage(event: MessageEvent<any>) {
-    console.log(this);
     try {
       const data = JSON.parse(event.data);
       switch (data.type) {
