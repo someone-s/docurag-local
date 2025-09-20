@@ -512,8 +512,8 @@ def database_document_list(start_id: int = 0, limit: int|None = None) -> list[in
 def database_document_list_by_machine(machine_id: int) -> list[int]:
     document_results = conn.execute((
         f'SELECT '
-            f'document_id ' #0
-        f'FROM documents '
+            f'document_reference ' #0
+        f'FROM machine_documents '
         f'WHERE machine_reference = ''%s'
     ), (machine_id,)).fetchall()
 
