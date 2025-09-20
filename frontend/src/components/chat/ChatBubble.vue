@@ -18,7 +18,7 @@ defineProps<{
           if (segment.reference === null) return; // Make TS not complain
           const capturedReference: ChatReference = segment.reference;
           goToSegment(capturedReference.documentId, capturedReference.startPage, capturedReference.endPage);
-        }" class="rounded-sm h-[1rem] p-0 cursor-pointer">
+        }" class="rounded-sm h-[1rem] p-0 cursor-pointer mr-1">
           {{ segment.reference.documentId }}:{{ segment.reference.startPage }}-{{ segment.reference.endPage }}
           <SquareArrowOutUpRightIcon class="size-[0.75rem]" stroke-width="0.15rem"></SquareArrowOutUpRightIcon>
         </Button>
