@@ -55,7 +55,6 @@ const queryState = ref(new QueryState(
   () => updateKey.value++,
   () => chat.value?.scrollToBottom()
 ));
-queryState.value.connect();
 
 </script>
 

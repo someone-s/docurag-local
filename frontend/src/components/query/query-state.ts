@@ -6,13 +6,15 @@ class QueryState {
   activeSocket: WebSocket | null = null;
   partialResponse: string = "";
   entries: ChatEntry[] = [];
+
+  connecting: boolean = false;
   processing: boolean = false;
+
+  queue: ((ws: WebSocket) => void)[] = [];
 
   onDocumentRequest: (documentId: number, documentCategory: string, machineMake: string, machineCategory: string, machineModel: string) => void;
   onChatUpdate: () => void;
   onChatComplete: () => void;
-
-  sendQueue: string[] = []
 
   constructor(
     onDocumentRequest: (documentId: number, documentCategory: string, machineMake: string, machineCategory: string, machineModel: string) => void,
@@ -61,11 +63,13 @@ class QueryState {
 
   public onComplete() {
     this.partialResponse = "";
+    this.processing = false;
 
     this.onChatComplete();
   }
 
   public onMessage(event: MessageEvent<any>) {
+    console.log(this);
     try {
       const data = JSON.parse(event.data);
       switch (data.type) {
@@ -85,62 +89,95 @@ class QueryState {
     }
   }
 
-  public connect() {
+  private connect() {
+    if (this.connecting) return;
+    this.connecting = true;
+
     const newSocket = new WebSocket("ws://0.0.0.0:8081/query");
     const obj = this;
     this.activeSocket = null;
     newSocket.addEventListener('open', _ => {
+
       obj.activeSocket?.close(); // active socket may be null or not opened
       obj.activeSocket = newSocket;
       obj.partialResponse = "";
       obj.entries = [];
-      console.log(obj.activeSocket);
+
+      obj.connecting = false;
+
+      newSocket.addEventListener('message', event => obj.onMessage(event));
+      newSocket.addEventListener('close', _ => {
+        obj.activeSocket = null;
+        obj.queue = [];
+      });
+      newSocket.addEventListener('error', _ => {
+        obj.activeSocket = null;
+        obj.queue = [];
+      });
+
+      obj.flush();
     });
-    newSocket.addEventListener('message', event => this.onMessage(event));
-    newSocket.addEventListener('close', _ => {
-       obj.activeSocket = null;
-       obj.sendQueue = [];
-    });
+
+  }
+
+  // assume activeSocket is set
+  private flush() {
+    if (!this.activeSocket) return;
+    let callback: ((ws: WebSocket) => void) | undefined;
+    while ((callback = this.queue.shift()) !== undefined)
+      callback(this.activeSocket);
+  }
+
+  private enqueueCallback(callback: (ws: WebSocket) => void) {
+    this.queue.push(callback);
+    if (this.activeSocket == null)
+      this.connect();
+    else
+      this.flush();
+  }
+
+  private enqueueMessage(message: string) {
+    this.enqueueCallback((_) => this.activeSocket?.send(message));
   }
 
   public setMachineMake(machineMake: string) {
-    if (this.activeSocket == null) return;
-    this.activeSocket.send(JSON.stringify({ type: 'data', parameter: 'machine_make', value: machineMake }));
+    this.enqueueMessage(JSON.stringify({ type: 'data', parameter: 'machine_make', value: machineMake }));
+
   }
   public setMachineName(machineName: string) {
-    if (this.activeSocket == null) return;
-    this.activeSocket.send(JSON.stringify({ type: 'data', parameter: 'machine_name', value: machineName }));
+    this.enqueueMessage(JSON.stringify({ type: 'data', parameter: 'machine_name', value: machineName }));
   }
   public setMachineCategory(machineCategory: string) {
-    if (this.activeSocket == null) return;
-    this.activeSocket.send(JSON.stringify({ type: 'data', parameter: 'machine_category', value: machineCategory }));
+    this.enqueueMessage(JSON.stringify({ type: 'data', parameter: 'machine_category', value: machineCategory }));
   }
   public setMachineModel(machineModel: string) {
-    if (this.activeSocket == null) return;
-    this.activeSocket.send(JSON.stringify({ type: 'data', parameter: 'machine_model', value: machineModel }));
+    this.enqueueMessage(JSON.stringify({ type: 'data', parameter: 'machine_model', value: machineModel }));
   }
 
   public sendQuery(query: string) {
-    if (this.activeSocket == null) return;
-    this.activeSocket.send(JSON.stringify({ type: 'command', action: 'generate', query: query }));
-    this.entries.push({
-      role: 'User',
-      segments: [
-        {
-          text: query,
-          reference: null
-        }
-      ]
+    const obj = this;
+    this.enqueueCallback((ws) => {
+      ws.send(JSON.stringify({ type: 'command', action: 'generate', query: query }));
+      obj.activeSocket
+      obj.entries.push({
+        role: 'User',
+        segments: [
+          {
+            text: query,
+            reference: null
+          }
+        ]
+      });
+      obj.entries.push({
+        role: 'Assistant',
+        segments: []
+      });
+      obj.processing = true;
+      obj.onChatUpdate();
     });
-    this.entries.push({
-      role: 'Assistant',
-      segments: []
-    });
-    this.onChatUpdate();
   }
   public sendExit() {
-    if (this.activeSocket == null) return;
-    this.activeSocket.send(JSON.stringify({ type: 'command', action: 'exit' }));
+    this.enqueueMessage(JSON.stringify({ type: 'command', action: 'exit' }));
   }
 }
 
