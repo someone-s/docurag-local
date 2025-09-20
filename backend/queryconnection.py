@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, Awaitable, Callable
 
 from openai import AsyncOpenAI
@@ -70,6 +71,7 @@ async def converse(
         append_conversation_query(conversation_log, converse_state.query_text)
 
         await generate_inference(client, conversation_log, send_output_hook)
+        await send_output_hook({'type': 'filler'})
 
     await send_output_hook({'type': 'log', 'message': "stream ended"})
 
@@ -299,6 +301,7 @@ async def generate_inference(
         if isinstance(event, ResponseTextDoneEvent):
             done_event: ResponseTextDoneEvent = event
             await send_output_hook({'type': 'complete', 'text': done_event.text})
+            await asyncio.sleep(0.01)
 
         if isinstance(event, ResponseCreatedEvent):
             created_event: ResponseCreatedEvent = event
@@ -311,3 +314,6 @@ async def generate_inference(
                 if isinstance(output, ResponseReasoningItem):
                     reasoning_output: ResponseReasoningItem = output
                     conversation_log.append(reasoning_output)
+
+    # await send_output_hook({'type': 'complete'})
+    # await asyncio.sleep(0.0001)
