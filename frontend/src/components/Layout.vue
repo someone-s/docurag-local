@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  SidebarInset,
   SidebarProvider,
   SidebarTrigger
 } from "@/components/ui/sidebar"
@@ -12,12 +13,15 @@ import Query from "@/components/query/Query.vue";
 <template>
   <SidebarProvider class="w-screen">
     <SideNavigate />
-    <main class="w-screen">
-      <SidebarTrigger class="absolute z-10" />
-      <slot>
-        <Query />
-      </slot>
-    </main>
+    <SidebarInset class="h-screen">
+      <header
+        class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b">
+        <div class="flex items-center gap-2 px-4">
+          <SidebarTrigger class="-ml-1" />
+        </div>
+      </header>
+      <Query />
+    </SidebarInset>
   </SidebarProvider>
 
 </template>

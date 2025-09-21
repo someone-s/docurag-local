@@ -59,8 +59,8 @@ defineExpose({
 </script>
 
 <template>
-  <div class="relative h-screen">
-    <div v-if="isLoading || !engine" class="loading-pane">
+  <div class="relative">
+    <div v-if="isLoading || !engine" class="loading-pane  bg-pdf">
       Loading PDF Engine...
     </div>
 

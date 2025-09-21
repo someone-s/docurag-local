@@ -1,30 +1,31 @@
 <script setup lang="ts">
-import { SunIcon, MoonIcon } from "lucide-vue-next"
-import { useColorMode } from '@vueuse/core'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import {
+  SidebarMenuButton
+} from "@/components/ui/sidebar";
+import { Sun, Moon } from "lucide-vue-next";
+import { useColorMode } from '@vueuse/core';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-const mode = useColorMode()
+const { store, state } = useColorMode()
 
 </script>
 
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="outline">
-        <SunIcon class="hidden dark:inline" />
-        <MoonIcon class="inline dark:hidden" />
-        <span class="sr-only">Toggle theme</span>
-      </Button>
+      <SidebarMenuButton>
+        <component :is="state == 'light' ? Sun : Moon" />
+        <span>Toggle theme</span>
+      </SidebarMenuButton>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <DropdownMenuItem @click="mode = 'light'">
+      <DropdownMenuItem @click="store = 'light'">
         Light
       </DropdownMenuItem>
-      <DropdownMenuItem @click="mode = 'dark'">
+      <DropdownMenuItem @click="store = 'dark'">
         Dark
       </DropdownMenuItem>
-      <DropdownMenuItem @click="mode = 'auto'">
+      <DropdownMenuItem @click="store = 'auto'">
         System
       </DropdownMenuItem>
     </DropdownMenuContent>

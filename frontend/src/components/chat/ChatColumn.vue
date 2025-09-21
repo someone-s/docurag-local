@@ -49,8 +49,8 @@ function onSubmit() {
 </script>
 
 <template>
-  <div class="relative h-screen">
-    <div ref="chat-area" class="h-screen overflow-scroll no-scrollbar">
+  <div class="relative h-full">
+    <div ref="chat-area" class="h-full overflow-scroll no-scrollbar">
       <ChatBubble v-for="entry in entries.value" :entry="entry" :goToSegment="goToSegment" />
       <div class="h-36"></div>
     </div>

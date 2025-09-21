@@ -73,7 +73,7 @@ const queryFilter = new QueryFilter(
 </script>
 
 <template>
-  <ResizablePanelGroup direction="horizontal">
+  <ResizablePanelGroup direction="horizontal" class="h-full" auto-save-id="query-group">
     <ResizablePanel>
       <ChatColumn ref="chat" class="h-full" 
         :block="queryState.processing"

@@ -10,9 +10,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { Home, Inbox, Settings, PaperclipIcon, ChevronsUpDown } from "lucide-vue-next"
-import SideThemeControl from "./SideThemeControl.vue"
+  type SidebarProps,
+} from "@/components/ui/sidebar";
+import { Home, Inbox, PaperclipIcon, ChevronsUpDown } from "lucide-vue-next";
+import SideThemeControl from "./SideThemeControl.vue";
 
 const workspaceItems = [
   {
@@ -26,17 +27,14 @@ const workspaceItems = [
     icon: Inbox,
   },
 ]
-const supportItems = [
-  {
-    title: "Help",
-    url: "#",
-    icon: Settings,
-  },
-];
+
+const props = withDefaults(defineProps<SidebarProps>(), {
+  collapsible: "icon",
+})
 </script>
 
 <template>
-  <Sidebar>
+  <Sidebar v-bind="props">
     <SidebarHeader>
       <SidebarMenuButton size="lg"
         class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
@@ -68,24 +66,17 @@ const supportItems = [
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
-        <SidebarGroupLabel>Support</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <SidebarMenuItem v-for="item in supportItems" :key="item.title">
-              <SidebarMenuButton asChild>
-                <a :href="item.url">
-                  <component :is="item.icon" />
-                  <span>{{ item.title }}</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroupContent>
       </SidebarGroup>
     </SidebarContent>
     <SidebarFooter>
       <div class="w-full flex items-end justify-end">
-        <SideThemeControl />
+        <SidebarMenu>
+            <SidebarMenuItem  :key="1">
+              <SidebarMenuButton asChild>
+                <SideThemeControl></SideThemeControl>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
       </div>
     </SidebarFooter>
   </Sidebar>
