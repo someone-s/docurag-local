@@ -74,7 +74,7 @@ const queryFilter = new QueryFilter(
 
 <template>
   <ResizablePanelGroup direction="horizontal" class="h-full" auto-save-id="query-group">
-    <ResizablePanel>
+    <ResizablePanel :min-size="40">
       <ChatColumn ref="chat" class="h-full" 
         :block="queryState.processing"
         :entries="queryState.entries" 
@@ -86,7 +86,7 @@ const queryFilter = new QueryFilter(
         :set-model="(val) => queryFilter.setModel(val)" />
     </ResizablePanel>
     <ResizableHandle with-handle />
-    <ResizablePanel>
+    <ResizablePanel :min-size="20">
       <PDFViewer ref="viewer" class="h-full" :documents="documents" />
     </ResizablePanel>
   </ResizablePanelGroup>
