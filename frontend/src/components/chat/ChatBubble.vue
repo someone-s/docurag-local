@@ -2,6 +2,8 @@
 import { SquareArrowOutUpRightIcon } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import type { ChatEntry, ChatReference } from './chat-types';
+// @ts-expect-error
+import { SelfBuildingSquareSpinner  } from 'epic-spinners';
 
 defineProps<{
   entry: ChatEntry,
@@ -23,6 +25,11 @@ defineProps<{
           <SquareArrowOutUpRightIcon class="size-[0.75rem]" stroke-width="0.15rem"></SquareArrowOutUpRightIcon>
         </Button>
       </span>
+       <self-building-square-spinner v-if="entry.segments.length == 0"
+        :animation-duration="6000"
+        :size="12"
+        class="fill-foreground"
+      />
     </p>
   </div>
 </template>
