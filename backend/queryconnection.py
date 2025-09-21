@@ -91,20 +91,21 @@ async def receive_input(
 
             case 'data':
                 parameter = item['parameter']
-                value = item['value']
                 match parameter:
+                    case 'empty':
+                        has_new_info = True
                     case 'machine_make':
                         has_new_info = True
-                        new_info.machine_state.make = value
+                        new_info.machine_state.make = item['value']
                     case 'machine_name':
                         has_new_info = True
-                        new_info.machine_state.name = value
+                        new_info.machine_state.name = item['value']
                     case 'machine_category':
                         has_new_info = True
-                        new_info.machine_state.category = value
+                        new_info.machine_state.category = item['value']
                     case 'machine_model':
                         has_new_info = True
-                        new_info.machine_state.model = value
+                        new_info.machine_state.model = item['value']
                     case _:
                         raise Exception('unkown parameter type')
                     

@@ -1,7 +1,7 @@
-import asyncio
 from typing import Annotated
 from fastapi import FastAPI, File, Form, HTTPException, Query, Response, UploadFile, WebSocket, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.websockets import WebSocketDisconnect
 
 from openai import AsyncOpenAI
 import os
@@ -257,5 +257,5 @@ async def query(websocket: WebSocket):
         await converse(client, websocket.receive_json, websocket.send_json)
 
         await websocket.close()
-    except:
-        logger.info("A websocket for query failed")
+    except WebSocketDisconnect:
+        logger.info("A websocket query disconnected")

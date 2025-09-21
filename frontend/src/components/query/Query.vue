@@ -9,9 +9,10 @@ import PDFViewer from '@/components/pdf/PDFViewer.vue';
 import type { PDFDocument } from '@/components/pdf/pdf-types';
 import ChatColumn from '@/components/chat/ChatColumn.vue';
 import axios from 'axios';
-import { useTemplateRef } from 'vue';
+import { useTemplateRef, watch } from 'vue';
 import { QueryState } from './query-state';
 import { QueryFilter } from './query-filter';
+import type { ChatOptions } from '../chat/chat-types';
 
 const documents: PDFDocument[] = [];
 
@@ -54,7 +55,20 @@ const queryState = new QueryState(
   () => chat.value?.scrollToBottom()
 );
 
-const queryFilter = new QueryFilter();
+function onChange(options: ChatOptions) {
+  queryState.setEmpty();
+  if (options.makeCurrent)
+    queryState.setMachineMake(options.makeCurrent);
+  if (options.categoryCurrent)
+    queryState.setMachineCategory(options.categoryCurrent);
+  if (options.modelCurrent)
+    queryState.setMachineModel(options.modelCurrent);
+}
+
+const queryFilter = new QueryFilter(
+  (_, options) => onChange(options), (_, options) => onChange(options), (_, options) => onChange(options)
+);
+
 
 </script>
 

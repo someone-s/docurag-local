@@ -61,7 +61,6 @@ class QueryState {
   public onComplete() {
     this.partialResponse = "";
     this.processing.value = false;
-    console.log(this.processing.value)
 
     this.onChatComplete();
   }
@@ -137,9 +136,11 @@ class QueryState {
     this.enqueueCallback((_) => this.activeSocket?.send(message));
   }
 
+  public setEmpty() {
+    this.enqueueMessage(JSON.stringify({ type: 'data', parameter: 'empty' }));
+  }
   public setMachineMake(machineMake: string) {
     this.enqueueMessage(JSON.stringify({ type: 'data', parameter: 'machine_make', value: machineMake }));
-
   }
   public setMachineName(machineName: string) {
     this.enqueueMessage(JSON.stringify({ type: 'data', parameter: 'machine_name', value: machineName }));

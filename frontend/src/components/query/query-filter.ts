@@ -13,7 +13,20 @@ class QueryFilter {
     modelOptions: []
   });
 
-  constructor() {
+  onMakeChange: (make: string|null, options: ChatOptions) => void;
+  onCategoryChange: (make: string|null, options: ChatOptions) => void;
+  onModelChange: (make: string|null, options: ChatOptions) => void;
+
+  constructor(
+    onMakeChange: (make: string|null, options: ChatOptions) => void,
+    onCategoryChange: (make: string|null, options: ChatOptions) => void,
+    onModelChange: (make: string|null, options: ChatOptions) => void
+  ) {
+    this.onMakeChange = onMakeChange;
+    this.onCategoryChange = onCategoryChange;
+    this.onModelChange = onModelChange;
+
+
     const obj = this;
     (async () => {
       const makeResponse = await axios.get(`http://0.0.0.0:8081/machine/make/list`);
@@ -33,12 +46,16 @@ class QueryFilter {
     this.options.value.makeCurrent = make;
 
     this.updateModel();
+
+    this.onMakeChange(make, this.options.value);
   }
 
   public setCategory(category: string | null) {
     this.options.value.categoryCurrent = category;
 
     this.updateModel();
+
+    this.onCategoryChange(category, this.options.value);
   }
 
   private async updateModel() {
@@ -74,6 +91,8 @@ class QueryFilter {
 
   public setModel(model: string | null) {
     this.options.value.modelCurrent = model;
+
+    this.onModelChange(model, this.options.value);
   }
 }
 
