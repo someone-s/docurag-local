@@ -9,7 +9,7 @@ import PDFViewer from '@/components/pdf/PDFViewer.vue';
 import type { PDFDocument } from '@/components/pdf/pdf-types';
 import ChatColumn from '@/components/chat/ChatColumn.vue';
 import axios from 'axios';
-import { useTemplateRef, watch } from 'vue';
+import { useTemplateRef } from 'vue';
 import { QueryState } from './query-state';
 import { QueryFilter } from './query-filter';
 import type { ChatOptions } from '../chat/chat-types';
