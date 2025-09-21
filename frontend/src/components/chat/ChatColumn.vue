@@ -62,7 +62,7 @@ function onSubmit() {
           <div ref="query-input" class="query-entry h-fit max-h-[50vh] overflow-scroll no-scrollbar outline-0 text-md text-wrap break-all" :contenteditable="!block.value" placeholder="Enter your question..." @keyup.exact.enter="onSubmit"></div>
         </div>
         <div class=" shrink-0 w-3"></div>
-        <Button class="shrink-0 size-9 rounded-4xl cursor-pointer" @click="onSubmit">
+        <Button class="shrink-0 size-9 rounded-4xl cursor-pointer" @click="onSubmit" :disabled="block.value">
           <ArrowRightIcon class="size-4"></ArrowRightIcon>
         </Button>
       </div>
