@@ -114,10 +114,24 @@ async def receive_input(
                 action = item['action']
                 match action:
                     case 'generate':
-                        converse_state.query_text = item['query']
+                        query_text = item['query']
 
                         if has_new_info:
                             converse_state.machine_state = new_info.machine_state
+
+                            info_group: list[str] = []
+                            if converse_state.machine_state.make != None:
+                                info_group.append(converse_state.machine_state.make)
+                            if converse_state.machine_state.category != None:
+                                info_group.append(converse_state.machine_state.category)
+                            if converse_state.machine_state.name != None:
+                                info_group.append(converse_state.machine_state.name)
+                            if converse_state.machine_state.model != None:
+                                info_group.append(converse_state.machine_state.model)
+                        
+                            converse_state.query_text = f"{'Query for ' + ' '.join(info_group) if len(info_group) > 0 else 'Query with unsepcified machine'}\n{query_text}" 
+                        else:
+                            converse_state.query_text = query_text
 
                         return True
                     case 'exit':
