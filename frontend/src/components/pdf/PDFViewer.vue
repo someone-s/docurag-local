@@ -95,4 +95,20 @@ defineExpose({
   align-items: center;
   height: 100%;
 }
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px var(--color-pdf); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: var(--color-sidebar-foreground); 
+    -webkit-box-shadow: inset 0 0 6px var(--color-sidebar-foreground); 
+}
 </style>
