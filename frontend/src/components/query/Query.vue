@@ -13,6 +13,7 @@ import { useTemplateRef } from 'vue';
 import { QueryState } from './query-state';
 import { QueryFilter } from './query-filter';
 import type { ChatOptions } from '../chat/chat-types';
+import LayoutHeader from '../layout/LayoutHeader.vue';
 
 const documents: PDFDocument[] = [];
 
@@ -73,6 +74,7 @@ const queryFilter = new QueryFilter(
 </script>
 
 <template>
+  <LayoutHeader header-text="Query" />
   <ResizablePanelGroup direction="horizontal" class="h-full" auto-save-id="query-group">
     <ResizablePanel :min-size="40">
       <ChatColumn ref="chat" class="h-full" 

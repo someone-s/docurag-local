@@ -12,18 +12,25 @@ import {
   SidebarMenuItem,
   type SidebarProps,
 } from "@/components/ui/sidebar";
-import { Home, Inbox, PaperclipIcon, ChevronsUpDown } from "lucide-vue-next";
+import { Search, Inbox, PaperclipIcon, ChevronsUpDown } from "lucide-vue-next";
 import SideThemeControl from "./SideThemeControl.vue";
+import type { Component } from "vue";
 
-const workspaceItems = [
+interface Item {
+  title: string,
+  path: string,
+  icon: Component
+}
+
+const workspaceItems: Item[] = [
   {
-    title: "Chat",
-    url: "#",
-    icon: Home,
+    title: "Query",
+    path: "/query",
+    icon: Search,
   },
   {
     title: "Manage",
-    url: "#",
+    path: "/manage",
     icon: Inbox,
   },
 ]
@@ -58,10 +65,10 @@ const props = withDefaults(defineProps<SidebarProps>(), {
           <SidebarMenu>
             <SidebarMenuItem v-for="item in workspaceItems" :key="item.title">
               <SidebarMenuButton asChild>
-                <a :href="item.url">
+                <RouterLink :to="item.path">
                   <component :is="item.icon" />
                   <span>{{ item.title }}</span>
-                </a>
+                </RouterLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
