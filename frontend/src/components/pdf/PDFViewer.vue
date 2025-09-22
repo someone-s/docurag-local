@@ -81,8 +81,8 @@ defineExpose({
           </Scroller>
         </Viewport>
       </GlobalPointerProvider>
-      <PDFSelect ref="select" :documents="props.documents" :reload="() => componentKey++"></PDFSelect>
-      <PDFControl ref="control"></PDFControl>
+      <PDFSelect ref="select" :documents="props.documents" :reload="() => componentKey++" class="ml-2 mr-2"></PDFSelect>
+      <PDFControl ref="control" class="ml-2 mr-2"></PDFControl>
     </EmbedPDF>
   </div>
 </template>
@@ -97,18 +97,15 @@ defineExpose({
 }
 
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 0.5rem;
+    height: 3rem;
+  background-color: var(--color-pdf);
 }
 
-::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px var(--color-pdf); 
-    -webkit-border-radius: 10px;
-    border-radius: 10px;
-}
 ::-webkit-scrollbar-thumb {
     -webkit-border-radius: 10px;
     border-radius: 10px;
-    background: var(--color-sidebar-foreground); 
-    -webkit-box-shadow: inset 0 0 6px var(--color-sidebar-foreground); 
+    background: var(--color-sidebar-ring); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.1); 
 }
 </style>
