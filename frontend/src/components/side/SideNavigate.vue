@@ -10,30 +10,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
   type SidebarProps,
 } from "@/components/ui/sidebar";
-import { Search, Inbox, PaperclipIcon, ChevronsUpDown } from "lucide-vue-next";
+import { Search, Inbox, PaperclipIcon, ChevronsUpDown, WashingMachine, BookText, ChevronRight } from "lucide-vue-next";
 import SideThemeControl from "./SideThemeControl.vue";
-import type { Component } from "vue";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
-interface Item {
-  title: string,
-  path: string,
-  icon: Component
-}
-
-const workspaceItems: Item[] = [
-  {
-    title: "Query",
-    path: "/query",
-    icon: Search,
-  },
-  {
-    title: "Manage",
-    path: "/manage",
-    icon: Inbox,
-  },
-]
 
 const props = withDefaults(defineProps<SidebarProps>(), {
   collapsible: "icon",
@@ -62,28 +46,65 @@ const props = withDefaults(defineProps<SidebarProps>(), {
       <SidebarGroup>
         <SidebarGroupLabel>Workspace</SidebarGroupLabel>
         <SidebarGroupContent>
+
           <SidebarMenu>
-            <SidebarMenuItem v-for="item in workspaceItems" :key="item.title">
+
+            <SidebarMenuItem key="Query">
               <SidebarMenuButton asChild>
-                <RouterLink :to="item.path">
-                  <component :is="item.icon" />
-                  <span>{{ item.title }}</span>
+                <RouterLink to="/query">
+                  <component :is="Search" />
+                  <span>Query</span>
                 </RouterLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
+
+            <Collapsible defaultOpen class="group/collapsible">
+              <SidebarMenuItem key="Manage">
+                <CollapsibleTrigger asChild>
+
+                  <SidebarMenuButton>
+                    <component :is="Inbox" />
+                    <span>Manage</span>
+                    <ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+
+                    <SidebarMenuSubButton asChild>
+                      <RouterLink to="/manage/machine">
+                        <component :is="WashingMachine" />
+                        <span>Machine</span>
+                      </RouterLink>
+                    </SidebarMenuSubButton>
+
+                    <SidebarMenuSubButton asChild>
+                      <RouterLink to="/manage/document">
+                        <component :is="BookText" />
+                        <span>Document</span>
+                      </RouterLink>
+                    </SidebarMenuSubButton>
+
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+
           </SidebarMenu>
+
         </SidebarGroupContent>
       </SidebarGroup>
     </SidebarContent>
     <SidebarFooter>
       <div class="w-full flex items-end justify-end">
         <SidebarMenu>
-            <SidebarMenuItem  :key="1">
-              <SidebarMenuButton asChild>
-                <SideThemeControl></SideThemeControl>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+          <SidebarMenuItem :key="1">
+            <SidebarMenuButton asChild>
+              <SideThemeControl></SideThemeControl>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </div>
     </SidebarFooter>
   </Sidebar>

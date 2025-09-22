@@ -50,7 +50,8 @@ async function goToDocumentPage(documentId: number, page: number) {
 }
 
 const props = defineProps<{
-  documents: PDFDocument[]
+  documents: PDFDocument[],
+  showSelect: boolean
 }>();
 
 defineExpose({
@@ -81,7 +82,7 @@ defineExpose({
           </Scroller>
         </Viewport>
       </GlobalPointerProvider>
-      <PDFSelect ref="select" :documents="props.documents" :reload="() => componentKey++" class="ml-2 mr-2"></PDFSelect>
+      <PDFSelect v-if="showSelect" ref="select" :documents="props.documents" :reload="() => componentKey++" class="ml-2 mr-2"></PDFSelect>
       <PDFControl ref="control" class="ml-2 mr-2"></PDFControl>
     </EmbedPDF>
   </div>
@@ -97,7 +98,7 @@ defineExpose({
 }
 
 ::-webkit-scrollbar {
-    width: 0.5rem;
+    width: 0.4rem;
     height: 3rem;
   background-color: var(--color-pdf);
 }

@@ -2,13 +2,15 @@ import { createApp } from 'vue';
 import './style.css';
 import App from './App.vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
-import Query from '@/components/query/Query.vue';
-import Manage from '@/components/manage/Manage.vue';
+import QueryView from '@/components/query/QueryView.vue';
+import MachineView from '@/components/manage/machine/MachineView.vue';
+import DocumentView from '@/components/manage/document/DocumentView.vue';
 
 const routes = [
-  { path: '/', component: Query },
-  { path: '/query', component: Query },
-  { path: '/manage', component: Manage },
+  { path: '/', component: QueryView },
+  { path: '/query', component: QueryView },
+  { path: '/manage/machine', component: MachineView },
+  { path: '/manage/document', component: DocumentView },
 ]
 
 const router = createRouter({

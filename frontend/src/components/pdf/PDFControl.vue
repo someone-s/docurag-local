@@ -23,7 +23,7 @@ defineExpose({
 </script>
  
 <template>
-  <div v-if="zoomProvides && scrollProvides" class="absolute w-full bottom-2 flex justify-center no-drag">
+  <div v-if="zoomProvides && scrollProvides" class="absolute left-0 right-0 bottom-2 flex justify-center no-drag ">
 
     <div class='inline-flex w-fit border rounded-md shadow-xs bg-background mr-2'>
       <Button variant="ghost" size="icon" @click="scrollProvides.scrollToPreviousPage()">

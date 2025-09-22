@@ -89,7 +89,7 @@ const queryFilter = new QueryFilter(
     </ResizablePanel>
     <ResizableHandle with-handle />
     <ResizablePanel :min-size="20">
-      <PDFViewer ref="viewer" class="h-full" :documents="documents" />
+      <PDFViewer ref="viewer" class="h-full" :documents="documents" :show-select="true" />
     </ResizablePanel>
   </ResizablePanelGroup>
 </template>
