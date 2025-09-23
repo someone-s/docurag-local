@@ -1,41 +1,46 @@
 <script setup lang="ts">
 import Input from '@/components/ui/input/Input.vue';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem
-} from '@/components/ui/dropdown-menu';
-import Button from '@/components/ui/button/Button.vue';
-import { ChevronDown } from 'lucide-vue-next';
 import type { Table } from '@tanstack/vue-table';
+import type { PageMachine } from '../machine-types';
+import DocumentVisible from './DocumentVisible.vue';
+import DocumentMake from './DocumentMake.vue';
+import DocumentCategory from './DocumentCategory.vue';
+import { fetchAllMachine } from '../machine-state';
+import { ref, watch, type Ref } from 'vue';
 
-
-defineProps<{
-  table: Table<any>
+const props = defineProps<{
+  table: Table<any>,
+  setMachines: (machines: PageMachine[]) => void
 }>();
+
+const make: Ref<string|null> = ref(null);
+const category: Ref<string|null> = ref(null);
+const model: Ref<string> = ref('');
+
+function onMake(select: string|null) {
+  make.value = select;
+}
+
+function onCategory(select: string|null) {
+  category.value = select;
+}
+
+function onModel(select: string) {
+  model.value = select;
+}
+
+watch([make, category, model], async ([currentMake, currentCategory, currentModel]) => {
+  console.log('a');
+  const response = await fetchAllMachine(currentMake, currentCategory, currentModel);
+  props.setMachines(response.machines);
+})
 </script>
 
 <template>
-  <div class="flex items-center py-4">
-    <Input class="max-w-sm" placeholder="Filter emails..."
-      :model-value="(table.getColumn('email')?.getFilterValue() as string)" 
-      @update:model-value="table.getColumn('email')?.setFilterValue($event)" />
-    <DropdownMenu>
-      <DropdownMenuTrigger as-child>
-        <Button variant="outline" class="ml-auto">
-          Columns
-          <ChevronDown class="ml-2 h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuCheckboxItem v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
-          :key="column.id" class="capitalize" :model-value="column.getIsVisible()" @update:model-value="(value) => {
-            column.toggleVisibility(!!value)
-          }">
-          {{ column.id }}
-        </DropdownMenuCheckboxItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+  <div class="flex items-center py-4 gap-2 flex-wrap">
+    <DocumentMake :set-select="onMake" />
+    <DocumentCategory :set-select="onCategory" />
+    <Input class="max-w-3xs" placeholder="Model" @update:model-value="onModel($event as string)" />
+    <DocumentVisible :table="table" />
   </div>
 </template>

@@ -9,7 +9,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div data-slot="table-container" :class="cn('relative w-full h-fit max-h-full overflow-y-scroll', props.containerClass)">
+  <div data-slot="table-container" :class="cn('relative w-full h-fit max-h-full overflow-scroll no-scrollbar', props.containerClass)">
     <table data-slot="table" :class="cn('caption-bottom text-sm rounded-md w-full h-full', props.class)">
       <slot />
     </table>

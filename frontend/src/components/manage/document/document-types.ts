@@ -3,8 +3,6 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
 
 
-
-
 export interface PageDocument {
   documentId: number
   documentCategory: string
@@ -45,12 +43,12 @@ export const columns: ColumnDef<PageDocument>[] = [
   },
   {
     accessorKey: 'machineCategory',
-    header: () => h('div', { class: 'text-left' }, 'Machine'),
+    header: () => h('div', { class: 'text-left' }, 'Category'),
     cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineCategory')),
   },
   {
     accessorKey: 'machineModel',
-    header: () => h('div', { class: 'text-left' }, 'Machine'),
+    header: () => h('div', { class: 'text-left' }, 'Model'),
     cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineModel')),
   },
   {

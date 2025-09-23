@@ -22,6 +22,7 @@ import { ref, useTemplateRef, watch, type Ref } from 'vue';
 import { fetchData, type PageDocumentApiResponse } from './document-state';
 import { columns, type PageDocument } from './document-types';
 import { useVirtualizer } from '@tanstack/vue-virtual';
+import DocumentFilter from './DocumentFilter.vue';
 
 
 const fetchSize = 50;
@@ -57,16 +58,9 @@ watch([tableElement, isFetching, hasNextPage], async ([currentTableElement, curr
   if (currentTableElement?.$el == null) return;
 
   const { scrollHeight, scrollTop, clientHeight } = currentTableElement.$el as HTMLElement;
-  //once the user has scrolled within 500px of the bottom of the table, fetch more data if we can
 
-  console.log(currentIsFetching)
-  if (
-    scrollHeight - scrollTop - clientHeight < 500 &&
-    !currentIsFetching &&
-    currentHasNextPage
-  ) {
+  if (scrollHeight - scrollTop - clientHeight < 500 && !currentIsFetching && currentHasNextPage)
     fetchNextPage();
-  }
 });
 
 const table = useVueTable({
@@ -99,9 +93,7 @@ watch(machineIds, (_current, _past) => {
 
 <template>
   <div class="size-full relative p-3 flex flex-col">
-    <div class="shrink-0 h-20">
-
-    </div>
+    <DocumentFilter :table="table" :set-machines="(machines) => { machineIds = machines.map(machine => machine.id) }" />
     <TableAbsolute container-class="border rounded-md">
       <TableHeaderSticky>
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
