@@ -29,6 +29,7 @@ while conn == None:
         print('db not ready, retry in 1 second')
         time.sleep(1)
 
+conn.execute('CREATE EXTENSION IF NOT EXISTS fuzzystrmatch')
 conn.execute('CREATE EXTENSION IF NOT EXISTS vector')
 register_vector(conn)
 
@@ -232,12 +233,14 @@ def database_machine_fetch_multiple(machine_ids: list[int]) -> list[Machine]:
         model=response[3]
     ) for response in responses]
 
-def database_machine_fetch_filter(machine_make: str|None, machine_category: str|None) -> list[Machine]:
+def database_machine_fetch_filter(machine_make: str|None, machine_category: str|None, machine_model: str|None) -> list[Machine]:
     filters: list[str] = []
     if machine_make != None:
         filters.append(f'machine_make LIKE \'{machine_make}\'')
     if machine_category != None:
         filters.append(f'machine_category LIKE \'{machine_category}\'')
+    if machine_model != None:
+        filters.append(f'levenshtein_less_equal(machine_model, \'{machine_model}\', 5) <= 5')
 
     filter_query: str = ''
     if len(filters) > 0: 

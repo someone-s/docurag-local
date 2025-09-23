@@ -116,8 +116,8 @@ def machine_fetch(machine_id: int):
     return machine
 
 @app.get('/machine/search')
-def machine_search(machine_make: Annotated[str|None, Query()] = None, machine_category: Annotated[str|None, Query()] = None):
-    machines = database_machine_fetch_filter(machine_make, machine_category)
+def machine_search(machine_make: Annotated[str|None, Query()] = None, machine_category: Annotated[str|None, Query()] = None, machine_model: Annotated[str|None, Query()] = None):
+    machines = database_machine_fetch_filter(machine_make, machine_category, machine_model)
     return { 'machines': machines }
 
 class MachineDeleteRequest(BaseModel):
