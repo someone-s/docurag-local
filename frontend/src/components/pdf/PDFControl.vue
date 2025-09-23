@@ -23,7 +23,7 @@ defineExpose({
 </script>
  
 <template>
-  <div v-if="zoomProvides && scrollProvides" class="absolute left-0 right-0 bottom-2 flex justify-center no-drag ">
+  <div v-if="zoomProvides && scrollProvides" class="absolute left-0 right-0 bottom-2 flex flex-row justify-center-safe no-drag overflow-auto no-scrollbar">
 
     <div class='inline-flex w-fit border rounded-md shadow-xs bg-background mr-2'>
       <Button variant="ghost" size="icon" @click="scrollProvides.scrollToPreviousPage()">
@@ -50,6 +50,5 @@ defineExpose({
     <Button variant="outline" size="icon" @click="zoomProvides.requestZoom(ZoomMode.FitPage)" class="bg-background dark:bg-background hover:bg-accent dark:hover:bg-accent">
       <FullscreenIcon class="w-4 h-4" />
     </Button>
-    
   </div>
 </template>
