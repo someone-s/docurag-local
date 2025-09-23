@@ -10,13 +10,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
   type SidebarProps,
 } from "@/components/ui/sidebar";
-import { Search, Inbox, PaperclipIcon, ChevronsUpDown, WashingMachine, BookText, ChevronRight } from "lucide-vue-next";
+import { Search, PaperclipIcon, ChevronsUpDown, WashingMachine, BookText } from "lucide-vue-next";
 import SideThemeControl from "./SideThemeControl.vue";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 
 const props = withDefaults(defineProps<SidebarProps>(), {
@@ -58,38 +55,23 @@ const props = withDefaults(defineProps<SidebarProps>(), {
               </SidebarMenuButton>
             </SidebarMenuItem>
 
-            <Collapsible defaultOpen class="group/collapsible">
-              <SidebarMenuItem key="Manage">
-                <CollapsibleTrigger asChild>
+            <SidebarMenuItem key="Machine">
+              <SidebarMenuButton asChild>
+                <RouterLink to="/manage/machine">
+                  <component :is="WashingMachine" />
+                  <span>Machine</span>
+                </RouterLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
 
-                  <SidebarMenuButton>
-                    <component :is="Inbox" />
-                    <span>Manage</span>
-                    <ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-
-                    <SidebarMenuSubButton asChild>
-                      <RouterLink to="/manage/machine">
-                        <component :is="WashingMachine" />
-                        <span>Machine</span>
-                      </RouterLink>
-                    </SidebarMenuSubButton>
-
-                    <SidebarMenuSubButton asChild>
-                      <RouterLink to="/manage/document">
-                        <component :is="BookText" />
-                        <span>Document</span>
-                      </RouterLink>
-                    </SidebarMenuSubButton>
-
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
+            <SidebarMenuItem key="Document">
+              <SidebarMenuButton asChild>
+                <RouterLink to="/manage/document">
+                  <component :is="BookText" />
+                  <span>Document</span>
+                </RouterLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
 
           </SidebarMenu>
 
