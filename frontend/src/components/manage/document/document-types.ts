@@ -1,17 +1,22 @@
-import { Button } from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
 import type { ColumnDef } from '@tanstack/vue-table';
-import { ArrowUpDown } from 'lucide-vue-next';
 import { h } from 'vue';
 
-export interface Payment {
-  id: string
-  amount: number
-  status: 'pending' | 'processing' | 'success' | 'failed'
-  email: string
+
+
+
+export interface PageDocument {
+  documentId: number
+  documentCategory: string
+  machineId: number,
+  machineMake: string,
+  machineName: string,
+  machineCategory: string,
+  machineModel: string
 }
 
-export const columns: ColumnDef<Payment>[] = [
+
+export const columns: ColumnDef<PageDocument>[] = [
    {
     id: "select",
     header: ({ table }) => h(Checkbox, {
@@ -29,31 +34,28 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'amount',
-    header: () => h('div', { class: 'text-left ' }, 'Amount'),
-    cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue('amount'))
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(amount)
-
-      return h('div', { class: 'text-left font-medium' }, formatted)
-    },
+    accessorKey: 'documentId',
+    header: () => h('div', { class: 'text-left' }, 'ID'),
+    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('documentId')),
   },
   {
-    accessorKey: 'status',
-    header: () => h('div', { class: 'text-left' }, 'Status'),
-    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('status')),
+    accessorKey: 'machineMake',
+    header: () => h('div', { class: 'text-left ' }, 'Make'),
+    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineMake')),
   },
-   {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return h(Button, {
-        variant: "ghost",
-        onClick: () => column.toggleSorting(column.getIsSorted() === "asc"),
-      }, () => ["Email", h(ArrowUpDown, { class: "text-left ml-2 h-4 w-4" })])
-    },
-    cell: ({ row }) => h("div", { class: "text-left lowercase  max-w-100 overflow-hidden" }, row.getValue("email")),
+  {
+    accessorKey: 'machineCategory',
+    header: () => h('div', { class: 'text-left' }, 'Machine'),
+    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineCategory')),
+  },
+  {
+    accessorKey: 'machineModel',
+    header: () => h('div', { class: 'text-left' }, 'Machine'),
+    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineModel')),
+  },
+  {
+    accessorKey: 'documentCategory',
+    header: () => h('div', { class: 'text-left' }, 'Category'),
+    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('documentCategory')),
   },
 ]

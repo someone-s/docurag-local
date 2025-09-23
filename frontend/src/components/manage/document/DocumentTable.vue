@@ -1,93 +1,117 @@
 <script setup lang="ts" generic="TData, TValue">
-import type { ColumnDef } from '@tanstack/vue-table'
 import {
   FlexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useVueTable,
-} from '@tanstack/vue-table'
-
+} from '@tanstack/vue-table';
 import {
-  Table,
+  keepPreviousData,
+  useInfiniteQuery,
+} from '@tanstack/vue-query';
+import {
+  TableAbsolute,
+  TableHeaderSticky
+} from '@/components/ui/table-custom';
+import {
   TableBody,
   TableCell,
   TableHead,
-  TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import DocumentFilter from './DocumentFilter.vue';
-import DocumentPage from './DocumentPage.vue';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { onBeforeUnmount, onMounted, useTemplateRef } from 'vue';
+} from '@/components/ui/table';
+import { ref, useTemplateRef, watch, type Ref } from 'vue';
+import { fetchData, type PageDocumentApiResponse } from './document-state';
+import { columns, type PageDocument } from './document-types';
+import { useVirtualizer } from '@tanstack/vue-virtual';
 
-const props = defineProps<{
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-}>();
 
-const table = useVueTable({
-  get data() { return props.data },
-  get columns() { return props.columns },
-  getCoreRowModel: getCoreRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getPaginationRowModel: getPaginationRowModel()
+const fetchSize = 50;
+
+const machineIds: Ref<number[]> = ref([]);
+
+const { 
+  data,
+  fetchNextPage,
+  hasNextPage,
+  isFetching
+  } = useInfiniteQuery<PageDocumentApiResponse>({
+  queryKey: ['pageDocument', machineIds],
+  queryFn: async ({pageParam = 0}) => {
+    const start = (pageParam as number) * fetchSize;
+    const fetchedData = await fetchData(start, fetchSize, machineIds.value);
+    return fetchedData;
+  },
+  initialPageParam: 0,
+  getNextPageParam: (lastGroup, groups) => lastGroup.data.length == fetchSize ? groups.length : null,
+  refetchOnWindowFocus: false,
+  placeholderData: keepPreviousData,
 });
 
-const container = useTemplateRef('container');
-const filter = useTemplateRef('filter');
-const page = useTemplateRef('page');
-const header = useTemplateRef('header');
-let resizeObserver: ResizeObserver;
+const flatdata: Ref<PageDocument[]> = ref(data.value?.pages.flatMap(page => page.data) ?? []);
+watch(data, (current, _) => {
+  flatdata.value = current?.pages.flatMap(page => page.data) ?? [];
+});
 
-function onResize() {
-  if (!container.value || !filter.value || !page.value || !header.value) {
-    console.warn('container for document table is null in resize');
-    return;
-  }
-  table.setPageSize(Math.floor((container.value.offsetHeight - filter.value.$el.offsetHeight - page.value.$el.offsetHeight) / (header.value.$el.offsetHeight *0.97)));
-}
+const tableElement = useTemplateRef('tableElement');
 
-onMounted(async () =>  {
-  if (!container.value || !filter.value || !page.value || !header.value) {
-    console.warn('container for document table is null after mount');
-    return;
-  }
-  resizeObserver = new ResizeObserver(onResize);
-  resizeObserver.observe(container.value);
-  resizeObserver.observe(filter.value.$el);
-  resizeObserver.observe(page.value.$el);
-  resizeObserver.observe(header.value.$el);
-})
+watch([tableElement, isFetching, hasNextPage], async ([currentTableElement, currentIsFetching, currentHasNextPage], _) => {
+  if (currentTableElement?.$el == null) return;
 
-onBeforeUnmount(async () => {
-  if (!container.value || !filter.value || !page.value || !header.value)  {
-    console.warn('container for document table is null before unmount');
-    return;
+  const { scrollHeight, scrollTop, clientHeight } = currentTableElement.$el as HTMLElement;
+  //once the user has scrolled within 500px of the bottom of the table, fetch more data if we can
+
+  console.log(currentIsFetching)
+  if (
+    scrollHeight - scrollTop - clientHeight < 500 &&
+    !currentIsFetching &&
+    currentHasNextPage
+  ) {
+    fetchNextPage();
   }
-  resizeObserver.unobserve(container.value);
-  resizeObserver.unobserve(filter.value.$el);
-  resizeObserver.unobserve(page.value.$el);
-  resizeObserver.unobserve(header.value.$el);
-})
+});
+
+const table = useVueTable({
+  get data() { return flatdata.value },
+  get columns() { return columns },
+  getCoreRowModel: getCoreRowModel(),
+  debugTable: true,
+});
+
+const { rows } = table.getRowModel();
+
+const rowVirtualizer = useVirtualizer({
+  count: rows.length,
+  estimateSize: () => 33, //estimate row height for accurate scrollbar dragging
+  getScrollElement: () => tableElement.value?.$el,
+  //measure dynamic row height, except in firefox because it measures table border height incorrectly
+  measureElement:
+    typeof window !== 'undefined' &&
+    navigator.userAgent.indexOf('Firefox') === -1
+      ? element => element?.getBoundingClientRect().height
+      : undefined,
+  overscan: 5,
+});
+
+watch(machineIds, (_current, _past) => {
+  rowVirtualizer.value.scrollToIndex?.(0)
+});
 
 </script>
 
 <template>
-  <div class="relative h-full"  ref="container">
-    <DocumentFilter :table="table" ref="filter" />
-    <Table class="border rounded-md">
-      <TableHeader ref="header">
+  <div class="size-full relative p-3 flex flex-col">
+    <div class="shrink-0 h-20">
+
+    </div>
+    <TableAbsolute container-class="border rounded-md">
+      <TableHeaderSticky>
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
           <TableHead v-for="header in headerGroup.headers" :key="header.id">
             <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
               :props="header.getContext()" />
           </TableHead>
         </TableRow>
-      </TableHeader>
-      <TableBody>
+      </TableHeaderSticky>
+      <TableBody ref="tableElement">
         <template v-if="table.getRowModel().rows?.length">
           <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
             :data-state="row.getIsSelected() ? 'selected' : undefined">
@@ -104,7 +128,6 @@ onBeforeUnmount(async () => {
           </TableRow>
         </template>
       </TableBody>
-    </Table>
-    <DocumentPage :table="table" class="absolute bottom-0 left-0 right-0" ref="page"/>
+    </TableAbsolute>
   </div>
 </template>

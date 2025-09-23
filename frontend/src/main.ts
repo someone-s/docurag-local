@@ -5,6 +5,7 @@ import { createMemoryHistory, createRouter } from 'vue-router';
 import QueryView from '@/components/query/QueryView.vue';
 import MachineView from '@/components/manage/machine/MachineView.vue';
 import DocumentView from '@/components/manage/document/DocumentView.vue';
+import { VueQueryPlugin } from '@tanstack/vue-query';
 
 const routes = [
   { path: '/', component: QueryView },
@@ -19,5 +20,6 @@ const router = createRouter({
 })
 
 createApp(App)
-  .use(router)    
+  .use(router)
+  .use(VueQueryPlugin)
   .mount('#app')
