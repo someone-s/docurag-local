@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import './style.css';
 import App from './App.vue';
-import { createMemoryHistory, createRouter } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import QueryView from '@/components/query/QueryView.vue';
 import MachineView from '@/components/manage/machine/MachineView.vue';
 import DocumentView from '@/components/manage/document/DocumentView.vue';
@@ -15,7 +15,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes: routes
 })
 
