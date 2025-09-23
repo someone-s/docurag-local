@@ -230,7 +230,6 @@ def document_fetch(document_id: int):
 @app.get('/document/search')
 def document_search(start_position: int = 0, limit: int|None = None, machine_ids_string: str = ''):
     machine_ids = [int(id_string) for id_string in filter(lambda string: len(string) > 0, machine_ids_string.split(','))]
-    logger.info(machine_ids)
     return { 'documents': database_document_page(start_position, limit, machine_ids) }
 
 

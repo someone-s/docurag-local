@@ -156,6 +156,7 @@ def database_delete_machines():
     conn.execute('DROP TABLE IF EXISTS machines')
 
 class Machine(BaseModel):
+    id: Annotated[int|None, Field(description="Optional id of the machine")] = None
     make: Annotated[str, Field(description="String common name of machine")]
     name: Annotated[str, Field(description="String manufacturer of machine")]
     category: Annotated[str, Field(description="String category of machine")]
@@ -248,19 +249,21 @@ def database_machine_fetch_filter(machine_make: str|None, machine_category: str|
 
     responses = conn.execute((
         f'SELECT '
-            f'machine_make,' #0
-            f'machine_name,' #1
-            f'machine_category,' #2
-            f'machine_model ' #3
+            f'machine_id,' #0
+            f'machine_make,' #1
+            f'machine_name,' #2
+            f'machine_category,' #3
+            f'machine_model ' #4
         f'FROM machines '
         f'{filter_query}'
     )).fetchall()
 
     return [Machine(
-        make=response[0],
-        name=response[1],
-        category=response[2],
-        model=response[3]
+        id=response[0],
+        make=response[1],
+        name=response[2],
+        category=response[3],
+        model=response[4]
     ) for response in responses]
 
 def database_machine_delete(machine_id: int):
