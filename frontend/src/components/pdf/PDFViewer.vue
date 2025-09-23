@@ -43,6 +43,10 @@ const plugins = [
 const select = useTemplateRef('select');
 const control = useTemplateRef('control');
 
+async function goToDocument(documentId: number) {
+  await select.value?.changeDocument(documentId);
+}
+
 async function goToDocumentPage(documentId: number, page: number) {
   await select.value?.changeDocument(documentId);
   await new Promise((resolve) => setTimeout(resolve, 500))
@@ -55,6 +59,7 @@ const props = defineProps<{
 }>();
 
 defineExpose({
+  goToDocument,
   goToDocumentPage
 })
 </script>
@@ -82,7 +87,7 @@ defineExpose({
           </Scroller>
         </Viewport>
       </GlobalPointerProvider>
-      <PDFSelect v-if="showSelect" ref="select" :documents="props.documents" :reload="() => componentKey++" class="ml-2 mr-2"></PDFSelect>
+      <PDFSelect :showSelect="showSelect" ref="select" :documents="props.documents" :reload="() => componentKey++" class="ml-2 mr-2"></PDFSelect>
       <PDFControl ref="control" class="ml-2 mr-2"></PDFControl>
     </EmbedPDF>
   </div>

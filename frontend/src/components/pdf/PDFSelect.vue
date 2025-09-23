@@ -39,6 +39,7 @@ async function onchange(loaderProvides: LoaderCapability, id: number) {
 }
 
 const props = defineProps<{
+  showSelect: boolean,
   documents: PDFDocument[]
   reload: () => void
 }>();
@@ -54,7 +55,7 @@ defineExpose({
 </script>
  
 <template>
-  <div class="absolute isolate left-0 right-0 top-3 flex  justify-center no-drag">
+  <div v-if="showSelect" class="absolute isolate left-0 right-0 top-3 flex  justify-center no-drag">
 
     <Select :model-value="documents.find(document => document.id == currentId)?.name ?? 'Choose Document'" v-on:update:model-value="(id: AcceptableValue) => { if (loaderProvides != null) onchange(loaderProvides, id as number) }">
       <SelectTrigger  class="w-80 bg-background dark:bg-background hover:bg-accent dark:hover:bg-accent">

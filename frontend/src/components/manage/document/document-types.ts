@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+import { FileSymlinkIcon } from 'lucide-vue-next';
 import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
@@ -14,46 +16,53 @@ export interface PageDocument {
 }
 
 
-export const columns: ColumnDef<PageDocument>[] = [
-   {
-    id: "select",
-    header: ({ table }) => h(Checkbox, {
-      class: 'text-left ',
-      modelValue: table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate"),
-      "onUpdate:modelValue": value => table.toggleAllPageRowsSelected(!!value),
-      ariaLabel: "Select all",
-    }),
-    cell: ({ row }) => h(Checkbox, {
-      "modelValue": row.getIsSelected(),
-      "onUpdate:modelValue": value => row.toggleSelected(!!value),
-      "ariaLabel": "Select row",
-    }),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'documentId',
-    header: () => h('div', { class: 'text-left' }, 'ID'),
-    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('documentId')),
-  },
-  {
-    accessorKey: 'machineMake',
-    header: () => h('div', { class: 'text-left ' }, 'Make'),
-    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineMake')),
-  },
-  {
-    accessorKey: 'machineCategory',
-    header: () => h('div', { class: 'text-left' }, 'Category'),
-    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineCategory')),
-  },
-  {
-    accessorKey: 'machineModel',
-    header: () => h('div', { class: 'text-left' }, 'Model'),
-    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineModel')),
-  },
-  {
-    accessorKey: 'documentCategory',
-    header: () => h('div', { class: 'text-left' }, 'Category'),
-    cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('documentCategory')),
-  },
-]
+export const getColumns = (openDocument: (id: number) => void): ColumnDef<PageDocument>[] => {
+  return [
+    {
+      id: "select",
+      header: ({ table }) => h(Checkbox, {
+        class: 'text-left ',
+        modelValue: table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate"),
+        "onUpdate:modelValue": value => table.toggleAllPageRowsSelected(!!value),
+        ariaLabel: "Select all",
+      }),
+      cell: ({ row }) => h(Checkbox, {
+        "modelValue": row.getIsSelected(),
+        "onUpdate:modelValue": value => row.toggleSelected(!!value),
+        "ariaLabel": "Select row",
+      }),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'documentId',
+      header: () => h('div', { class: 'text-left' }, 'ID'),
+      cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('documentId')),
+    },
+    {
+      accessorKey: 'machineMake',
+      header: () => h('div', { class: 'text-left ' }, 'Make'),
+      cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineMake')),
+    },
+    {
+      accessorKey: 'machineCategory',
+      header: () => h('div', { class: 'text-left' }, 'Category'),
+      cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineCategory')),
+    },
+    {
+      accessorKey: 'machineModel',
+      header: () => h('div', { class: 'text-left' }, 'Model'),
+      cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineModel')),
+    },
+    {
+      accessorKey: 'documentCategory',
+      header: () => h('div', { class: 'text-left' }, 'Category'),
+      cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('documentCategory')),
+    },
+    {
+      accessorKey: 'view',
+      header: () => h('div', { class: 'text-left' }, 'View'),
+      cell: ({ row }) => h(Button, { variant: 'ghost', class: 'cursor-pointer', onClick: () => openDocument(Number.parseInt(row.getValue('documentId'))) }, () => h(FileSymlinkIcon, { class: 'size-4' })),
+    },
+  ]
+}

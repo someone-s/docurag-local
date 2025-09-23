@@ -20,10 +20,17 @@ import {
 } from '@/components/ui/table';
 import { ref, useTemplateRef, watch, type Ref } from 'vue';
 import { fetchData, type PageDocumentApiResponse } from './document-state';
-import { columns, type PageDocument } from './document-types';
+import { getColumns, type PageDocument } from './document-types';
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import DocumentFilter from './DocumentFilter.vue';
 
+const props = defineProps<{
+  openDocument: (id: number) => void
+}>();
+
+const openDocumentLocal = (id: number) => {
+  props.openDocument(id);
+}
 
 const fetchSize = 50;
 
@@ -63,6 +70,8 @@ watch([tableElement, isFetching, hasNextPage], async ([currentTableElement, curr
     fetchNextPage();
 });
 
+const columns = getColumns(openDocumentLocal);
+
 const table = useVueTable({
   get data() { return flatdata.value },
   get columns() { return columns },
@@ -92,7 +101,8 @@ watch(machineIds, (_current, _past) => {
 </script>
 
 <template>
-  <div class="size-full relative p-3 flex flex-col">
+  <div class="size-full relative">
+  <div class="absolute top-0 left-0 right-0 bottom-0 p-3 flex flex-col">
     <DocumentFilter :table="table" :set-machines="(machines) => { machineIds = machines.map(machine => machine.id) }" />
     <TableAbsolute container-class="border rounded-md">
       <TableHeaderSticky>
@@ -121,5 +131,6 @@ watch(machineIds, (_current, _past) => {
         </template>
       </TableBody>
     </TableAbsolute>
+  </div>
   </div>
 </template>

@@ -9,10 +9,11 @@ import type { PDFDocument } from '@/components/pdf/pdf-types';
 import axios from 'axios';
 import PDFViewer from '@/components/pdf/PDFViewer.vue';
 import DocumentTable from './DocumentTable.vue';
+import { useTemplateRef } from 'vue';
 
 const documents: PDFDocument[] = [];
 
-async function fetchDocument(id: number, name: string) {
+const fetchDocument = async (id: number) => {
   navigator.locks.request('fetchDocument', async (_) => {
     if (!Number.isInteger(id)) return;
 
@@ -28,14 +29,21 @@ async function fetchDocument(id: number, name: string) {
         }
       });
     documents.push({
-      name: name,
+      name: `${id}`,
       id: id,
       file: listResponse.data
     });
   });
 }
 
+const viewer = useTemplateRef('viewer');
 
+const openDocument = async (id: number) => {
+  console.log(id);
+  await fetchDocument(id);
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  await viewer.value?.goToDocument(id);
+}
 
 </script>
 
@@ -43,7 +51,7 @@ async function fetchDocument(id: number, name: string) {
   <LayoutHeader header-text="Document" />
   <ResizablePanelGroup direction="horizontal" class="h-full" auto-save-id="document-group">
     <ResizablePanel :min-size="40">
-      <DocumentTable />
+      <DocumentTable :open-document="openDocument" />
     </ResizablePanel>
     <ResizableHandle with-handle />
     <ResizablePanel :min-size="20">
