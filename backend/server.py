@@ -8,7 +8,7 @@ import os
 
 from pydantic import BaseModel, Field
 
-from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_exist_all, database_machine_fetch, database_document_list_by_machine, database_machine_fetch_filter, database_machine_list, database_machine_make_add, database_machine_make_delete, database_machine_make_exist, database_machine_make_list, database_reset, database_document_fetch, database_document_delete, database_document_list, database_document_count
+from databaseconnection import Machine, database_document_category_add, database_document_category_delete, database_document_category_exist, database_document_category_list, database_document_page, database_machine_add, database_machine_category_add, database_machine_category_delete, database_machine_category_exist, database_machine_category_list, database_machine_exist, database_machine_delete, database_machine_exist_all, database_machine_fetch, database_machine_fetch_filter, database_machine_list, database_machine_make_add, database_machine_make_delete, database_machine_make_exist, database_machine_make_list, database_reset, database_document_fetch, database_document_delete, database_document_count
 from uploadconnection import extract_information, store_document
 from queryconnection import converse
 
@@ -227,13 +227,13 @@ def document_fetch(document_id: int):
         raise HTTPException(status_code=404, detail="document not found")
     return Response(content=binary_response, media_type='application/pdf')
 
-@app.get('/document/list')
-def document_list(start_id: int = 0, limit: int|None = None):
-    return { 'document_ids': database_document_list(start_id, limit) }
+@app.get('/document/search')
+def document_search(start_position: int = 0, limit: int|None = None, machine_ids_string: str = ''):
+    machine_ids = [int(id_string) for id_string in filter(lambda string: len(string) > 0, machine_ids_string.split(','))]
+    logger.info(machine_ids)
+    return { 'documents': database_document_page(start_position, limit, machine_ids) }
 
-@app.get('/document/list/machine/{machine_id}')
-def document_list_machine(machine_id: int):
-    return { 'document_ids': database_document_list_by_machine(machine_id) }
+
 
 @app.get('/document/count')
 def document_count():

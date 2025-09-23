@@ -550,28 +550,65 @@ def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedRespon
     
     return responses
 
-def database_document_list(start_id: int = 0, limit: int|None = None) -> list[int]:
-    limiter = f'LIMIT {limit}' if limit != None else '' 
+class PageDocument(BaseModel):
+    document_id: int
+    document_category: str
+    machine_id: int
+    machine_make: str
+    machine_name: str
+    machine_category: str
+    machine_model: str
 
-    document_results = conn.execute((
-        f'SELECT '
-            f'document_id ' #0
-        f'FROM documents '
-        f'WHERE document_id >= ''%s'' '
-        f'{limiter}'
-    ), (start_id,)).fetchall()
+def database_document_page(start_position: int = 0, limit: int|None = None, machine_ids: list[int] = []) -> list[PageDocument]:
+    limiter = f'LIMIT {limit}' if limit != None else ''
+    offseter = f'OFFSET {start_position}'
+    
+    document_results = \
+        conn.execute((
+            f'SELECT '
+                f'd.document_id,' #0
+                f'd.document_category,' #1
+                f'm.machine_id,' #2
+                f'm.machine_make,' #3
+                f'm.machine_name,' #4
+                f'm.machine_category,' #5
+                f'm.machine_model ' #6
+            f'FROM documents d '
+            f'INNER JOIN ('
+                f'SELECT '
+                    f'md.document_reference,'
+                    f'selm.machine_id,'
+                    f'selm.machine_make,'
+                    f'selm.machine_name,'
+                    f'selm.machine_category,'
+                    f'selm.machine_model '
+                f'FROM machine_documents md '
+                f'INNER JOIN ('
+                    f'SELECT '
+                        f'machine_id,'
+                        f'machine_make,'
+                        f'machine_name,'
+                        f'machine_category,'
+                        f'machine_model '
+                    f'FROM machines '
+                    f"{'WHERE machine_id = ANY(%s)' if len(machine_ids) > 0 else ''}"
+                f') selm '
+                f'ON md.machine_reference = selm.machine_id'
+            f') m '
+            f'ON d.document_id = m.document_reference '
+            f'{limiter} '
+            f'{offseter} '
+        ), (machine_ids,) if len(machine_ids) > 0 else None).fetchall()
 
-    return [document_result[0] for document_result in document_results] # list of document ids
-
-def database_document_list_by_machine(machine_id: int) -> list[int]:
-    document_results = conn.execute((
-        f'SELECT '
-            f'document_reference ' #0
-        f'FROM machine_documents '
-        f'WHERE machine_reference = ''%s'
-    ), (machine_id,)).fetchall()
-
-    return [document_result[0] for document_result in document_results] # list of document ids
+    return [PageDocument(
+        document_id=document_result[0],
+        document_category=document_result[1],
+        machine_id=document_result[2],
+        machine_make=document_result[3],
+        machine_name=document_result[4],
+        machine_category=document_result[5],
+        machine_model=document_result[6]
+    ) for document_result in document_results]
 
 def database_document_count() -> int:
     document_result = conn.execute((
