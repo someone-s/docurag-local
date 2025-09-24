@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, useTemplateRef, type Ref } from 'vue';
-import DocumentAddMake from './DocumentAddMake.vue';
-import DocumentAddCategory from './DocumentAddCategory.vue';
-import DocumentAddModel from './DocumentAddModel.vue';
+import DocumentAddMachineMake from './DocumentAddMachineMake.vue';
+import DocumentAddMachineCategory from './DocumentAddMachineCategory.vue';
+import DocumentAddMachineModel from './DocumentAddMachineModel.vue';
 
 const make: Ref<string | null> = ref(null);
 const category: Ref<string | null> = ref(null);
@@ -25,14 +25,14 @@ function onId(select: number | null) {
 }
 
 defineExpose({
-  id: id.value
+  getId: () => id.value
 });
 </script>
 
 <template>
-  <div class="flex flex-row w-full justify-between border rounded-md">
-    <DocumentAddMake :set-select="onMake" class="w-100 shrink-0"/>
-    <DocumentAddCategory :set-select="onCategory" class="w-100 shrink-0" />
-    <DocumentAddModel ref="modelEl" :set-select="onId" class="grow" />
+  <div class="flex flex-row w-full justify-between border rounded-md max-w-screen flex-wrap">
+    <DocumentAddMachineMake :set-select="onMake" class="w-100 shrink-0"/>
+    <DocumentAddMachineCategory :set-select="onCategory" class="w-100 shrink-0" />
+    <DocumentAddMachineModel ref="modelEl" :set-select="onId" class="grow" />
   </div>
 </template>
