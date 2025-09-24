@@ -21,8 +21,6 @@ const fileEl = useTemplateRef('file');
 
 const categoryEl = useTemplateRef('category');
 
-const popOverEl = useTemplateRef('popover');
-
 async function onSubmit() {
   const files = fileEl.value?.$el.files;
   if (!files || files.length < 1)
@@ -51,7 +49,7 @@ async function onSubmit() {
 </script>
 
 <template>
-  <Popover ref="popover">
+  <Popover>
     <PopoverTrigger as-child class="ml-auto cursor-pointer">
       <Button>
         Add
