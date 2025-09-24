@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { Toaster } from 'vue-sonner';
 import Layout from './components/layout/Layout.vue';
+import 'vue-sonner/style.css';
 </script>
 
 <template>
-   <Layout class="w-screen min-h-screen"></Layout>
+  <Layout class="w-screen min-h-screen"></Layout>
+  <Toaster />
+   
 </template>
 
 <style scoped>

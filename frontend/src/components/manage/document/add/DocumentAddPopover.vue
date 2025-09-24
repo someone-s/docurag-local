@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
 import DocumentAddDocumentCategory from './DocumentAddDocumentCategory.vue';
+import { toast } from 'vue-sonner';
 
 const machineCount = ref(1);
 const itemEls = useTemplateRef('items');
@@ -20,7 +21,9 @@ const fileEl = useTemplateRef('file');
 
 const categoryEl = useTemplateRef('category');
 
-function onSubmit() {
+const popOverEl = useTemplateRef('popover');
+
+async function onSubmit() {
   const files = fileEl.value?.$el.files;
   if (!files || files.length < 1)
     return;
@@ -33,17 +36,22 @@ function onSubmit() {
   if (!category)
     return;
 
-  axios.postForm(`http://0.0.0.0:8081/document/upload`, {
+  await axios.postForm(`http://0.0.0.0:8081/document/upload`, {
     machine_ids_str: machines.join(','),
     document_category: category,
     file: files[0]
+  });
+
+  // no error
+  toast('File uploaded', {
+    description: 'File is now being processed',
   })
 }
 
 </script>
 
 <template>
-  <Popover>
+  <Popover ref="popover">
     <PopoverTrigger as-child class="ml-auto cursor-pointer">
       <Button>
         Add
