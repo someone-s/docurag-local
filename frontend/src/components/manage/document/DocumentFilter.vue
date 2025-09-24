@@ -10,7 +10,7 @@ import { ref, watch, type Ref } from 'vue';
 
 const props = defineProps<{
   table: Table<any>,
-  setMachines: (machines: PageMachine[]) => void
+  setMachines: (machines: PageMachine[]|null) => void
 }>();
 
 const make: Ref<string|null> = ref(null);
@@ -30,8 +30,16 @@ function onModel(select: string) {
 }
 
 watch([make, category, model], async ([currentMake, currentCategory, currentModel]) => {
-  const response = await fetchAllMachine(currentMake, currentCategory, currentModel);
-  props.setMachines(response.machines);
+  console.log(currentMake)
+  console.log(currentCategory)
+  console.log(currentModel)
+  if (!currentMake && !currentCategory && currentModel.length == 0)
+    props.setMachines(null);
+  else {
+    const response = await fetchAllMachine(currentMake, currentCategory, currentModel);
+    console.log(response)
+    props.setMachines(response.machines);
+  }
 })
 </script>
 

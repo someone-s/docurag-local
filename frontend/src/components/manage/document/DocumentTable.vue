@@ -34,7 +34,7 @@ const openDocumentLocal = (id: number) => {
 
 const fetchSize = 50;
 
-const machineIds: Ref<number[]> = ref([]);
+const machineIds: Ref<number[]|null> = ref(null);
 
 const { 
   data,
@@ -103,7 +103,7 @@ watch(machineIds, (_current, _past) => {
 <template>
   <div class="size-full relative">
   <div class="absolute top-0 left-0 right-0 bottom-0 p-3 flex flex-col">
-    <DocumentFilter :table="table" :set-machines="(machines) => { machineIds = machines.map(machine => machine.id) }" />
+    <DocumentFilter :table="table" :set-machines="(machines) => { machineIds = machines ? machines.map(machine => machine.id) : null }" />
     <TableAbsolute container-class="border rounded-md">
       <TableHeaderSticky>
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">

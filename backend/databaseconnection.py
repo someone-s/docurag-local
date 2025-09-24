@@ -561,47 +561,48 @@ class PageDocument(BaseModel):
     machines: list[Machine]
 
 def database_document_page(start_position: int = 0, limit: int|None = None, machine_ids: list[int] = []) -> list[PageDocument]:
-    limiter = f'LIMIT {limit}' if limit != None else ''
-    offseter = f'OFFSET {start_position}'
     
     document_results = \
         conn.execute((
             f'SELECT '
                 f'd.document_id,' #0
                 f'd.document_category,' #1
-                f'array_agg(m.machine_id),' #2
-                f'array_agg(m.machine_make),' #3
-                f'array_agg(m.machine_name),' #4
-                f'array_agg(m.machine_category),' #5
-                f'array_agg(m.machine_model) ' #6
+                f'array_agg(selmd.machine_id),' #2
+                f'array_agg(selmd.machine_make),' #3
+                f'array_agg(selmd.machine_name),' #4
+                f'array_agg(selmd.machine_category),' #5
+                f'array_agg(selmd.machine_model) ' #6
             f'FROM documents d '
             f'INNER JOIN ('
                 f'SELECT '
                     f'md.document_reference,'
-                    f'selm.machine_id,'
-                    f'selm.machine_make,'
-                    f'selm.machine_name,'
-                    f'selm.machine_category,'
-                    f'selm.machine_model '
-                f'FROM machine_documents md '
+                    f'm.machine_id,'
+                    f'm.machine_make,'
+                    f'm.machine_name,'
+                    f'm.machine_category,'
+                    f'm.machine_model '
+                f'FROM machines m '
                 f'INNER JOIN ('
                     f'SELECT '
-                        f'machine_id,'
-                        f'machine_make,'
-                        f'machine_name,'
-                        f'machine_category,'
-                        f'machine_model '
-                    f'FROM machines '
-                    f"{'WHERE machine_id = ANY(%s)' if len(machine_ids) > 0 else ''}"
-                f') selm '
-                f'ON md.machine_reference = selm.machine_id'
-            f') m '
-            f'ON d.document_id = m.document_reference '
+                        f'mdall.document_reference,'
+                        f'mdall.machine_reference '
+                    f'FROM machine_documents mdall '
+                    f'INNER JOIN ('
+                        f'SELECT DISTINCT '
+                            f'document_reference '
+                        f'FROM machine_documents '
+                        f"{'WHERE machine_reference = ANY(%s)' if len(machine_ids) > 0 else ''}"
+                    f') mdnarrow '
+                    f'ON mdall.document_reference = mdnarrow.document_reference'
+                f') md '
+                F'ON md.machine_reference = m.machine_id'
+            f') selmd '
+            f'ON selmd.document_reference = d.document_id '
             f'GROUP BY '
                 f'd.document_id,'
                 f'd.document_category '
-            f'{limiter} '
-            f'{offseter} '
+            f"{f'LIMIT {limit}' if limit != None else ''} "
+            f"{f'OFFSET {start_position}'} "
         ), (machine_ids,) if len(machine_ids) > 0 else None).fetchall()
 
     return [PageDocument(

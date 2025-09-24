@@ -6,6 +6,7 @@ import {
 } from '@/components/ui/popover';
 import Button from '@/components/ui/button/Button.vue';
 import { Plus } from 'lucide-vue-next';
+import AddMake from './add/AddMake.vue';
 
 
 </script>
@@ -19,7 +20,8 @@ import { Plus } from 'lucide-vue-next';
       </Button>
     </PopoverTrigger>
     <PopoverContent>
-      Some popover content
+      <div></div>
+      <AddMake />
     </PopoverContent>
   </Popover>
 </template>

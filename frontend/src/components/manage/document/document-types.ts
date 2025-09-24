@@ -5,14 +5,18 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
 
 
-export interface PageDocument {
-  documentId: number
-  documentCategory: string
+export interface PageMachine {
   machineId: number,
   machineMake: string,
   machineName: string,
   machineCategory: string,
   machineModel: string
+}
+
+export interface PageDocument {
+  documentId: number
+  documentCategory: string
+  machines: PageMachine[]
 }
 
 
@@ -40,19 +44,14 @@ export const getColumns = (openDocument: (id: number) => void): ColumnDef<PageDo
       cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('documentId')),
     },
     {
-      accessorKey: 'machineMake',
+      accessorKey: 'machines',
       header: () => h('div', { class: 'text-left ' }, 'Make'),
-      cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineMake')),
+      cell: ({ row }) => h('div', { class: 'text-left font-medium break-normal' }, [... new Set((row.getValue('machines') as PageMachine[]).map(machine => `${machine.machineMake}`))].join()),
     },
     {
-      accessorKey: 'machineCategory',
-      header: () => h('div', { class: 'text-left' }, 'Category'),
-      cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineCategory')),
-    },
-    {
-      accessorKey: 'machineModel',
-      header: () => h('div', { class: 'text-left' }, 'Model'),
-      cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineModel')),
+      accessorKey: 'machines',
+      header: () => h('div', { class: 'text-left ' }, 'Model'),
+      cell: ({ row }) => h('div', { class: 'text-left font-medium break-normal' }, (row.getValue('machines') as PageMachine[]).map(machine => `${machine.machineModel}`).join()),
     },
     {
       accessorKey: 'documentCategory',
