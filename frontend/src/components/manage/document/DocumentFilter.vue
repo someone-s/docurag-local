@@ -2,7 +2,7 @@
 import Input from '@/components/ui/input/Input.vue';
 import type { Table } from '@tanstack/vue-table';
 import type { PageMachine } from '../machine-types';
-import DocumentAdd from './DocumentAdd.vue';
+import DocumentAddPopover from './add/DocumentAddPopover.vue';
 import DocumentMake from './DocumentMake.vue';
 import DocumentCategory from './DocumentCategory.vue';
 import { fetchAllMachine } from '../machine-state';
@@ -30,9 +30,6 @@ function onModel(select: string) {
 }
 
 watch([make, category, model], async ([currentMake, currentCategory, currentModel]) => {
-  console.log(currentMake)
-  console.log(currentCategory)
-  console.log(currentModel)
   if (!currentMake && !currentCategory && currentModel.length == 0)
     props.setMachines(null);
   else {
@@ -48,6 +45,6 @@ watch([make, category, model], async ([currentMake, currentCategory, currentMode
     <DocumentMake :set-select="onMake" />
     <DocumentCategory :set-select="onCategory" />
     <Input class="max-w-3xs" placeholder="Model" @update:model-value="onModel($event as string)" />
-    <DocumentAdd />
+    <DocumentAddPopover />
   </div>
 </template>
