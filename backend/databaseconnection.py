@@ -558,11 +558,7 @@ def database_document_query(request: FetchEmbedRequest) -> list[FetchEmbedRespon
 class PageDocument(BaseModel):
     document_id: int
     document_category: str
-    machine_id: int
-    machine_make: str
-    machine_name: str
-    machine_category: str
-    machine_model: str
+    machines: list[Machine]
 
 def database_document_page(start_position: int = 0, limit: int|None = None, machine_ids: list[int] = []) -> list[PageDocument]:
     limiter = f'LIMIT {limit}' if limit != None else ''
@@ -573,11 +569,11 @@ def database_document_page(start_position: int = 0, limit: int|None = None, mach
             f'SELECT '
                 f'd.document_id,' #0
                 f'd.document_category,' #1
-                f'm.machine_id,' #2
-                f'm.machine_make,' #3
-                f'm.machine_name,' #4
-                f'm.machine_category,' #5
-                f'm.machine_model ' #6
+                f'array_agg(m.machine_id),' #2
+                f'array_agg(m.machine_make),' #3
+                f'array_agg(m.machine_name),' #4
+                f'array_agg(m.machine_category),' #5
+                f'array_agg(m.machine_model) ' #6
             f'FROM documents d '
             f'INNER JOIN ('
                 f'SELECT '
@@ -601,6 +597,9 @@ def database_document_page(start_position: int = 0, limit: int|None = None, mach
                 f'ON md.machine_reference = selm.machine_id'
             f') m '
             f'ON d.document_id = m.document_reference '
+            f'GROUP BY '
+                f'd.document_id,'
+                f'd.document_category '
             f'{limiter} '
             f'{offseter} '
         ), (machine_ids,) if len(machine_ids) > 0 else None).fetchall()
@@ -608,11 +607,13 @@ def database_document_page(start_position: int = 0, limit: int|None = None, mach
     return [PageDocument(
         document_id=document_result[0],
         document_category=document_result[1],
-        machine_id=document_result[2],
-        machine_make=document_result[3],
-        machine_name=document_result[4],
-        machine_category=document_result[5],
-        machine_model=document_result[6]
+        machines=[Machine(
+            id=document_result[2][i],
+            make=document_result[3][i],
+            name=document_result[4][i],
+            category=document_result[5][i],
+            model=document_result[6][i],
+        )  for i in range(0, len(document_result[2])) ]
     ) for document_result in document_results]
 
 def database_document_count() -> int:
