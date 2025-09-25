@@ -601,6 +601,8 @@ def database_document_page(start_position: int = 0, limit: int|None = None, mach
             f'GROUP BY '
                 f'd.document_id,'
                 f'd.document_category '
+            f'ORDER BY '
+                f'd.document_id '
             f"{f'LIMIT {limit}' if limit != None else ''} "
             f"{f'OFFSET {start_position}'} "
         ), (machine_ids,) if len(machine_ids) > 0 else None).fetchall()
