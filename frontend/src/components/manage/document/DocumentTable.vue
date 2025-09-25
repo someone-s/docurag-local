@@ -24,6 +24,8 @@ import { getColumns, type PageDocument } from './document-types';
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import DocumentFilter from './DocumentFilter.vue';
 import DocumentProgress from './progress/DocumentProgress.vue';
+import axios from 'axios';
+import { toast } from 'vue-sonner';
 
 const props = defineProps<{
   openDocument: (id: number) => void
@@ -35,16 +37,16 @@ const openDocumentLocal = (id: number) => {
 
 const fetchSize = 50;
 
-const machineIds: Ref<number[]|null> = ref(null);
+const machineIds: Ref<number[] | null> = ref(null);
 
-const { 
+const {
   data,
   fetchNextPage,
   hasNextPage,
   isFetching
-  } = useInfiniteQuery<PageDocumentApiResponse>({
+} = useInfiniteQuery<PageDocumentApiResponse>({
   queryKey: ['pageDocument', machineIds],
-  queryFn: async ({pageParam = 0}) => {
+  queryFn: async ({ pageParam = 0 }) => {
     const start = (pageParam as number) * fetchSize;
     const fetchedData = await fetchData(start, fetchSize, machineIds.value);
     return fetchedData;
@@ -89,7 +91,7 @@ const rowVirtualizer = useVirtualizer({
   //measure dynamic row height, except in firefox because it measures table border height incorrectly
   measureElement:
     typeof window !== 'undefined' &&
-    navigator.userAgent.indexOf('Firefox') === -1
+      navigator.userAgent.indexOf('Firefox') === -1
       ? element => element?.getBoundingClientRect().height
       : undefined,
   overscan: 5,
@@ -99,40 +101,55 @@ watch(machineIds, (_current, _past) => {
   rowVirtualizer.value.scrollToIndex?.(0)
 });
 
+async function onDelete() {
+  const selectedIds: number[] = table.getSelectedRowModel().flatRows.map(row => row.getValue('documentId'));
+  for (let selectedId of selectedIds) {
+    await axios.post(`http://0.0.0.0:8081/document/delete`, {
+      document_id: selectedId
+    });
+    // no error
+    toast('Document deleted', {
+      description: `Document ${selectedId} deleted`
+    });
+  }
+}
+
 </script>
 
 <template>
   <div class="size-full relative">
-  <div class="absolute top-0 left-0 right-0 bottom-0 p-3 flex flex-col">
-    <DocumentFilter :table="table" :set-machines="(machines) => { machineIds = machines ? machines.map(machine => machine.id) : null }" />
-    <DocumentProgress class="mb-2" />
-    <TableAbsolute container-class="border rounded-md">
-      <TableHeaderSticky>
-        <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-          <TableHead v-for="header in headerGroup.headers" :key="header.id">
-            <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-              :props="header.getContext()" />
-          </TableHead>
-        </TableRow>
-      </TableHeaderSticky>
-      <TableBody ref="tableElement">
-        <template v-if="table.getRowModel().rows?.length">
-          <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
-            :data-state="row.getIsSelected() ? 'selected' : undefined">
-            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-              <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-            </TableCell>
+    <div class="absolute top-0 left-0 right-0 bottom-0 p-3 flex flex-col">
+      <DocumentFilter :table="table"
+        :set-machines="(machines) => { machineIds = machines ? machines.map(machine => machine.id) : null }"
+        :on-delete="onDelete" />
+      <DocumentProgress class="mb-2" />
+      <TableAbsolute container-class="border rounded-md">
+        <TableHeaderSticky>
+          <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+            <TableHead v-for="header in headerGroup.headers" :key="header.id">
+              <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
+                :props="header.getContext()" />
+            </TableHead>
           </TableRow>
-        </template>
-        <template v-else>
-          <TableRow>
-            <TableCell :colspan="columns.length" class="h-24 text-center overflow-hidden">
-              No results.
-            </TableCell>
-          </TableRow>
-        </template>
-      </TableBody>
-    </TableAbsolute>
-  </div>
+        </TableHeaderSticky>
+        <TableBody ref="tableElement">
+          <template v-if="table.getRowModel().rows?.length">
+            <TableRow v-for="row in table.getRowModel().rows" :key="row.id"
+              :data-state="row.getIsSelected() ? 'selected' : undefined">
+              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+              </TableCell>
+            </TableRow>
+          </template>
+          <template v-else>
+            <TableRow>
+              <TableCell :colspan="columns.length" class="h-24 text-center overflow-hidden">
+                No results.
+              </TableCell>
+            </TableRow>
+          </template>
+        </TableBody>
+      </TableAbsolute>
+    </div>
   </div>
 </template>
