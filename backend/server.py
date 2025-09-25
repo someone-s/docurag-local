@@ -1,4 +1,5 @@
-from typing import Annotated
+import asyncio
+from typing import Annotated, Literal
 from fastapi import FastAPI, File, Form, HTTPException, Query, Response, UploadFile, WebSocket, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
@@ -147,19 +148,75 @@ def document_category_delete(request: DocumentCategoryRequest):
         raise HTTPException(422, "Machine category inuse")
 
 
+class UploadAdd(BaseModel):
+    type: Literal['add']
+    id: str
+    file_name: str
+class UploadRemove(BaseModel):
+    type: Literal['remove']
+    id: str
+
+document_upload_subscriptions: list[asyncio.Queue] = []
 
 lock = Lock()
-in_progress_upload: dict[UUID, str] = {}
-def add_in_progress(file_name: str) -> UUID:
+document_upload_currents: dict[UUID, str] = {}
+
+async def add_in_progress(file_name: str) -> UUID:
+
     new_id = uuid4()
+
     lock.acquire()
-    in_progress_upload[new_id] = file_name
+    document_upload_currents[new_id] = file_name
     lock.release()
+
+    for subsciption in document_upload_subscriptions:
+        await subsciption.put(UploadAdd(type='add', id=str(new_id), file_name=file_name))
+
     return new_id
-def remove_in_progress(id: UUID):
+
+async def remove_in_progress(id: UUID):
+
     lock.acquire()
-    in_progress_upload.pop(id, 'not found')
+    document_upload_currents.pop(id, 'not found') # assume exist
     lock.release()
+
+    for subsciption in document_upload_subscriptions:
+        await subsciption.put(UploadRemove(type='remove', id=str(id)))
+
+
+@app.websocket('/document/upload/status')
+async def document_upload_status(websocket: WebSocket):
+
+    subscription: asyncio.Queue|None = None
+    try:
+        await websocket.accept()
+        subscription = asyncio.Queue()
+        document_upload_subscriptions.append(subscription)
+
+
+        currents = document_upload_currents.copy()
+        for id, file_name in currents.items():
+            await websocket.send_json(UploadAdd(type='add', id=str(id), file_name=file_name).model_dump())
+            await asyncio.sleep(0.0001)
+
+        while True:
+            progress = await subscription.get()
+            match progress.type:
+                case 'add':
+                    progressAdd: UploadAdd = progress
+                    await websocket.send_json(progressAdd.model_dump())
+                    await asyncio.sleep(0.0001)
+                case 'remove':
+                    progressRemove: UploadRemove = progress
+                    await websocket.send_json(progressRemove.model_dump())
+                    await asyncio.sleep(0.0001)
+
+    except WebSocketDisconnect:
+        logger.info("A status websocket disconnected")
+
+    finally:
+        if subscription != None:
+            document_upload_subscriptions.remove(subscription)
 
 @app.post('/document/upload')
 async def document_upload(
@@ -190,9 +247,8 @@ async def document_upload(
     
     logger.info('upload file read complete')
 
-    upload_id = add_in_progress(file.filename if file.filename != None else "Document")
+    upload_id = await add_in_progress(file.filename if file.filename != None else "Document")
     background_task.add_task(document_upload_continuation, machine_ids, document_category, upload_id, file_binary)
-
 async def document_upload_continuation(
         machine_ids: list[int],
         document_category: str,
@@ -214,7 +270,7 @@ async def document_upload_continuation(
 
     logger.info('upload store complete')
     
-    remove_in_progress(upload_id)
+    await remove_in_progress(upload_id)
 
 @app.get(
     '/document/fetch/{document_id}', 

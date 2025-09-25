@@ -23,6 +23,7 @@ import { fetchData, type PageDocumentApiResponse } from './document-state';
 import { getColumns, type PageDocument } from './document-types';
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import DocumentFilter from './DocumentFilter.vue';
+import DocumentProgress from './progress/DocumentProgress.vue';
 
 const props = defineProps<{
   openDocument: (id: number) => void
@@ -104,6 +105,7 @@ watch(machineIds, (_current, _past) => {
   <div class="size-full relative">
   <div class="absolute top-0 left-0 right-0 bottom-0 p-3 flex flex-col">
     <DocumentFilter :table="table" :set-machines="(machines) => { machineIds = machines ? machines.map(machine => machine.id) : null }" />
+    <DocumentProgress class="mb-2" />
     <TableAbsolute container-class="border rounded-md">
       <TableHeaderSticky>
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">

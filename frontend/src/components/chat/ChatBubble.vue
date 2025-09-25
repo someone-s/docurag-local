@@ -27,8 +27,8 @@ defineProps<{
       </span>
        <self-building-square-spinner v-if="entry.segments.length == 0"
         :animation-duration="6000"
-        :size="12"
-        class="fill-foreground"
+        :size="16"
+        color="var(--foreground)"
       />
     </p>
   </div>
