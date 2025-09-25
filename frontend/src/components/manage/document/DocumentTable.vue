@@ -36,7 +36,7 @@ const openDocumentLocal = (id: number) => {
 }
 
 const fetchSize = 50;
-
+const manualRefresh = ref(0);
 const machineIds: Ref<number[] | null> = ref(null);
 
 const {
@@ -45,7 +45,7 @@ const {
   hasNextPage,
   isFetching
 } = useInfiniteQuery<PageDocumentApiResponse>({
-  queryKey: ['pageDocument', machineIds],
+  queryKey: ['pageDocument', machineIds, manualRefresh],
   queryFn: async ({ pageParam = 0 }) => {
     const start = (pageParam as number) * fetchSize;
     const fetchedData = await fetchData(start, fetchSize, machineIds.value);
@@ -111,6 +111,8 @@ async function onDelete() {
     toast('Document deleted', {
       description: `Document ${selectedId} deleted`
     });
+    manualRefresh.value++;
+    table.resetRowSelection();
   }
 }
 
