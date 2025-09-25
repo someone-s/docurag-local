@@ -13,7 +13,8 @@ import { Minus } from 'lucide-vue-next';
 const props = defineProps<{
   table: Table<any>,
   setMachines: (machines: PageMachine[]|null) => void,
-  onDelete: () => void
+  onDelete: () => void,
+  onAdd: () => void
 }>();
 
 const make: Ref<string|null> = ref(null);
@@ -48,7 +49,7 @@ watch([make, category, model], async ([currentMake, currentCategory, currentMode
     <DocumentMake :set-select="onMake" />
     <DocumentCategory :set-select="onCategory" />
     <Input class="max-w-3xs" placeholder="Model" @update:model-value="onModel($event as string)" />
-    <DocumentAddPopover />
+    <DocumentAddPopover v-on:document-added="() => onAdd()" />
     <Button @click="() => onDelete()">Delete<Minus class="ml-2 h-4 w-4" /></Button>
   </div>
 </template>

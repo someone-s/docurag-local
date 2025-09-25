@@ -123,7 +123,8 @@ async function onDelete() {
     <div class="absolute top-0 left-0 right-0 bottom-0 p-3 flex flex-col">
       <DocumentFilter :table="table"
         :set-machines="(machines) => { machineIds = machines ? machines.map(machine => machine.id) : null }"
-        :on-delete="onDelete" />
+        v-on:delete="onDelete"
+        v-on:add="() => manualRefresh++" />
       <DocumentProgress class="mb-2" />
       <TableAbsolute container-class="border rounded-md">
         <TableHeaderSticky>
