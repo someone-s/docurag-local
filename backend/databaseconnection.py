@@ -233,7 +233,7 @@ def database_machine_fetch_multiple(machine_ids: list[int]) -> list[Machine]:
         model=response[3]
     ) for response in responses]
 
-def database_machine_fetch_filter(machine_make: str|None, machine_category: str|None, machine_model: str|None) -> list[Machine]:
+def database_machine_fetch_filter(start_position: int = 0, limit: int|None = None, machine_make: str|None = None, machine_category: str|None = None, machine_model: str|None = None) -> list[Machine]:
     filters: list[str] = []
     if machine_make != None:
         filters.append(f'machine_make LIKE \'{machine_make}\'')
@@ -254,7 +254,9 @@ def database_machine_fetch_filter(machine_make: str|None, machine_category: str|
             f'machine_category,' #3
             f'machine_model ' #4
         f'FROM machines '
-        f'{filter_query}'
+        f'{filter_query} '
+        f"{f'LIMIT {limit}' if limit != None else ''} "
+        f"{f'OFFSET {start_position}'} "
     )).fetchall()
 
     return [Machine(
