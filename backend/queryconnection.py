@@ -203,6 +203,15 @@ def append_conversation_fact(
         conversation_log: ResponseInputParam,
         relevant_texts: list[RelevantText]
 ):
+    conversation_log.append({
+        "role": "developer",
+        "content": [
+            {
+                "type": "input_text",
+                "text": "The following excerpt are relevant to the next user query."
+            }
+        ]
+    })
     
     fact_texts = [(
         f'Provided is an excerpt from a {relevant_text.document_category} '
