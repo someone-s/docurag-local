@@ -268,10 +268,20 @@ def database_machine_fetch_filter(start_position: int = 0, limit: int|None = Non
     ) for response in responses]
 
 def database_machine_delete(machine_id: int):
+
+    usage_result = conn.execute((
+        f'SELECT COUNT(*) FROM machine_documents '
+        f'WHERE machine_reference = ''%s'
+    ), (machine_id,)).fetchone()
+    if usage_result[0] > 0:
+        return False
+
     conn.execute((
         f'DELETE FROM machines '
         f'WHERE machine_id = ''%s'
     ), (machine_id,))
+
+    return True
 
 def database_machine_exist(machine_id: int) -> bool:
     count_result = conn.execute((

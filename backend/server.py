@@ -126,7 +126,9 @@ class MachineDeleteRequest(BaseModel):
 
 @app.post('/machine/delete')
 def machine_delete(request: MachineDeleteRequest):
-    database_machine_delete(request.machine_id)
+    sucess = database_machine_delete(request.machine_id)
+    if not sucess:
+        raise HTTPException(422, "Machine has related documents")
 
 
 

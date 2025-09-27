@@ -7,7 +7,7 @@ import type { PageMachine } from '../machine-types';
 import type { Row } from '@tanstack/vue-table';
 
 const props = defineProps<{
-  getSelectedRows: () =>  Row<PageMachine>[],
+  getSelectedRows: () => Row<PageMachine>[],
   onMachinesDeleted: () => void
 }>();
 
@@ -16,12 +16,21 @@ async function onDelete() {
   for (let selectedId of selectedIds) {
     await axios.post(`http://0.0.0.0:8081/machine/delete`, {
       machine_id: selectedId
-    });
-    // no error
-    toast('Machine deleted', {
-      description: `Machine ${selectedId} deleted`
-    });
-    props.onMachinesDeleted();
+    })
+      .then(_response => {
+        toast('Machine deleted', {
+          description: `Machine ${selectedId} deleted`
+        });
+        props.onMachinesDeleted();
+      })
+      .catch(error => {
+        if (error.response && error.response.status == 422)
+          toast('Machine kept', {
+            description: `Machine ${selectedId} kept, deleted associated documents before deleting machine`
+          });
+        else
+          console.error(error);
+      });
   }
 }
 
@@ -29,5 +38,7 @@ async function onDelete() {
 </script>
 
 <template>
-  <Button @click="() => onDelete()">Delete<Minus class="ml-2 h-4 w-4" /></Button>
+  <Button @click="() => onDelete()">Delete
+    <Minus class="ml-2 h-4 w-4" />
+  </Button>
 </template>
