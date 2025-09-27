@@ -55,7 +55,7 @@ defineExpose({
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost"  class="grow">
+      <Button v-bind="$attrs">
         {{ select?.model ?? "Model" }}
         <ChevronDown class="ml-auto h-4 w-4" />
       </Button>

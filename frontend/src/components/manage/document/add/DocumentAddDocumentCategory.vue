@@ -14,32 +14,36 @@ import { onMounted, ref, type Ref } from 'vue';
 const select: Ref<string|null> = ref(null);
 const options: Ref<string[]> = ref([]);
 
-onMounted(async () => {
+onMounted(fetchOptions);
+
+async function fetchOptions() {
   const categoryResponse = await axios.get(`http://0.0.0.0:8081/document/category/list`);
   if (!categoryResponse.data.document_categories || !Array.isArray(categoryResponse.data.document_categories)) return;
   const categories: any[] = categoryResponse.data.document_categories;
   options.value = categories.filter(category => typeof category === 'string');
-});
+}
 
-function onSelect(value: string|null) {
+function setCategory(value: string|null) {
   select.value = value;
 }
 
 defineExpose({
-  getCategory: () => select.value
+  getSelect: () => select.value,
+  setSelect: setCategory,
+  fetchOptions
 })
 </script>
 
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost" class="w-40 border">
+      <Button v-bind="$attrs">
         {{ select ? select : "Category" }}
         <ChevronDown class="ml-auto h-4 w-4" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
-      <DropdownMenuItem v-for="option in options" @click="() => onSelect(option)">{{ option }}</DropdownMenuItem>
+      <DropdownMenuItem v-for="option in options" @click="() => setCategory(option)">{{ option }}</DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>

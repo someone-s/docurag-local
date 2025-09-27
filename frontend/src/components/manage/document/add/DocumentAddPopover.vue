@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input';
 import axios from 'axios';
 import DocumentAddDocumentCategory from './DocumentAddDocumentCategory.vue';
 import { toast } from 'vue-sonner';
+import DocumentCategoryAddPopover from '../category/DocumentCategoryAddPopover.vue';
+import DocumentCategoryDeletePopover from '../category/DocumentCategoryDeletePopover.vue';
 
 
 const machineCount = ref(1);
@@ -31,7 +33,7 @@ async function onSubmit() {
   if (!machines || machines.some(machine => machine == null))
     return;
 
-  const category = categoryEl.value?.getCategory();
+  const category = categoryEl.value?.getSelect();
   if (!category)
     return;
 
@@ -63,7 +65,7 @@ async function onSubmit() {
           <div class="flex flex-row justify-between">
             <Label>Machines</Label>
             <div>
-              <Button variant="outline" class="size-7 rounded-r-none" @click="machineCount += 1">
+              <Button variant="outline" class="size-7 rounded-r-none border-r-0" @click="machineCount += 1">
                 <Plus class="size-4" />
               </Button>
               <Button variant="outline" class="size-7 rounded-l-none"
@@ -78,9 +80,29 @@ async function onSubmit() {
         </div>
         <div class="flex flex-col gap-1">
           <Label class="h-7">Document</Label>
+          <Input type="file" accept="application/pdf" ref="file" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <Label class="h-7">Category</Label>
           <div class="flex flex-row gap-1">
-            <Input type="file" accept="application/pdf" ref="file" />
-            <DocumentAddDocumentCategory ref="category" />
+            <DocumentAddDocumentCategory ref="category" variant="outline" class="grow" />
+            <div class="flex flex-row">
+
+              <DocumentCategoryAddPopover variant="outline" class="size-9 border-r-0 rounded-r-none"
+                v-on:category-added="(category) => {
+                  categoryEl?.setSelect(category);
+                  categoryEl?.fetchOptions();
+                }" />
+              <DocumentCategoryDeletePopover variant="outline" class="size-9 rounded-l-none" 
+                :get-current-category="() => {
+                  const currentSelect = categoryEl?.getSelect();
+                  return currentSelect ? currentSelect : null;
+                }" 
+                v-on:category-deleted="() => {
+                  categoryEl?.setSelect(null);
+                  categoryEl?.fetchOptions();
+                }" />
+            </div>
           </div>
         </div>
         <Button @click="onSubmit">
