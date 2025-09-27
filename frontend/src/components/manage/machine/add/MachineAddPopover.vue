@@ -7,12 +7,12 @@ import {
 import Button from '@/components/ui/button/Button.vue';
 import { Plus } from 'lucide-vue-next';
 import { ref, type Ref } from 'vue';
-import MachineAddMake from './MachineAddMake.vue';
-import MachineAddCategory from './MachineAddCategory.vue';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
 import { toast } from 'vue-sonner';
+import MachineMake from '../../filter/MachineMake.vue';
+import MachineCategory from '../../filter/MachineCategory.vue';
 
 const props = defineProps<{
   onMachineAdded: () => void
@@ -50,8 +50,8 @@ async function onSubmit() {
 
 <template>
   <Popover>
-    <PopoverTrigger as-child class="ml-auto cursor-pointer">
-      <Button>
+    <PopoverTrigger as-child>
+      <Button class="cursor-pointer" v-bind="$attrs">
         Add Machine
         <Plus class="ml-2 h-4 w-4" />
       </Button>
@@ -60,11 +60,11 @@ async function onSubmit() {
       <div class="flex flex-col gap-3">
         <div class="flex flex-col gap-1">
           <Label>Make</Label>
-          <MachineAddMake :set-select="(select) => make = select" />
+          <MachineMake variant="ghost" :allow-unset="false" :set-select="(select) => make = select" class="border rounded-md" />
         </div>
         <div class="flex flex-col gap-1">
           <Label>Category</Label>
-          <MachineAddCategory :set-select="(select) => category = select" />
+          <MachineCategory variant="ghost" :allow-unset="false" :set-select="(select) => category = select" class="border rounded-md" />
         </div>
         <div class="flex flex-col gap-1">
           <Label>Model</Label>

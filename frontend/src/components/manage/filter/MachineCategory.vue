@@ -12,6 +12,7 @@ import axios from 'axios';
 import { onMounted, ref, type Ref } from 'vue';
 
 const props = defineProps<{
+  allowUnset: boolean,
   setSelect: (select: string|null) => void
 }>();
 
@@ -34,14 +35,14 @@ function onSelect(value: string|null) {
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="outline">
+      <Button v-bind="$attrs">
         {{ select ? select : "Category" }}
-        <ChevronDown class="ml-2 h-4 w-4" />
+        <ChevronDown class="ml-auto h-4 w-4" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
-      <DropdownMenuItem @click="() => onSelect(null)">{{ "Unset" }}</DropdownMenuItem>
-      <DropdownMenuSeparator />
+      <DropdownMenuItem v-if="allowUnset" @click="() => onSelect(null)">{{ "Unset" }}</DropdownMenuItem>
+      <DropdownMenuSeparator v-if="allowUnset" />
       <DropdownMenuItem v-for="option in options" @click="() => onSelect(option)">{{ option }}</DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>

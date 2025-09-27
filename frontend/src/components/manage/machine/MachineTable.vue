@@ -28,6 +28,8 @@ import Input from '@/components/ui/input/Input.vue';
 import MachineAddPopover from './add/MachineAddPopover.vue';
 import MachineDelete from './delete/MachineDelete.vue';
 import { useRouter } from 'vue-router';
+import MachineMakeAddPopover from './make/MachineMakeAddPopover.vue';
+import MachineMakeDeletePopover from './make/MachineMakeDeletePopover.vue';
 
 
 const fetchSize = 50;
@@ -119,9 +121,11 @@ function clearSelection() {
   <div class="size-full relative">
     <div class="absolute top-0 left-0 right-0 bottom-0 p-3 flex flex-col">
       <div class="flex items-center py-4 gap-2 flex-wrap">
-        <MachineMake :set-select="(select) => make = select" />
-        <MachineCategory :set-select="(select) => category = select" />
+        <MachineMake :allow-unset="true" variant="outline" :set-select="(select) => make = select" />
+        <MachineCategory :allow-unset="true" variant="outline" :set-select="(select) => category = select" />
         <Input class="max-w-3xs" placeholder="Model" @update:model-value="(value) => model = value.toString()" />
+        <MachineMakeAddPopover class="ml-auto" />
+        <MachineMakeDeletePopover />
         <MachineAddPopover v-on:machine-added="() => manualRefresh++" />
         <MachineDelete :get-selected-rows="() => table.getSelectedRowModel().flatRows" v-on:machines-deleted="clearSelection" />
       </div>

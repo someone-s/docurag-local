@@ -49,7 +49,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <MachineMake :set-select="onMake" />
-    <MachineCategory :set-select="onCategory" />
+    <MachineMake :allow-unset="true" variant="outline" :set-select="onMake" />
+    <MachineCategory :allow-unset="true" variant="outline" :set-select="onCategory" />
     <Input class="max-w-3xs" placeholder="Model" :model-value="model" @update:model-value="onModel($event as string)" />
 </template>
