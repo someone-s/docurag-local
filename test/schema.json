@@ -4,74 +4,6 @@
     "schema": {
         "type": "object",
         "properties": {
-            "document": {
-                "type": "object",
-                "properties": {
-                    "category": {
-                        "type": "string",
-                        "description": "The type and nature of the document, choose other if type does not match any other options",
-                        "enum": [
-                            "user_manual",
-                            "warranty_information",
-                            "other"
-                        ]
-                    }
-                },
-                "required": [
-                    "category"
-                ],
-                "additionalProperties": false
-            },
-            "machine": {
-                "type": "object",
-                "properties": {
-                    "make": {
-                        "type": "string",
-                        "description": "The manufacturer of the machine, if not match any provided brand names, set this field to null and set the newMake field with the new make",
-                        "enum": [
-                            "zanussi",
-                            "bosch",
-                            "general_electric",
-                            "no_match"
-                        ]
-                    },
-                    "newMake": {
-                        "type": "string",
-                        "description": "The name of a manufacturer in snake_case if the document does not mostly match the provided options in the make field, leave empty otherwise"
-                    },
-                    "name": {
-                        "type": "string",
-                        "description": "The common human readable name of the machine"
-                    },
-                    "category": {
-                        "type": "string",
-                        "description": "The type of machine this document is for, if not match any provided category, set this field to null and set the newCategory field with the new type",
-                        "enum": [
-                            "washing_machine",
-                            "dish_washer",
-                            "tumble_dryer",
-                            "no_match"
-                        ]
-                    },
-                    "newCategory": {
-                        "type": "string",
-                        "description": "The category of the machine in snake_case if the document does not mostly match the provided options in the category field, leave empty otherwise"
-                    },
-                    "model": {
-                        "type": "string",
-                        "description": "The serial number of the machine referenced in the document"
-                    }
-                },
-                "required": [
-                    "make",
-                    "newMake",
-                    "name",
-                    "category",
-                    "newCategory",
-                    "model"
-                ],
-                "additionalProperties": false
-            },
             "sections": {
                 "type": "array",
                 "description": "A detailed list of all sections presented in the document",
@@ -84,15 +16,15 @@
                         },
                         "text": {
                             "type": "string",
-                            "description": "A verbose extract of the text from the document, combined with text desciption of images in the section, reformating is allowed"
+                            "description": "A word for word extract of the text from the document, combined with text desciption of images in the section."
                         },
                         "startPage": {
                             "type": "integer",
-                            "description": "The first page where the section begins, ignoring appearance in any index page"
+                            "description": "The first page where the section begins, ignoring appearance in any index page. This is unrelated to the section number."
                         },
                         "endPage": {
                             "type": "integer",
-                            "description": "The last page where the section appears, ignoring appearance in any index page"
+                            "description": "The last page where the section appears, ignoring appearance in any index page. This is unrelated to the section number"
                         }
                     },
                     "required": [
@@ -106,8 +38,6 @@
             }
         },
         "required": [
-            "document",
-            "machine",
             "sections"
         ],
         "additionalProperties": false

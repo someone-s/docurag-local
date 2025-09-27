@@ -24,7 +24,7 @@ extract_schema: dict[str,object] = {
                 },
                 "text": {
                     "type": "string",
-                    "description": "A word for word extract of the text from the document, combined with text desciption of images in the section."
+                    "description": "Extract word for word all sentences from the section; additionally, add text desciption of images in the section."
                 },
                 "startPage": {
                     "type": "integer",
@@ -78,7 +78,7 @@ async def extract_information(
                 "content": [
                     {
                         "type": "input_file",
-                        "filename": "156817671_UserManual_0c696b41-4e62-4e21-a7ee-23a8b1a14aa4.pdf",
+                        "filename": "document.pdf",
                         "file_data": f"data:application/pdf;base64,{extract_input}"
                     }
                 ]
@@ -87,7 +87,7 @@ async def extract_information(
         text={
             "format": {
                 "type": "json_schema",
-                "name": "manual_extract",
+                "name": "response",
                 "strict": True,
                 "schema": extract_schema
             },
