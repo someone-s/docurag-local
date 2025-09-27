@@ -67,7 +67,11 @@ async def converse(
                 'section_end': relevant_text.section_end
             })
 
-        append_conversation_fact(conversation_log, retrieved_relevant_texts)
+        if len(retrieved_relevant_texts) > 0:
+            append_conversation_fact(conversation_log, retrieved_relevant_texts)
+        else:
+            append_conversation_fact_lack(conversation_log)
+        
         append_conversation_query(conversation_log, converse_state.query_text)
 
         await generate_inference(client, conversation_log, send_output_hook)
@@ -224,6 +228,21 @@ def append_conversation_fact(
             ]
         })
 
+
+def append_conversation_fact_lack(
+        conversation_log: ResponseInputParam,
+):
+    conversation_log.append({
+        "role": "developer",
+        "content": [
+            {
+                "type": "input_text",
+                "text": "There are no relevant excerpt to the next user message, please inform the user there are no relevant excerpt to their query."
+            }
+        ]
+    })
+    
+
 def append_conversation_query(
         conversation_log: ResponseInputParam,
         query_text: str
@@ -299,7 +318,7 @@ async def generate_inference(
                 "strict": True,
                 "schema": response_schema
             },
-            "verbosity": "high"
+            "verbosity": "medium"
         },
         reasoning={
             "effort": "medium"
