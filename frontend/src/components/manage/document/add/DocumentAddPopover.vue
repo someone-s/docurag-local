@@ -14,9 +14,6 @@ import axios from 'axios';
 import DocumentAddDocumentCategory from './DocumentAddDocumentCategory.vue';
 import { toast } from 'vue-sonner';
 
-const props = defineProps<{
-  onDocumentAdded: () => void
-}>();
 
 const machineCount = ref(1);
 const itemEls = useTemplateRef('items');
@@ -48,8 +45,6 @@ async function onSubmit() {
   toast('File uploaded', {
     description: 'File is now being processed',
   });
-
-  props.onDocumentAdded?.();
 }
 
 </script>

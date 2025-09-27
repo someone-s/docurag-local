@@ -127,10 +127,10 @@ async function onDelete() {
       <div class="flex items-center py-4 gap-2 flex-wrap">
         <MachineFilter :table="table"
           :set-machines="(machines) => { machineIds = machines ? machines.map(machine => machine.machineId) : null }" />
-        <DocumentAddPopover v-on:document-added="() => manualRefresh++" />
+        <DocumentAddPopover />
         <Button @click="() => onDelete()">Delete<Minus class="ml-2 h-4 w-4" /></Button>
       </div>
-      <DocumentProgress class="mb-2" />
+      <DocumentProgress class="mb-2" v-on:progress-complete="() => manualRefresh++" />
       <TableAbsolute container-class="border rounded-md">
         <TableHeaderSticky>
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">

@@ -6,6 +6,10 @@ import { SelfBuildingSquareSpinner } from 'epic-spinners';
 import { onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { toast } from 'vue-sonner';
 
+const props = defineProps<{
+  onProgressComplete: () => void
+}>();
+
 interface Progress {
   id: string,
   fileName: string
@@ -32,7 +36,8 @@ onMounted(() => {
           progresses.value.splice(progressIndex, 1);
           toast('File ready', {
             description: `${progress.fileName} is now ready`,
-          })
+          });
+          props.onProgressComplete();
         }
         break;
     }
