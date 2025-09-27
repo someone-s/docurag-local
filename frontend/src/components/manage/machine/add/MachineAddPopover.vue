@@ -26,6 +26,11 @@ const model: Ref<string|null> = ref(null);
 
 async function onSubmit() {
 
+  if (!make.value) return;
+  if (!name.value) return;
+  if (!category.value) return;
+  if (!model.value) return;
+
   await axios.post(`http://0.0.0.0:8081/machine/add`, {
     make: make.value,
     name: name.value,
@@ -47,7 +52,7 @@ async function onSubmit() {
   <Popover>
     <PopoverTrigger as-child class="ml-auto cursor-pointer">
       <Button>
-        Add
+        Add Machine
         <Plus class="ml-2 h-4 w-4" />
       </Button>
     </PopoverTrigger>
