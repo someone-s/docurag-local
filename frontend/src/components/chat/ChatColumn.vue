@@ -30,7 +30,9 @@ const props = defineProps<{
   options: Ref<ChatOptions>,
   setMake: (val: string|null) => void,
   setCategory: (val: string|null) => void,
-  setModel: (val: string|null) => void
+  setModel: (val: string|null) => void,
+
+  getAllowedDocumentIds: () => number[]
 }>();
 
 watch(props.block, (val) => {
@@ -51,7 +53,7 @@ function onSubmit() {
 <template>
   <div class="relative h-full">
     <div ref="chat-area" class="h-full overflow-scroll no-scrollbar">
-      <ChatBubble v-for="entry in entries.value" :entry="entry" :goToSegment="goToSegment" />
+      <ChatBubble v-for="entry in entries.value" :entry="entry" :getAllowedDocumentIds="getAllowedDocumentIds" :goToSegment="goToSegment" />
       <div class="h-36"></div>
     </div>
     <div class="absolute w-full bottom-2 flex justify-center no-drag">

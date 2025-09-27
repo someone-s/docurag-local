@@ -89,7 +89,8 @@ onUnmounted(() => {
         :options="queryFilter.options"
         :set-make="(val) => queryFilter.setMake(val)"
         :set-category="(val) => queryFilter.setCategory(val)"
-        :set-model="(val) => queryFilter.setModel(val)" />
+        :set-model="(val) => queryFilter.setModel(val)"
+        :get-allowed-document-ids="() => documents.map(document => document.id)" />
     </ResizablePanel>
     <ResizableHandle with-handle />
     <ResizablePanel :min-size="20">

@@ -7,6 +7,7 @@ import { SelfBuildingSquareSpinner  } from 'epic-spinners';
 
 defineProps<{
   entry: ChatEntry,
+  getAllowedDocumentIds: () => number[],
   goToSegment: (documentId: number, startPage: number, endPage: number) => void
 }>();
 </script>
@@ -16,7 +17,7 @@ defineProps<{
     <p class="rounded-md border bg-pdf p-2.5 pl-3.5 pr-3.5">
       <span v-for="segment in entry.segments" class="text-justify text-base/loose whitespace-pre-line">
         {{ segment.text }}
-        <Button v-if="segment.reference !== null" @click="() => {
+        <Button v-if="segment.reference != null && getAllowedDocumentIds().includes(segment.reference.documentId)" @click="() => {
           if (segment.reference === null) return; // Make TS not complain
           const capturedReference: ChatReference = segment.reference;
           goToSegment(capturedReference.documentId, capturedReference.startPage, capturedReference.endPage);
