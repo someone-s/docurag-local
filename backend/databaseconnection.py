@@ -155,7 +155,7 @@ def database_delete_machines():
     conn.execute('DROP TABLE IF EXISTS machines')
 
 class Machine(BaseModel):
-    id: Annotated[int|None, Field(description="Optional id of the machine")] = None
+    id: Annotated[int|None, Field(description="Optional id of the machine, if adding new machine, this field is ignored and can be left unset")] = None
     make: Annotated[str, Field(description="String common name of machine")]
     name: Annotated[str, Field(description="String manufacturer of machine")]
     category: Annotated[str, Field(description="String category of machine")]
