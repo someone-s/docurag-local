@@ -24,6 +24,7 @@ defineProps<{
           {{ segment.reference.documentId }}:{{ segment.reference.startPage }}-{{ segment.reference.endPage }}
           <SquareArrowOutUpRightIcon class="size-[0.75rem]" stroke-width="0.15rem"></SquareArrowOutUpRightIcon>
         </Button>
+        {{ '\r\n' }}
       </span>
        <self-building-square-spinner v-if="entry.segments.length == 0"
         :animation-duration="6000"
