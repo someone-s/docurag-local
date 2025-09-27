@@ -5,7 +5,8 @@ import type { PageMachine } from './machine-types';
 import MachineMake from '../filter/MachineMake.vue';
 import MachineCategory from '../filter/MachineCategory.vue';
 import { fetchAllMachine } from './machine-state';
-import { ref, watch, type Ref } from 'vue';
+import { onMounted, ref, watch, type Ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 const props = defineProps<{
   table: Table<any>,
@@ -36,10 +37,19 @@ watch([make, category, model], async ([currentMake, currentCategory, currentMode
     props.setMachines(response.machines);
   }
 });
+
+const route = useRoute();
+
+onMounted(() => {
+  const queryModelObject = route.query.model;
+  if (!queryModelObject || typeof queryModelObject !== 'string') return;
+
+  model.value = queryModelObject as string;
+});
 </script>
 
 <template>
     <MachineMake :set-select="onMake" />
     <MachineCategory :set-select="onCategory" />
-    <Input class="max-w-3xs" placeholder="Model" @update:model-value="onModel($event as string)" />
+    <Input class="max-w-3xs" placeholder="Model" :model-value="model" @update:model-value="onModel($event as string)" />
 </template>

@@ -20,13 +20,14 @@ import {
 } from '@/components/ui/table';
 import { ref, useTemplateRef, watch, type Ref } from 'vue';
 import { fetchData, type PageMachineApiResponse } from './machine-state';
-import { columns, type PageMachine } from './machine-types';
+import { getColumns, type PageMachine } from './machine-types';
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import MachineMake from '../filter/MachineMake.vue';
 import MachineCategory from '../filter/MachineCategory.vue';
 import Input from '@/components/ui/input/Input.vue';
 import MachineAddPopover from './add/MachineAddPopover.vue';
 import MachineDelete from './delete/MachineDelete.vue';
+import { useRouter } from 'vue-router';
 
 
 const fetchSize = 50;
@@ -68,6 +69,17 @@ watch([tableElement, isFetching, hasNextPage], async ([currentTableElement, curr
 
   if (scrollHeight - scrollTop - clientHeight < 500 && !currentIsFetching && currentHasNextPage)
     fetchNextPage();
+});
+
+const router = useRouter();
+
+const columns = getColumns((model) => {
+  router.push({
+    path: '/manage/document',
+    query: {
+      model: model
+    }
+  })
 });
 
 const table = useVueTable({

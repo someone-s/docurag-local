@@ -1,5 +1,7 @@
+import { Button } from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
 import type { ColumnDef } from '@tanstack/vue-table';
+import { FileSymlinkIcon } from 'lucide-vue-next';
 import { h } from 'vue';
 
 
@@ -12,7 +14,7 @@ export interface PageMachine {
 }
 
 
-export const columns: ColumnDef<PageMachine>[] = [
+export const getColumns = (goToDocument: (model: string) => void): ColumnDef<PageMachine>[] => [
   {
     id: "select",
     header: ({ table }) => h(Checkbox, {
@@ -53,5 +55,10 @@ export const columns: ColumnDef<PageMachine>[] = [
     accessorKey: 'machineModel',
     header: () => h('div', { class: 'text-left' }, 'Model'),
     cell: ({ row }) => h('div', { class: 'text-left font-medium' }, row.getValue('machineModel')),
+  },
+  {
+    accessorKey: 'machineModel',
+    header: () => h('div', { class: 'text-left' }, 'Documents'),
+    cell: ({ row }) => h(Button, { variant: 'ghost', class: 'cursor-pointer', onClick: () => goToDocument(row.getValue('machineModel')) }, () => h(FileSymlinkIcon, { class: 'size-4' })),
   },
 ];
