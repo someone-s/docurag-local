@@ -22,11 +22,11 @@ import { ref, useTemplateRef, watch, type Ref } from 'vue';
 import { fetchData, type PageMachineApiResponse } from './machine-state';
 import { columns, type PageMachine } from './machine-types';
 import { useVirtualizer } from '@tanstack/vue-virtual';
-import axios from 'axios';
-import { toast } from 'vue-sonner';
 import MachineMake from '../filter/MachineMake.vue';
 import MachineCategory from '../filter/MachineCategory.vue';
 import Input from '@/components/ui/input/Input.vue';
+import MachineAddPopover from './add/MachineAddPopover.vue';
+import MachineDelete from './delete/MachineDelete.vue';
 
 
 const fetchSize = 50;
@@ -96,19 +96,9 @@ watch([make, category, model], (_current, _past) => {
   rowVirtualizer.value.scrollToIndex?.(0)
 });
 
-async function onDelete() {
-  const selectedIds: number[] = table.getSelectedRowModel().flatRows.map(row => row.getValue('documentId'));
-  for (let selectedId of selectedIds) {
-    await axios.post(`http://0.0.0.0:8081/document/delete`, {
-      document_id: selectedId
-    });
-    // no error
-    toast('Document deleted', {
-      description: `Document ${selectedId} deleted`
-    });
-    manualRefresh.value++;
-    table.resetRowSelection();
-  }
+function clearSelection() {
+  manualRefresh.value++;
+  table.resetRowSelection();
 }
 
 </script>
@@ -120,6 +110,8 @@ async function onDelete() {
         <MachineMake :set-select="(select) => make = select" />
         <MachineCategory :set-select="(select) => category = select" />
         <Input class="max-w-3xs" placeholder="Model" @update:model-value="(value) => model = value.toString()" />
+        <MachineAddPopover v-on:machine-added="() => manualRefresh++" />
+        <MachineDelete :get-selected-rows="() => table.getSelectedRowModel().flatRows" v-on:machines-deleted="clearSelection" />
       </div>
       <TableAbsolute container-class="border rounded-md">
         <TableHeaderSticky>
