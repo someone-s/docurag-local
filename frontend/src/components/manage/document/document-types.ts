@@ -3,15 +3,8 @@ import { FileSymlinkIcon } from 'lucide-vue-next';
 import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
 import type { ColumnDef } from '@tanstack/vue-table';
 import { h } from 'vue';
+import type { PageMachine } from './machine-types';
 
-
-export interface PageMachine {
-  machineId: number,
-  machineMake: string,
-  machineName: string,
-  machineCategory: string,
-  machineModel: string
-}
 
 export interface PageDocument {
   documentId: number

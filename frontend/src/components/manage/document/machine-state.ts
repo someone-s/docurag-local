@@ -28,11 +28,11 @@ export const fetchAllMachine = async (
   return {
     machines: machines.map(obj => {
       return {
-        id: obj.id,
-        make: obj.make,
-        name: obj.name,
-        category: obj.category,
-        model: obj.model,
+        machineId: obj.id,
+        machineMake: obj.make,
+        machineName: obj.name,
+        machineCategory: obj.category,
+        machineModel: obj.model,
       }
     })
   }

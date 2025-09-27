@@ -19,39 +19,33 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ref, useTemplateRef, watch, type Ref } from 'vue';
-import { fetchData, type PageDocumentApiResponse } from './document-state';
-import { getColumns, type PageDocument } from './document-types';
+import { fetchData, type PageMachineApiResponse } from './machine-state';
+import { columns, type PageMachine } from './machine-types';
 import { useVirtualizer } from '@tanstack/vue-virtual';
-import MachineFilter from './MachineFilter.vue';
-import DocumentProgress from './progress/DocumentProgress.vue';
 import axios from 'axios';
 import { toast } from 'vue-sonner';
-import DocumentAddPopover from './add/DocumentAddPopover.vue';
-import { Button } from '@/components/ui/button';
-import { Minus } from 'lucide-vue-next';
+import MachineMake from '../filter/MachineMake.vue';
+import MachineCategory from '../filter/MachineCategory.vue';
+import Input from '@/components/ui/input/Input.vue';
 
-const props = defineProps<{
-  openDocument: (id: number) => void
-}>();
-
-const openDocumentLocal = (id: number) => {
-  props.openDocument(id);
-}
 
 const fetchSize = 50;
 const manualRefresh = ref(0);
-const machineIds: Ref<number[] | null> = ref(null);
+
+const make: Ref<string|null> = ref(null);
+const category: Ref<string|null> = ref(null);
+const model: Ref<string> = ref('');
 
 const {
   data,
   fetchNextPage,
   hasNextPage,
   isFetching
-} = useInfiniteQuery<PageDocumentApiResponse>({
-  queryKey: ['pageDocument', machineIds, manualRefresh],
+} = useInfiniteQuery<PageMachineApiResponse>({
+  queryKey: ['pageMachine', make, category, model, manualRefresh],
   queryFn: async ({ pageParam = 0 }) => {
     const start = (pageParam as number) * fetchSize;
-    const fetchedData = await fetchData(start, fetchSize, machineIds.value);
+    const fetchedData = await fetchData(start, fetchSize, make.value, category.value, model.value);
     return fetchedData;
   },
   initialPageParam: 0,
@@ -60,7 +54,7 @@ const {
   placeholderData: keepPreviousData,
 });
 
-const flatdata: Ref<PageDocument[]> = ref(data.value?.pages.flatMap(page => page.data) ?? []);
+const flatdata: Ref<PageMachine[]> = ref(data.value?.pages.flatMap(page => page.data) ?? []);
 watch(data, (current, _) => {
   flatdata.value = current?.pages.flatMap(page => page.data) ?? [];
 });
@@ -75,8 +69,6 @@ watch([tableElement, isFetching, hasNextPage], async ([currentTableElement, curr
   if (scrollHeight - scrollTop - clientHeight < 500 && !currentIsFetching && currentHasNextPage)
     fetchNextPage();
 });
-
-const columns = getColumns(openDocumentLocal);
 
 const table = useVueTable({
   get data() { return flatdata.value },
@@ -100,7 +92,7 @@ const rowVirtualizer = useVirtualizer({
   overscan: 5,
 });
 
-watch(machineIds, (_current, _past) => {
+watch([make, category, model], (_current, _past) => {
   rowVirtualizer.value.scrollToIndex?.(0)
 });
 
@@ -125,12 +117,10 @@ async function onDelete() {
   <div class="size-full relative">
     <div class="absolute top-0 left-0 right-0 bottom-0 p-3 flex flex-col">
       <div class="flex items-center py-4 gap-2 flex-wrap">
-        <MachineFilter :table="table"
-          :set-machines="(machines) => { machineIds = machines ? machines.map(machine => machine.machineId) : null }" />
-        <DocumentAddPopover v-on:document-added="() => manualRefresh++" />
-        <Button @click="() => onDelete()">Delete<Minus class="ml-2 h-4 w-4" /></Button>
+        <MachineMake :set-select="(select) => make = select" />
+        <MachineCategory :set-select="(select) => category = select" />
+        <Input class="max-w-3xs" placeholder="Model" @update:model-value="(value) => model = value.toString()" />
       </div>
-      <DocumentProgress class="mb-2" />
       <TableAbsolute container-class="border rounded-md">
         <TableHeaderSticky>
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
