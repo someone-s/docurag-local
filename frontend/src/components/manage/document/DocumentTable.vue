@@ -24,11 +24,8 @@ import { getColumns, type PageDocument } from './document-types';
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import MachineFilter from './MachineFilter.vue';
 import DocumentProgress from './progress/DocumentProgress.vue';
-import axios from 'axios';
-import { toast } from 'vue-sonner';
 import DocumentAddPopover from './add/DocumentAddPopover.vue';
-import { Button } from '@/components/ui/button';
-import { Minus } from 'lucide-vue-next';
+import DocumentDelete from './delete/DocumentDelete.vue';
 
 const props = defineProps<{
   openDocument: (id: number) => void
@@ -104,19 +101,9 @@ watch(machineIds, (_current, _past) => {
   rowVirtualizer.value.scrollToIndex?.(0)
 });
 
-async function onDelete() {
-  const selectedIds: number[] = table.getSelectedRowModel().flatRows.map(row => row.getValue('documentId'));
-  for (let selectedId of selectedIds) {
-    await axios.post(`http://0.0.0.0:8081/document/delete`, {
-      document_id: selectedId
-    });
-    // no error
-    toast('Document deleted', {
-      description: `Document ${selectedId} deleted`
-    });
-    manualRefresh.value++;
-    table.resetRowSelection();
-  }
+function clearSelection() {
+  manualRefresh.value++;
+  table.resetRowSelection();
 }
 
 </script>
@@ -128,7 +115,7 @@ async function onDelete() {
         <MachineFilter :table="table"
           :set-machines="(machines) => { machineIds = machines ? machines.map(machine => machine.machineId) : null }" />
         <DocumentAddPopover />
-        <Button @click="() => onDelete()">Delete<Minus class="ml-2 h-4 w-4" /></Button>
+        <DocumentDelete :get-selected-rows="() => table.getSelectedRowModel().flatRows" v-on:documents-deleted="clearSelection" />
       </div>
       <DocumentProgress class="mb-2" v-on:progress-complete="() => manualRefresh++" />
       <TableAbsolute container-class="border rounded-md">
