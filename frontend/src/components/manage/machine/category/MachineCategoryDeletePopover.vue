@@ -5,27 +5,27 @@ import axios from 'axios';
 import { toast } from 'vue-sonner';
 
 const props = defineProps<{
-  getCurrentMake: () => string|null,
-  onMakeDeleted: () => void
+  getCurrentCategory: () => string|null,
+  onCategoryDeleted: () => void
 }>();
 
 async function onSubmit() {
 
-  const make = props.getCurrentMake();
+  const category = props.getCurrentCategory();
 
-  if (!make) return;
+  if (!category) return;
 
-  await axios.post(`http://0.0.0.0:8081/machine/make/delete`, {
-    machine_make: make
+  await axios.post(`http://0.0.0.0:8081/machine/category/delete`, {
+    machine_category: category
   }).then(_result => {
-    toast('Make deleted', {
-      description: `Make type ${make} deleted`,
+    toast('Category deleted', {
+      description: `Category type ${category} deleted`,
     });
-    props.onMakeDeleted();
+    props.onCategoryDeleted();
   }).catch(error => {
     if (error.response && error.response.status == 422)
-      toast('Make kept', {
-        description: `Make type ${make} kept as it is inuse`,
+      toast('Category kept', {
+        description: `Category type ${category} kept as it is inuse`,
       });
     else
       console.error(error);

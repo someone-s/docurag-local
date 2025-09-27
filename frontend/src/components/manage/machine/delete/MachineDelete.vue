@@ -39,7 +39,7 @@ async function onDelete() {
 
 <template>
   <Button @click="() => onDelete()" v-bind="$attrs">
-    Delete Machine
+    Delete
     <Minus class="ml-2 h-4 w-4" />
   </Button>
 </template>

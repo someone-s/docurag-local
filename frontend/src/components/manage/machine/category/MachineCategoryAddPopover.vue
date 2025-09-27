@@ -13,29 +13,29 @@ import axios from 'axios';
 import { toast } from 'vue-sonner';
 
 const props = defineProps<{
-  onMakeAdded: (make: string) => void
+  onCategoryAdded: (make: string) => void
 }>();
 
-const make: Ref<string | null> = ref(null);
+const category: Ref<string | null> = ref(null);
 
 
 async function onSubmit() {
 
-  const currentMake = make.value;
+  const currentCategory = category.value;
 
-  if (!currentMake) return;
+  if (!currentCategory) return;
 
-  await axios.post(`http://0.0.0.0:8081/machine/make/add`, {
-    machine_make: currentMake
+  await axios.post(`http://0.0.0.0:8081/machine/category/add`, {
+    machine_category: currentCategory
   }).then(_result => {
-    toast('Make added', {
-      description: `Make type ${currentMake} added`,
+    toast('Category added', {
+      description: `Category type ${currentCategory} added`,
     });
-    props.onMakeAdded(currentMake);
+    props.onCategoryAdded(currentCategory);
   }).catch(error => {
     if (error.response && error.response.status == 422)
-      toast('Make already exists', {
-        description: `Make type ${currentMake} already exist`,
+      toast('Category already exists', {
+        description: `Category type ${currentCategory} already exist`,
       });
     else
       console.error(error);
@@ -55,7 +55,7 @@ async function onSubmit() {
       <div class="flex flex-col gap-3">
         <div class="flex flex-col gap-1">
           <Label>Make</Label>
-          <Input class="max-w-3xs" placeholder="Make" @update:model-value="(value) => make = value.toString()" />
+          <Input class="max-w-3xs" placeholder="Category" @update:model-value="(value) => category = value.toString()" />
         </div>
         <Button @click="onSubmit">
           Create

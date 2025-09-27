@@ -13,23 +13,31 @@ import { onMounted, ref, type Ref } from 'vue';
 
 const props = defineProps<{
   allowUnset: boolean,
-  setSelect: (select: string|null) => void
+  onSelect: (select: string|null) => void
 }>();
 
 const select: Ref<string|null> = ref(null);
 const options: Ref<string[]> = ref([]);
 
-onMounted(async () => {
+async function fetchOptions() {
   const categoryResponse = await axios.get(`http://0.0.0.0:8081/machine/category/list`);
   if (!categoryResponse.data.machine_categories || !Array.isArray(categoryResponse.data.machine_categories)) return;
   const categories: any[] = categoryResponse.data.machine_categories;
   options.value = categories.filter(category => typeof category === 'string');
-});
-
-function onSelect(value: string|null) {
-  select.value = value;
-  props.setSelect(value);
 }
+
+function setSelect(value: string|null) {
+  select.value = value;
+  props.onSelect(value);
+}
+
+onMounted(fetchOptions);
+
+defineExpose({
+  getSelect: () => select.value,
+  setSelect,
+  fetchOptions
+});
 </script>
 
 <template>
@@ -41,9 +49,9 @@ function onSelect(value: string|null) {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent>
-      <DropdownMenuItem v-if="allowUnset" @click="() => onSelect(null)">{{ "Unset" }}</DropdownMenuItem>
+      <DropdownMenuItem v-if="allowUnset" @click="() => setSelect(null)">{{ "Unset" }}</DropdownMenuItem>
       <DropdownMenuSeparator v-if="allowUnset" />
-      <DropdownMenuItem v-for="option in options" @click="() => onSelect(option)">{{ option }}</DropdownMenuItem>
+      <DropdownMenuItem v-for="option in options" @click="() => setSelect(option)">{{ option }}</DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>

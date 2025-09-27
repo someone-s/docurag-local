@@ -31,8 +31,8 @@ defineExpose({
 
 <template>
   <div class="flex flex-row w-full justify-between border rounded-md max-w-screen flex-wrap">
-    <MachineMake :allow-unset="false" variant="ghost" :set-select="onMake" class="w-100 shrink-0"/>
-    <MachineCategory :allow-unset="false" variant="ghost" :set-select="onCategory" class="w-100 shrink-0" />
+    <MachineMake :allow-unset="false" variant="ghost" v-on:select="onMake" class="w-100 shrink-0"/>
+    <MachineCategory :allow-unset="false" variant="ghost" v-on:select="onCategory" class="w-100 shrink-0" />
     <DocumentAddMachineModel ref="modelEl" :set-select="onId" class="grow" />
   </div>
 </template>
