@@ -14,7 +14,7 @@ extract_schema: dict[str,object] = {
     "properties": {
         "sections": {
         "type": "array",
-        "description": "A detailed list of all sections presented in the document",
+        "description": "ALWAYS INCLUDE ALL PAGES FROM THE DOCUMENT! A detailed list of all sections presented in the document",
         "items": {
             "type": "object",
             "properties": {
@@ -24,7 +24,7 @@ extract_schema: dict[str,object] = {
                 },
                 "text": {
                     "type": "string",
-                    "description": "Extract word for word all sentences from the section; additionally, add text desciption of images in the section."
+                    "description": "ALWAYS FILL WITH TEXT FROM THE DOCUMENT! Extract word for word all sentences from the section; additionally, add text desciption of images in the section."
                 },
                 "startPage": {
                     "type": "integer",
