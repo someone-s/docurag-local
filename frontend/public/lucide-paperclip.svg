@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   fill="none"
+   stroke="currentColor"
+   stroke-width="2"
+   stroke-linecap="round"
+   stroke-linejoin="round"
+   class="lucide lucide-paperclip-icon lucide-paperclip"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="lucide-paperclip.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <linearGradient
+       id="linearGradient2"
+       inkscape:collect="always">
+      <stop
+         style="stop-color:#0c49cc;stop-opacity:1;"
+         offset="0"
+         id="stop2" />
+      <stop
+         style="stop-color:#004671;stop-opacity:1;"
+         offset="0.29242471"
+         id="stop4" />
+      <stop
+         style="stop-color:#3555de;stop-opacity:1;"
+         offset="0.45300576"
+         id="stop6" />
+      <stop
+         style="stop-color:#b46dc2;stop-opacity:1;"
+         offset="0.62981796"
+         id="stop5" />
+      <stop
+         style="stop-color:#51c3ff;stop-opacity:1;"
+         offset="0.83537185"
+         id="stop7" />
+      <stop
+         style="stop-color:#019dff;stop-opacity:1;"
+         offset="1"
+         id="stop3" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2"
+       id="linearGradient3"
+       x1="9.0353136"
+       y1="24"
+       x2="17.516878"
+       y2="0.92871207"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="12.256518"
+     inkscape:cx="7.7509782"
+     inkscape:cy="-1.6317849"
+     inkscape:window-width="1920"
+     inkscape:window-height="1019"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <path
+     d="m 16,6 -8.414,8.586 c -1.8859992,1.885999 0.9430008,4.714999 2.829,2.829 L 18.829,8.829 C 22.600332,5.0576683 16.943332,-0.5993317 13.172,3.172 l -8.379,8.551 c -5.74936348,5.656475 2.828525,14.234363 8.485,8.485 l 8.379,-8.551"
+     id="path1"
+     style="stroke:url(#linearGradient3)"
+     sodipodi:nodetypes="cccccccc" />
+</svg>
