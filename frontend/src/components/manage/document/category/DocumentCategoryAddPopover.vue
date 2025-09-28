@@ -54,7 +54,7 @@ async function onSubmit() {
     <PopoverContent class="w-fit max-w-screen flex flex-col">
       <div class="flex flex-col gap-3">
         <div class="flex flex-col gap-1">
-          <Label>Make</Label>
+          <Label>Category</Label>
           <Input class="max-w-3xs" placeholder="Category" @update:model-value="(value) => category = value.toString()" />
         </div>
         <Button @click="onSubmit">
