@@ -10,8 +10,16 @@ A web application using a mixture of local model and OpenAI API to perform Retri
     - Documents and their embeddings are stored persistently in Postgres. Embeds are generated once per file and reused for any future query
 - Expandable categories 📋
     - Categories and makes can be expanded to support new document and machine types directly from the frontend.
+
+## Small things
 - Processing status 🛎
-    - While documents are being processed and added to the system, the frontend shows in-progress files in-sync with the backend, letting the user know the progress of any file upload clearly.
+    - While documents are being processed and added to the system, the frontend shows in-progress files in-sync with the backend (using websockets), letting the user know the progress of any file upload clearly.
+- Light/Dark mode 🌤
+    - Light mode darkmode support based upon Shadcn-Vue implementation
+- Resizable windows 🪟
+    - PDF viewer can be resized dynamically for optimal size based on user preference
+- Pagination and infinite-scrolling 📜
+    - Both the machine and document list loads entries in 50 item chunks, using Tanstack Query, Table and Virtualizer to achieve the functionality. (This is a bit overkill for the use case)
 
 ## Screenshots
 Query | Machines | Documents
