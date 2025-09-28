@@ -10,11 +10,11 @@ import { ref, useTemplateRef } from 'vue';
 import DocumentAddMachine from './DocumentAddMachine.vue';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import axios from 'axios';
 import DocumentAddDocumentCategory from './DocumentAddDocumentCategory.vue';
 import { toast } from 'vue-sonner';
 import DocumentCategoryAddPopover from '../category/DocumentCategoryAddPopover.vue';
 import DocumentCategoryDeletePopover from '../category/DocumentCategoryDeletePopover.vue';
+import { axiosInstance } from '@/components/network-instance';
 
 
 const machineCount = ref(1);
@@ -37,7 +37,7 @@ async function onSubmit() {
   if (!category)
     return;
 
-  await axios.postForm(`http://0.0.0.0:8081/document/upload`, {
+  await axiosInstance.postForm(`/document/upload`, {
     machine_ids_str: machines.join(','),
     document_category: category,
     file: files[0]

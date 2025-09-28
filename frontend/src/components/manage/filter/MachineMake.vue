@@ -8,8 +8,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Button from '@/components/ui/button/Button.vue';
 import { ChevronDown } from 'lucide-vue-next';
-import axios from 'axios';
 import { onMounted, ref, type Ref } from 'vue';
+import { axiosInstance } from '@/components/network-instance';
 
 const props = defineProps<{
   allowUnset: boolean,
@@ -20,7 +20,7 @@ const select: Ref<string|null> = ref(null);
 const options: Ref<string[]> = ref([]);
 
 async function fetchOptions() {
-  const makeResponse = await axios.get(`http://0.0.0.0:8081/machine/make/list`);
+  const makeResponse = await axiosInstance.get(`/machine/make/list`);
   if (!makeResponse.data.machine_makes || !Array.isArray(makeResponse.data.machine_makes)) return;
   const makes: any[] = makeResponse.data.machine_makes;
   options.value = makes.filter(make => typeof make === 'string');

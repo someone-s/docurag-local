@@ -9,8 +9,8 @@ import { Plus } from 'lucide-vue-next';
 import { ref, type Ref } from 'vue';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import axios from 'axios';
 import { toast } from 'vue-sonner';
+import { axiosInstance } from '@/components/network-instance';
 
 const props = defineProps<{
   onCategoryAdded: (make: string) => void
@@ -25,7 +25,7 @@ async function onSubmit() {
 
   if (!currentCategory) return;
 
-  await axios.post(`http://0.0.0.0:8081/machine/category/add`, {
+  await axiosInstance.post(`/machine/category/add`, {
     machine_category: currentCategory
   }).then(_result => {
     toast('Category added', {

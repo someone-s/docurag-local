@@ -9,7 +9,6 @@ import { Plus } from 'lucide-vue-next';
 import { ref, useTemplateRef, type Ref } from 'vue';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import axios from 'axios';
 import { toast } from 'vue-sonner';
 import MachineMake from '../../filter/MachineMake.vue';
 import MachineCategory from '../../filter/MachineCategory.vue';
@@ -17,6 +16,7 @@ import MachineMakeAddPopover from '../make/MachineMakeAddPopover.vue';
 import MachineMakeDeletePopover from '../make/MachineMakeDeletePopover.vue';
 import MachineCategoryAddPopover from '../category/MachineCategoryAddPopover.vue';
 import MachineCategoryDeletePopover from '../category/MachineCategoryDeletePopover.vue';
+import { axiosInstance } from '@/components/network-instance';
 
 const props = defineProps<{
   onMachineAdded: () => void
@@ -35,7 +35,7 @@ async function onSubmit() {
   if (!category.value) return;
   if (!model.value) return;
 
-  await axios.post(`http://0.0.0.0:8081/machine/add`, {
+  await axiosInstance.post(`/machine/add`, {
     make: make.value,
     name: name.value,
     category: category.value,

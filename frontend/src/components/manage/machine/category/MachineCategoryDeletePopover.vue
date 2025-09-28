@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue';
 import { Minus } from 'lucide-vue-next';
-import axios from 'axios';
 import { toast } from 'vue-sonner';
+import { axiosInstance } from '@/components/network-instance';
 
 const props = defineProps<{
   getCurrentCategory: () => string|null,
@@ -15,7 +15,7 @@ async function onSubmit() {
 
   if (!category) return;
 
-  await axios.post(`http://0.0.0.0:8081/machine/category/delete`, {
+  await axiosInstance.post(`/machine/category/delete`, {
     machine_category: category
   }).then(_result => {
     toast('Category deleted', {

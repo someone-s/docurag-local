@@ -7,8 +7,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Button from '@/components/ui/button/Button.vue';
 import { ChevronDown } from 'lucide-vue-next';
-import axios from 'axios';
 import { ref, type Ref } from 'vue';
+import { axiosInstance } from '@/components/network-instance';
 
 interface Option {
   id: number,
@@ -37,7 +37,7 @@ const updateOptions = async (currentMake: string | null, currentCategory: string
     params.machine_make = currentMake;
     params.machine_category = currentCategory;
 
-    const machineResponse = await axios.get(`http://0.0.0.0:8081/machine/search`, { params: params });
+    const machineResponse = await axiosInstance.get(`/machine/search`, { params: params });
     if (!machineResponse.data.machines || !Array.isArray(machineResponse.data.machines)) return;
     const machines: any[] = machineResponse.data.machines;
     options.value = machines

@@ -1,0 +1,66 @@
+services:
+
+  chunk:  # internal port is 8080
+    build: ./chunk
+    container_name: chunk
+    env_file:
+      - path: huggingface-key.env
+      - path: model-setting.env # Uses MODEL_ID, MAX_SIZE, PAD_LEFT
+      
+  embed:  # internal port is 80
+    image: ghcr.io/huggingface/text-embeddings-inference:turing-1.8
+    container_name: embed
+    volumes: # Volumne for data return after restart
+      - embed_data:/data
+    env_file:
+      - path: huggingface-key.env
+      - path: model-setting.env # Uses MODEL_ID, DTYPE
+      - path: hardware-setting.env # MAX_CLIENT_BATCH_SIZE, MAX_BATCH_TOKENS
+    deploy: 
+      resources: 
+        reservations: 
+          devices: 
+          - driver: nvidia 
+            count: all 
+            capabilities: [gpu]
+
+  store:  # internal port is 5432
+    image: pgvector/pgvector:pg17  # Prebuilt Postgres image with pgvector
+    container_name: store
+    env_file:
+      - path: postgres-setting.env # Uses POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+    volumes: # Volumne for data return after restart
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+  
+  backend:  # internal port is 8080
+    build: ./backend
+    container_name: backend
+    environment:
+      CHUNK_SERVICEORIP: chunk
+      CHUNK_PORT: 8080
+      EMBED_SERVICEORIP: embed
+      EMBED_PORT: 80
+      EMBED_BATCH_SIZE: 32
+      POSTGRES_SERVICEORIP: store
+      POSTGRES_PORT: 5432
+    env_file:
+      - path: openai-key.env
+      - path: model-setting.env # Uses VECTOR_DIM
+      - path: postgres-setting.env # Uses POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+      - path: backend-setting.env # Uses FRONTEND_ORIGIN
+  
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - 80:80 # expose port 80 to outside world
+
+volumes:
+  postgres_data:
+  embed_data:

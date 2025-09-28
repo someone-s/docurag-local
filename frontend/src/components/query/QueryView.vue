@@ -8,12 +8,12 @@ import {
 import PDFViewer from '@/components/pdf/PDFViewer.vue';
 import type { PDFDocument } from '@/components/pdf/pdf-types';
 import ChatColumn from '@/components/chat/ChatColumn.vue';
-import axios from 'axios';
 import { onUnmounted, useTemplateRef } from 'vue';
 import { QueryState } from './query-state';
 import { QueryFilter } from './query-filter';
 import type { ChatOptions } from '../chat/chat-types';
 import LayoutHeader from '../layout/LayoutHeader.vue';
+import { axiosInstance } from '../network-instance';
 
 const documents: PDFDocument[] = [];
 
@@ -24,7 +24,7 @@ async function fetchDocument(id: number, name: string) {
     if (documents.some(document => document.id == id)) return;
 
 
-    const listResponse = await axios.get(`http://0.0.0.0:8081/document/fetch/${id}`,
+    const listResponse = await axiosInstance.get(`/document/fetch/${id}`,
       {
         responseType: 'arraybuffer',
         headers: {

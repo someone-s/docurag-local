@@ -6,10 +6,10 @@ import {
 } from '@/components/ui/resizable'
 import LayoutHeader from '@/components/layout/LayoutHeader.vue';
 import type { PDFDocument } from '@/components/pdf/pdf-types';
-import axios from 'axios';
 import PDFViewer from '@/components/pdf/PDFViewer.vue';
 import DocumentTable from './DocumentTable.vue';
 import { useTemplateRef } from 'vue';
+import { axiosInstance } from '@/components/network-instance';
 
 const documents: PDFDocument[] = [];
 
@@ -20,7 +20,7 @@ const fetchDocument = async (id: number) => {
     if (documents.some(document => document.id == id)) return;
 
 
-    const listResponse = await axios.get(`http://0.0.0.0:8081/document/fetch/${id}`,
+    const listResponse = await axiosInstance.get(`/document/fetch/${id}`,
       {
         responseType: 'arraybuffer',
         headers: {

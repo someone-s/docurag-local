@@ -1,5 +1,5 @@
+import { axiosInstance } from "@/components/network-instance"
 import type { PageMachine } from "./machine-types"
-import axios from "axios"
 
 export type PageMachineApiResponse = {
   data: PageMachine[]
@@ -23,7 +23,7 @@ export const fetchData = async (
   if (modelPartial)
     params.machine_model = modelPartial;
 
-  const response = await axios.get('http://0.0.0.0:8081/machine/search', {
+  const response = await axiosInstance.get('/machine/search', {
     params: params
   });
 

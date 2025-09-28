@@ -3,7 +3,7 @@ import { ChevronsUpDown, Search } from "lucide-vue-next"
 import { onMounted, ref, watch, type Ref } from "vue"
 import { Button } from "@/components/ui/button"
 import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxList, ComboboxTrigger } from "@/components/ui/combobox"
-import axios from "axios"
+import { axiosInstance } from "@/components/network-instance"
 
 interface OptionPair {
   model: string,
@@ -29,7 +29,7 @@ const update = async (currentMake: string | null, currentCategory: string | null
     params.machine_make = currentMake;
     params.machine_category = currentCategory;
 
-    const machineResponse = await axios.get(`http://0.0.0.0:8081/machine/search`, { params: params });
+    const machineResponse = await axiosInstance.get(`/machine/search`, { params: params });
     if (!machineResponse.data.machines || !Array.isArray(machineResponse.data.machines)) return;
     const machines: any[] = machineResponse.data.machines;
     options.value = machines

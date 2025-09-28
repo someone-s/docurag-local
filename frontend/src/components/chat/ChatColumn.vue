@@ -40,7 +40,7 @@ watch(props.block, (val) => {
 })
 
 function onSubmit() {
-  if (queryInput.value == null) return;
+  if (!queryInput.value || !queryInput.value.textContent) return;
   if (queryInput.value.textContent.length < 1) return;
   queryInput.value.textContent = queryInput.value.textContent.substring(0, queryInput.value.textContent.length);
 

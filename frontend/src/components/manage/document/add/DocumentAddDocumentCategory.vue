@@ -7,8 +7,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Button from '@/components/ui/button/Button.vue';
 import { ChevronDown } from 'lucide-vue-next';
-import axios from 'axios';
 import { onMounted, ref, type Ref } from 'vue';
+import { axiosInstance } from '@/components/network-instance';
 
 
 const select: Ref<string|null> = ref(null);
@@ -17,7 +17,7 @@ const options: Ref<string[]> = ref([]);
 onMounted(fetchOptions);
 
 async function fetchOptions() {
-  const categoryResponse = await axios.get(`http://0.0.0.0:8081/document/category/list`);
+  const categoryResponse = await axiosInstance.get(`/document/category/list`);
   if (!categoryResponse.data.document_categories || !Array.isArray(categoryResponse.data.document_categories)) return;
   const categories: any[] = categoryResponse.data.document_categories;
   options.value = categories.filter(category => typeof category === 'string');

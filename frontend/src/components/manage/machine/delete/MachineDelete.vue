@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue';
 import { Minus } from 'lucide-vue-next';
-import axios from 'axios';
 import { toast } from 'vue-sonner';
 import type { PageMachine } from '../machine-types';
 import type { Row } from '@tanstack/vue-table';
+import { axiosInstance } from '@/components/network-instance';
 
 const props = defineProps<{
   getSelectedRows: () => Row<PageMachine>[],
@@ -14,7 +14,7 @@ const props = defineProps<{
 async function onDelete() {
   const selectedIds: number[] = props.getSelectedRows().map(row => row.getValue('machineId'));
   for (let selectedId of selectedIds) {
-    await axios.post(`http://0.0.0.0:8081/machine/delete`, {
+    await axiosInstance.post(`/machine/delete`, {
       machine_id: selectedId
     })
       .then(_response => {

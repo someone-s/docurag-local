@@ -1,6 +1,7 @@
 import type { ChatEntry, ChatSegment, ChatReference } from "@/components/chat/chat-types";
 import { parse, Allow } from "partial-json";
 import { ref, type Ref } from "vue";
+import { getQuerySocket } from "../network-instance";
 
 class QueryState {
 
@@ -89,7 +90,7 @@ class QueryState {
     if (this.connecting) return;
     this.connecting = true;
 
-    const newSocket = new WebSocket("ws://0.0.0.0:8081/query");
+    const newSocket = getQuerySocket();
     const obj = this;
     this.activeSocket = null;
     newSocket.addEventListener('open', _ => {

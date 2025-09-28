@@ -1,5 +1,5 @@
+import { axiosInstance } from "@/components/network-instance"
 import type { PageDocument } from "./document-types"
-import axios from "axios"
 
 export type PageDocumentApiResponse = {
   data: PageDocument[]
@@ -22,7 +22,7 @@ export const fetchData = async (
   if (machine_ids != null)
     params.machine_ids_string = machine_ids.join(',');
 
-  const response = await axios.get('http://0.0.0.0:8081/document/search', {
+  const response = await axiosInstance.get('/document/search', {
     params: params
   });
 

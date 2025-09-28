@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import { getStatusSocket } from '@/components/network-instance';
 import { cn } from '@/lib/utils';
 // @ts-expect-error
 import { SelfBuildingSquareSpinner } from 'epic-spinners';
@@ -19,7 +20,7 @@ const progresses: Ref<Progress[]> = ref([]);
 let newSocket: WebSocket;
 
 onMounted(() => {
-  newSocket = new WebSocket("ws://0.0.0.0:8081/document/upload/status");
+  newSocket = getStatusSocket();
   newSocket.addEventListener('message', (event: MessageEvent) => {
     const json = JSON.parse(event.data);
     switch (json.type) {
