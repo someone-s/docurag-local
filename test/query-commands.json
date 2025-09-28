@@ -1,5 +1,0 @@
-[
-    {"type": "data", "parameter": "machine_make", "value": "zanussi"},
-    {"type": "command", "action": "generate", "query": "What settings should I use with the dishwasher full?"},
-    {"type": "command", "action": "exit"}
-]
