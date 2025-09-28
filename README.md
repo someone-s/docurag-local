@@ -1,11 +1,31 @@
+# DocuRAG
+A web application using a mixture of local model and OpenAI API to perform Retrieval Augmentated Generation. Include persistent document storage and management and integrated PDF viewer using PDFEmbed and linking to PDF document using custom prompting.
+
+## Highlights
+- Link to document source 🔗
+    - Response from the system provide a reference to the source document, which the user can quick on to immediately open up the relevant page
+- Query constraint 🔎
+    - Users can optionally specify a specific machine, category and/or model relevant to their questions. With only relevant documents used in respond.
+- Document management 📂
+    - Documents and their embeddings are stored persistently in Postgres. Embeds are generated once per file and reused for any future query
+- Expandable categories 📋
+    - Categories and makes can be expanded to support new document and machine types directly from the frontend.
+- Processing status 🛎
+    - While documents are being processed and added to the system, the frontend shows in-progress files in-sync with the backend, letting the user know the progress of any file upload clearly.
+
+## Screenshots
+Query | Machines | Documents
+-----:|:-----:|:-----
+![Query Page](/readme/QueryPage.png) | ![Machine Page](/readme/MachinePage.png) | ![Document Page](/readme/DocumentPage.png)
+
 ## Setup
-1. ### Create ```openai-key.env```
+1. Create ```openai-key.env```
     - Create the file in the same directory as docker-compose-*.yml
     - Contents of the file should contain one line:  ```OPENAI_API_KEY=YoUrOpenAIApIKEy```
-2. ### Create ```huggingface-key.env```
+2. Create ```huggingface-key.env```
     - Create the file in the same directory as docker-compose-*.yml
     - Contents of the file should contain one line: ```HF_TOKEN=yoURhFTokeN```
-3. ### Update ```docker-compose-dev-no-frontend.yml``` and ```docker-compose-prod.yml```
+3. Update ```docker-compose-dev-no-frontend.yml``` and ```docker-compose-prod.yml```
     - Install Nvidia Container Toolkit, following the link in [this hugging face guide.](https://huggingface.co/docs/text-embeddings-inference/en/supported_models#supported-hardware)
     - Ensure the current Docker context is the one with Nvidia container toolkit linked
       - If ```docker info | grep Runtimes``` does not contain ```nvidia```, you will need to either switch Docker context or check the Nvidia Toolkit was installed correctly
@@ -37,3 +57,6 @@ docker compose up -f docker-compose-prod.yml
 ```
 - Access frontend from ```http://localhost:80```
 - Backend and Postgres are both inaccessible
+
+## Extra Fluff
+No AI code editor (i.e. Cursor) was used to make this, since I am actually trying to refresh my skills.
