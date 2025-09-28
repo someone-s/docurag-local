@@ -65,6 +65,3 @@ docker compose up -f docker-compose-prod.yml
 ```
 - Access frontend from ```http://localhost:80```
 - Backend and Postgres are both inaccessible
-
-## Extra Fluff
-No AI code editor (i.e. Cursor) was used to make this, since I am actually trying to refresh my skills.
