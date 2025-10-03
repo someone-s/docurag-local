@@ -1,4 +1,5 @@
-# DocuRAG
+![Logo](/readme/logo.svg)
+
 A web application using a mixture of local model and OpenAI API to perform Retrieval Augmentated Generation. Include persistent document storage and management and integrated PDF viewer using PDFEmbed and linking to PDF document using custom prompting.
 
 ## Highlights
