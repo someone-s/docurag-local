@@ -28,11 +28,10 @@ Query | Machines | Documents
 
 
 ## Demo
-Adding a machine/document  |  Switching machine mid query
---------------------------:|:-----------------------------
-![Adding Document](https://github.com/user-attachments/assets/dc48e923-65d1-434d-b6f2-0674b75b0da0) | ![Switching Document](https://github.com/user-attachments/assets/49d2df41-6089-417b-8d40-57e4bf9dd128)
 
+https://github.com/user-attachments/assets/9eb4c811-7f8d-4955-b63b-4ebe30ab6f0d
 
+https://github.com/user-attachments/assets/81fa8090-266a-4e5e-b896-59d3407b2500
 
 
 ## Setup
