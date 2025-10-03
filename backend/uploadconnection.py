@@ -32,7 +32,7 @@ extract_schema: dict[str,object] = {
                 },
                 "endPage": {
                     "type": "integer",
-                    "description": "The last page where the section appears, ignoring appearance in any index page. This is unrelated to the section number"
+                    "description": "The last page where the section appears, ignoring appearance in any index page. This is unrelated to the section number."
                 }
             },
             "required": [
