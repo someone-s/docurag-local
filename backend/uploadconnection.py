@@ -24,7 +24,7 @@ extract_schema: dict[str,object] = {
                 },
                 "text": {
                     "type": "string",
-                    "description": "ALWAYS FILL WITH TEXT FROM THE DOCUMENT! Extract word for word all sentences from the section; additionally, add text desciption of images in the section."
+                    "description": "ALWAYS FILL WITH TEXT FROM THE DOCUMENT! Extract word for word all sentences from the section; additionally, add text description of images in the section."
                 },
                 "startPage": {
                     "type": "integer",
