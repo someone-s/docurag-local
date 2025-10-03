@@ -30,7 +30,10 @@ Query | Machines | Documents
 ## Demo
 Adding a machine/document  |  Switching machine mid query
 --------------------------:|:-----------------------------
-![Adding Document](/readme/AddingDocument.mp4) | ![Switching Document](/readme/SwitchingDocument.mp4)
+![Adding Document](https://github.com/user-attachments/assets/dc48e923-65d1-434d-b6f2-0674b75b0da0) | ![Switching Document](https://github.com/user-attachments/assets/49d2df41-6089-417b-8d40-57e4bf9dd128)
+
+
+
 
 ## Setup
 1. Create ```openai-key.env```
