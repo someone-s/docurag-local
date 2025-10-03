@@ -26,6 +26,12 @@ Query | Machines | Documents
 -----:|:-----:|:-----
 ![Query Page](/readme/QueryPage.png) | ![Machine Page](/readme/MachinePage.png) | ![Document Page](/readme/DocumentPage.png)
 
+
+## Demo
+Adding a machine/document  |  Switching machine mid query
+--------------------------:|:-----------------------------
+![Adding Document](/readme/AddingDocument.mp4) | ![Switching Document](/readme/SwitchingDocument.mp4)
+
 ## Setup
 1. Create ```openai-key.env```
     - Create the file in the same directory as docker-compose-*.yml
