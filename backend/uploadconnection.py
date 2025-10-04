@@ -13,37 +13,37 @@ extract_schema: dict[str,object] = {
     "type": "object",
     "properties": {
         "sections": {
-        "type": "array",
-        "description": "ALWAYS INCLUDE ALL PAGES FROM THE DOCUMENT! A detailed list of all sections presented in the document",
-        "items": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "The name of the section"
+            "type": "array",
+            "description": "ALWAYS INCLUDE ALL PAGES FROM THE DOCUMENT! A detailed list of all sections presented in the document",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the section"
+                    },
+                    "text": {
+                        "type": "string",
+                        "description": "ALWAYS FILL WITH TEXT FROM THE DOCUMENT! Extract word for word all sentences from the section; additionally, add text description of images in the section."
+                    },
+                    "startPage": {
+                        "type": "integer",
+                        "description": "The first page where the section begins, ignoring appearance in any index page. This is unrelated to the section number."
+                    },
+                    "endPage": {
+                        "type": "integer",
+                        "description": "The last page where the section appears, ignoring appearance in any index page. This is unrelated to the section number."
+                    }
                 },
-                "text": {
-                    "type": "string",
-                    "description": "ALWAYS FILL WITH TEXT FROM THE DOCUMENT! Extract word for word all sentences from the section; additionally, add text description of images in the section."
-                },
-                "startPage": {
-                    "type": "integer",
-                    "description": "The first page where the section begins, ignoring appearance in any index page. This is unrelated to the section number."
-                },
-                "endPage": {
-                    "type": "integer",
-                    "description": "The last page where the section appears, ignoring appearance in any index page. This is unrelated to the section number."
-                }
-            },
-            "required": [
-                "name",
-                "text",
-                "startPage",
-                "endPage"
-            ],
-            "additionalProperties": False
+                "required": [
+                    "name",
+                    "text",
+                    "startPage",
+                    "endPage"
+                ],
+                "additionalProperties": False
+            }
         }
-    }
     },
     "required": [
         "sections"
