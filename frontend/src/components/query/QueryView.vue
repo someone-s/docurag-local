@@ -18,7 +18,7 @@ import { axiosInstance } from '../network-instance';
 const documents: PDFDocument[] = [];
 
 async function fetchDocument(id: number, name: string) {
-  navigator.locks.request('fetchDocument', async (_) => {
+  await navigator.locks.request('fetchDocument', async (_) => {
     if (!Number.isInteger(id)) return;
 
     if (documents.some(document => document.id == id)) return;

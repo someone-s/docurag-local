@@ -14,7 +14,7 @@ import { axiosInstance } from '@/components/network-instance';
 const documents: PDFDocument[] = [];
 
 const fetchDocument = async (id: number) => {
-  navigator.locks.request('fetchDocument', async (_) => {
+  await navigator.locks.request('fetchDocument', async (_) => {
     if (!Number.isInteger(id)) return;
 
     if (documents.some(document => document.id == id)) return;
@@ -39,9 +39,7 @@ const fetchDocument = async (id: number) => {
 const viewer = useTemplateRef('viewer');
 
 const openDocument = async (id: number) => {
-  console.log(id);
   await fetchDocument(id);
-  await new Promise((resolve) => setTimeout(resolve, 500));
   await viewer.value?.goToDocument(id);
 }
 
