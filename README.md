@@ -57,7 +57,7 @@ https://github.com/user-attachments/assets/81fa8090-266a-4e5e-b896-59d3407b2500
 ## Development Run
 ```
 cd ROOT_OF_THE_REPO
-docker compose up -f docker-compose-dev-no-frontend.yml
+docker compose -f docker-compose-dev-no-frontend.yml up
 -> (or use vscode F1 -> Container: Compose Up)
 
 cd ROOT_OF_THE_REPO/frontend
@@ -69,7 +69,7 @@ npm run dev
 
 ## Production Run
 ```
-docker compose up -f docker-compose-prod.yml
+docker compose -f docker-compose-prod.yml up 
 -> (or use vscode F1 -> Container: Compose Up)
 ```
 - Access frontend from ```http://localhost:80```
